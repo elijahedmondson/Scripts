@@ -6,7 +6,6 @@ runPlugin('qupath.imagej.detect.nuclei.PositiveCellDetection', '{"detectionImage
 //SAVE ANNOTATIONS //
 
 def name = getProjectEntry().getImageName() + '.txt'
-//def path = buildFilePath('P:/archive/PHL/Edmondson/QuPath/Alewine/PHL 190380/', 'CD4')
 def path = buildFilePath(PROJECT_BASE_DIR, 'CD4')
 mkdirs(path)
 path = buildFilePath(path, name)
