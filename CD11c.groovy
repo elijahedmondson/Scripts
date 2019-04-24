@@ -7,7 +7,7 @@ runPlugin('qupath.imagej.detect.nuclei.PositiveCellDetection', '{"detectionImage
 //SAVE ANNOTATIONS //
 
 def name = getProjectEntry().getImageName() + '.txt'
-def path = buildFilePath('C:/Users/edmondsonef/Desktop/QuPath/Dobrovolskaia/PHL182930/', 'CD11c no class')
+def path = buildFilePath(PROJECT_BASE_DIR, 'CD11c')
 mkdirs(path)
 path = buildFilePath(path, name)
 saveAnnotationMeasurements(path)
