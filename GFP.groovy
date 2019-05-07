@@ -5,7 +5,7 @@ runPlugin('qupath.imagej.detect.nuclei.PositiveCellDetection', '{"detectionImage
 
 //SAVE ANNOTATIONS //
 def name = getProjectEntry().getImageName() + '.txt'
-def path = buildFilePath('C:/Users/edmondsonef/Desktop/QuPath/Alewine/PHL 190357/', 'GFP')
+def path = buildFilePath(PROJECT_BASE_DIR, 'GFP')
 mkdirs(path)
 path = buildFilePath(path, name)
 saveAnnotationMeasurements(path)
