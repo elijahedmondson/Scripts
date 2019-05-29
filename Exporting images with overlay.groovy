@@ -17,7 +17,7 @@ import qupath.lib.regions.RegionRequest
 import qupath.lib.scripting.QPEx
 
 // Aim for an output resolution of approx 20 ?m/pixel
-double requestedPixelSize = 5
+double requestedPixelSize = 10
 
 // Create the output directory, if required
 def path = QPEx.buildFilePath(QPEx.PROJECT_BASE_DIR, "Image masks")
