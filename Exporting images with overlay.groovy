@@ -39,8 +39,8 @@ def request = RegionRequest.createInstance(imageData.getServerPath(), downsample
 
 // Write output image, with and without overlay
 def dir = new File(path)
-def fileImage = new File(dir, name + ".jpg")
+def fileImage = new File(dir, name + ".tif")
 def img = ImageWriterTools.writeImageRegion(server, request, fileImage.getAbsolutePath())
-def fileImageWithOverlay = new File(dir, name + "-overlay.jpg")
+def fileImageWithOverlay = new File(dir, name + "-overlay.tif")
 ImageWriterTools.writeImageRegionWithOverlay(img, imageData, overlayOptions, request, fileImageWithOverlay.getAbsolutePath())
 print("Done")
