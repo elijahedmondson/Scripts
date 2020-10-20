@@ -24,3 +24,6 @@ def labelServer = new LabeledImageServer.Builder(imageData)
 
 // Write the image
 writeImage(labelServer, path)
+
+
+
