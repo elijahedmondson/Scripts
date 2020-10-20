@@ -16,7 +16,7 @@ def cells = getCellObjects()
 def builder = Charts.scatterChart()
     .viewer(viewer)
     .title('My scatterplot')
-    .measurements(cells, 'Nucleus: Area', 'Nucleus: DAB OD mean')
+    .measurements(cells, 'Nucleus: Area', 'Cell: DAB OD mean')
     .markerOpacity(0.5)
     .show()
 
