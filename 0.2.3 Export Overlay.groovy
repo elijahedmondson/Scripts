@@ -24,7 +24,7 @@ import static qupath.lib.gui.scripting.QPEx.*
 double downsample = 20
 
 // Add the output file path here
-String path = buildFilePath(PROJECT_BASE_DIR, 'rendered', getProjectEntry().getImageName() + '.png')
+String path = buildFilePath(PROJECT_BASE_DIR, 'QC image', getProjectEntry().getImageName() + '.png')
 
 // Request the current viewer for settings, and current image (which may be used in batch processing)
 def viewer = getCurrentViewer()
