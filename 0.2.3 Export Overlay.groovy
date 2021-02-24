@@ -11,6 +11,11 @@
  *
  * @author Pete Bankhead
  */
+def minArea = 100.0 // To change
+def minHoleArea = 100.0 // To change
+
+//createDetectionsFromPixelClassifier("necrosis", minArea, minHoleArea)
+//addPixelClassifierMeasurements("RT.lung.glass.tumor", "RT.lung.glass.tumor")
 
 import qupath.imagej.tools.IJTools
 import qupath.lib.gui.images.servers.RenderedImageServer
@@ -24,7 +29,7 @@ import static qupath.lib.gui.scripting.QPEx.*
 double downsample = 20
 
 // Add the output file path here
-String path = buildFilePath(PROJECT_BASE_DIR, 'QC image', getProjectEntry().getImageName() + '.png')
+String path = buildFilePath(PROJECT_BASE_DIR, 'ImageQC', getProjectEntry().getImageName() + 'HE')
 
 // Request the current viewer for settings, and current image (which may be used in batch processing)
 def viewer = getCurrentViewer()
@@ -42,3 +47,5 @@ if (path != null) {
     writeImage(server, path)
 } else
     IJTools.convertToImagePlus(server, RegionRequest.createInstance(server)).getImage().show()
+    
+    print "Image exported!"    
