@@ -27,14 +27,20 @@ library(Rmisc)
 ###
 ### Then load in your file
 ###
-pheno <- read_excel("C:/Users/edmondsonef/Desktop/16-306 Animal Data.xlsx")
 
 ###
 ###Then create your survival model
 ###
+surv_object = Surv(time = data$Days, event = data$Group)
 
-sarcoma.fit <- survfit(Surv(pheno$age, pheno$Sarcoma) ~ pheno$'Group', data = pheno)
-HN.fit <- survfit(Surv(pheno$age, pheno$Hematopoietic) ~ pheno$'Group', data = pheno)
+# Regress on a constant
+fit <- survfit(surv_object ~ 1)
+
+# Plot the fit
+ggsurvplot(fit, data.frame(time = data$Days, event = data$Group), conf.int=FALSE)
+
+sarcoma.fit <- survfit(Surv(data$Days, data$Sex) ~ pheno$'Group', data = data)
+HN.fit <- survfit(Surv(data$Days, pheno$Hematopoietic) ~ pheno$'Group', data = pheno)
 
 ###
 ### Visualize with survminer
@@ -61,9 +67,9 @@ ggsurvplot(HN.fit, data = pheno, risk.table = TRUE, conf.int = F, pval= T)
 ### Other code
 ###
 
-newdata <- subset(pheno, pheno$`Parathyroid Adenoma`=='1')
-fit2 <- survfit(Surv(days) ~ groups, data = newdata)
-ggsurvplot(fit2, data = newdata, risk.table = TRUE, conf.int = F, pval= T)
+
+fit2 <- survfit(Surv(Days, data$'Pulmonary carcinoma') ~ Groups, data = data)
+ggsurvplot(fit2, data = data, risk.table = TRUE, conf.int = F, pval= T)
 print(fit2, print.rmean=TRUE)
 
 rm(fit2)
@@ -79,8 +85,8 @@ ggsurvplot(fit, data = data, risk.table = TRUE, conf.int = F, pval= T)
 
 
 
-newdata <- subset(data, data$`Parathyroid Adenoma`=='1')
-fit2 <- survfit(Surv(days) ~ groups, data = newdata)
+newdata <- subset(data, data$'Proliferative Pulmonary Lesions'=='1')
+fit2 <- survfit(Surv(Days) ~ Groups, data = newdata)
 ggsurvplot(fit2, data = newdata, risk.table = TRUE, conf.int = F, pval= T)
 print(fit2, print.rmean=TRUE)
 

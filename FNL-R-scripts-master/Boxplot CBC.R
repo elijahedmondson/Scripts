@@ -1,3 +1,5 @@
+###File
+data <- read_excel("C:/Users/edmondsonef/Desktop/ADME Tox 189.xlsx", sheet = "CBC")
 
 library(ggplot2)
 library(gridExtra)
@@ -5,23 +7,22 @@ library(readxl)
 library(ggpubr)
 
 ###Generate Data
-
 ### WBC  
 my_mean = aggregate(data$WBC, by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
 my_CI = aggregate(data$WBC , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 my_info$ref.low = c(2.71)
-my_info$ref.hi = c(12.33)
+my_info$ref.hi = c(17.14)
 
 ### WBC Plot
 WBC <- ggplot(data) + 
-  scale_y_continuous(name = "White Blood Cells") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_jitter(aes(x = Group, y = data$WBC, color = data$Group), width = 0.1)+
+  scale_y_continuous(name = "White Blood Cells") +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
-  geom_jitter(aes(x = Group, y = data$WBC, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 8), legend.position="none")
 
@@ -32,16 +33,16 @@ my_CI = aggregate(data$NE , by=list(data$Group) , FUN = function(x) t.test(x)$co
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 my_info$ref.low = c(0.46)
-my_info$ref.hi = c(6.04)
+my_info$ref.hi = c(9.29)
 
 ### Nuetrophils plot
 NE <- ggplot(data) + 
-  scale_y_continuous(name = "Neutrophils") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_jitter(aes(x = Group, y = data$NE, color = data$Group), width = 0.1)+
+  scale_y_continuous(name = "Neutrophils") +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
-  geom_jitter(aes(x = Group, y = data$NE, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 8), legend.position="none")
 
@@ -52,16 +53,16 @@ my_CI = aggregate(data$LY , by=list(data$Group) , FUN = function(x) t.test(x)$co
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 my_info$ref.low = c(1.25)
-my_info$ref.hi = c(6.99)
+my_info$ref.hi = c(9.86)
 
 ### Lymphocyes plot
 LY <- ggplot(data) + 
-  scale_y_continuous(name = "Lymphocyes") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_jitter(aes(x = Group, y = data$LY, color = data$Group), width = 0.1)+
+  scale_y_continuous(name = "Lymphocyes") +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
-  geom_jitter(aes(x = Group, y = data$LY, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 8), legend.position="none")
 
@@ -71,16 +72,16 @@ my_CI = aggregate(data$MO , by=list(data$Group) , FUN = function(x) t.test(x)$co
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 my_info$ref.low = c(0)
-my_info$ref.hi = c(1.04)
+my_info$ref.hi = c(1.63)
 
 ### Monocytes plot
 MO <- ggplot(data) + 
-  scale_y_continuous(name = "Monocytes") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_jitter(aes(x = Group, y = data$MO, color = data$Group), width = 0.1)+
+  scale_y_continuous(name = "Monocytes") +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
-  geom_jitter(aes(x = Group, y = data$MO, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 8), legend.position="none")
 
@@ -90,16 +91,16 @@ my_CI = aggregate(data$EO , by=list(data$Group) , FUN = function(x) t.test(x)$co
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 my_info$ref.low = c(0)
-my_info$ref.hi = c(0.25)
+my_info$ref.hi = c(0.39)
 
 ### Eosinophils plot
 EO <- ggplot(data) + 
-  scale_y_continuous(name = "Eosinophils") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_jitter(aes(x = Group, y = data$EO, color = data$Group), width = 0.1)+
+  scale_y_continuous(name = "Eosinophils") +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
-  geom_jitter(aes(x = Group, y = data$EO, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 8), legend.position="none")
 
@@ -109,16 +110,16 @@ my_CI = aggregate(data$BA , by=list(data$Group) , FUN = function(x) t.test(x)$co
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 my_info$ref.low = c(0)
-my_info$ref.hi = c(0.23)
+my_info$ref.hi = c(0.41)
 
 ### Basophils plot
 BA <- ggplot(data) + 
-  scale_y_continuous(name = "Basophils") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_jitter(aes(x = Group, y = data$BA, color = data$Group), width = 0.1)+
+  scale_y_continuous(name = "Basophils") +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
-  geom_jitter(aes(x = Group, y = data$BA, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 8), legend.position="none")
 
@@ -127,17 +128,17 @@ my_mean = aggregate(data$HCT, by=list(data$Group), mean) ; colnames(my_mean)=c("
 my_CI = aggregate(data$HCT , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
-my_info$ref.low = c(32.4)
-my_info$ref.hi = c(37.5)
+my_info$ref.low = c(29.92)
+my_info$ref.hi = c(57.64)
 
 ### Hematocrit plot
 HCT <- ggplot(data) + 
-  scale_y_continuous(name = "Hematocrit") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_jitter(aes(x = Group, y = data$HCT, color = data$Group), width = 0.1)+
+  scale_y_continuous(name = "Hematocrit") +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
-  geom_jitter(aes(x = Group, y = data$HCT, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 8), legend.position="none")
   
@@ -152,12 +153,12 @@ my_info$ref.hi = c(1444.39)
 
 ### Platelets plot
 PLT <- ggplot(data) + 
-  scale_y_continuous(name = "Platelets") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_jitter(aes(x = Group, y = data$PLT, color = data$Group), width = 0.1)+
+  scale_y_continuous(name = "Platelets") +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
-  geom_jitter(aes(x = Group, y = data$PLT, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 8), legend.position="none")
 
@@ -349,8 +350,8 @@ my_info$ref.hi = c(37.5)
 HCT <- ggplot(data) + 
   scale_y_continuous((name = "Hematocrit"), limits = c(20, 48)) +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
   geom_jitter(aes(x = Group, y = data$HCT, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
@@ -368,8 +369,8 @@ my_info$ref.hi = c(13.1)
 Hb <- ggplot(data) + 
   scale_y_continuous((name = "Hemaglobin"), limits = c(5, 15)) +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
   geom_jitter(aes(x = Group, y = data$Hb, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
@@ -387,8 +388,8 @@ my_info$ref.hi = c(49.8)
 MCV <- ggplot(data) + 
   scale_y_continuous((name = "MCV"), limits = c(42, 52)) +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
   geom_jitter(aes(x = Group, y = data$MCV, color = data$Cells), width = 0.1)+
   theme(axis.text.x=element_text(angle=25,hjust=1)) +

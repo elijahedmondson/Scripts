@@ -5,17 +5,17 @@ library(ggpubr)
 library(Rmisc)
 library(tidyverse)
 
-my_mean = aggregate(data$'Sum on Marrow Grade', by=list(data$'Group'), mean) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'Sum on Marrow Grade', by=list(data$'Group') , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'CC3 % Positive Pixel (Tumor)', by=list(data$'Group'), mean) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$'CC3 % Positive Pixel (Tumor)', by=list(data$'Group') , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean, my_CI, by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
 ggplot(data) + 
   geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "Grey", size = 5) +
-  scale_y_continuous(name = "Bone Marrow Score: huCD45+ Cells") +
+  scale_y_continuous(name = "CC3 % Positive Pixel: DIPG Tumor") +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = data$'Group', y = data$'Sum on Marrow Grade', color = data$Group), width = 0.2, size = 4) +
+  geom_jitter(aes(x = data$'Group', y = data$'CC3 % Positive Pixel (Tumor)', color = data$Group), width = 0.2, size = 4) +
   theme(axis.text.x=element_text(angle=45,hjust=1))
 
 
@@ -26,18 +26,18 @@ PMBC <- data[ which(data$Cells=='hPBMC'), ]
 
 ############SD
 
-my_mean=aggregate(data$'Sum on Marrow Grade' , by=list(data$Group) , mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
-my_sd=aggregate(data$'Sum on Marrow Grade' , by=list(data$Group) , sd, na.rm=TRUE) ; colnames(my_sd)=c("Group" , "sd")
+my_mean=aggregate(data$'HSP70 % Positive Pixel (Liver)' , by=list(data$Group) , mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_sd=aggregate(data$'HSP70 % Positive Pixel (Liver)' , by=list(data$Group) , sd, na.rm=TRUE) ; colnames(my_sd)=c("Group" , "sd")
 my_info=merge(my_mean , my_sd , by.x=1 , by.y=1)
 
 ggplot(data) + 
   geom_point(data = my_info, aes(x = Group , y = my_info$mean), color = "grey", size = 5) +
-  scale_y_continuous(name = "Bone Marrow Score: huCD45+ Cells") + #, limits = c(15, 50)) +
+  scale_y_continuous(name = "HSP70 % Positive Pixel: DIPG Liver") + #, limits = c(15, 50)) +
   geom_errorbar(data = my_info, aes(x = Group, y = sd, ymin = mean - sd, ymax = mean + sd), color = "grey", width = 0.2 , size=1) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = data$Group, y = data$'Sum on Marrow Grade', color = data$Group), width = 0.2, size = 4) +
-  theme(axis.text.x=element_text(angle=25,hjust=1)) 
-
+  geom_jitter(aes(x = data$Group, y = data$'HSP70 % Positive Pixel (Liver)', color = data$Group), width = 0.2, size = 4) +
+  theme(axis.text.x=element_text(angle=25,hjust=1)) +
+  theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
 
 ###########
 ###########
@@ -269,17 +269,17 @@ ggarrange(First, Second,
 
 
 ########
-my_mean = aggregate(data$'Second', by=list(data$Group), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'Second' , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'Carcinoma', by=list(data$Groups), mean, na.rm=TRUE) ; colnames(my_mean)=c("Groups" , "mean")
+my_CI = aggregate(data$'Carcinoma' , by=list(data$Groups) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Groups" , "CI")
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
-Second <- ggplot(data) + 
-  geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 3) +
-  scale_y_continuous(name = "MKPV: PCR CT Value") +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
+ggplot(data) + 
+  geom_point(data = my_info, aes(x = Groups , y = mean), color = "grey", size = 3) +
+  scale_y_continuous(name = "-") +
+  geom_errorbar(data = my_info, aes(x = Groups, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = Group, y = data$'Second'), width = 0.2, size = 3) +
+  geom_jitter(aes(x = Groups, y = data$'Carcinoma'), width = 0.2, size = 3) +
   theme(axis.title.x=element_blank()) +
   theme(axis.text.x=element_text(angle=45,hjust=1)) 
 
@@ -287,29 +287,29 @@ Second <- ggplot(data) +
 
 ###Scatterplots, tumor size over time, etc###
 
-plot(data$'Myosin % Light & Dark', data$'Myosin % Dark & Light Qupath')
-abline(lm(data$'Myosin % Dark & Light Qupath'~data$'Myosin % Light & Dark'), col="red") # regression line (y~x) 
+plot(data$'Adenoma', data$'Days')
+abline(lm(data$'Days'~data$'Adenoma'), col="red") # regression line (y~x) 
 
-plot(data$'CD206 Num Positive per mm^2', data$'CD86 Num Positive per mm^2', main="Scatterplot Example", 
+plot(data$'Adenoma', data$'Days', main="Scatterplot", 
      xlab="Age (days) ", ylab="Pulmonary Metastatic Density", pch=19)
-abline(lm(data$'Metastasis Score'~data$Age), col="red") # regression line (y~x) 
-lines(lowess(data$'Metastasis Score',data$Age), col="blue") # lowess line (x,y)
+abline(lm(data$'Adenoma'~data$Days), col="red") # regression line (y~x) 
+lines(lowess(data$'Adenoma',data$Days), col="blue") # lowess line (x,y)
 
 scatterplot(data$'Mammary Weight' ~ data$"Age" | data$Group, data=data, 
             xlab="Days", ylab="Allograft Metastatic Density", 
             main="Enhanced Scatter Plot")
 
 
-scatterplot(data$'Metastatic Density (% area, visual estimate)' ~ data$Age | data$Group, data=data,
+scatterplot(data$'Carcinoma' ~ data$Days | data$Groups, data=data,
             xlab="Days", ylab="Allograft Metastatic Density", 
             main="Enhanced Scatter Plot")
 
 
-qplot(data$Age, data$'Metastasis Score', data = data, colour = data$Group, geom = "line")
+qplot(data$Days, data$'Lung Tumors', data = data, colour = data$Groups, geom = "histogram")
 
 
 
-plot(data$Urine, data$`Dry Fecal Pellet`, main="Urine vs Fecal Pellet", 
+plot(data$Adenoma, data$Days, main="Urine vs Fecal Pellet", 
      xlab="Urine PCR ", ylab="Fecal PCR ", pch=19)
 
 abline(lm(data$`Dry Fecal Pellet`~data$Urine), col="red") # regression line (y~x) 
