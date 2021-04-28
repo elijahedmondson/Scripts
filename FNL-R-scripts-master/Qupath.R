@@ -5,18 +5,19 @@ library(ggpubr)
 library(Rmisc)
 library(tidyverse)
 
-my_mean = aggregate(data$'CC3 % Positive Pixel (Tumor)', by=list(data$'Group'), mean) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'CC3 % Positive Pixel (Tumor)', by=list(data$'Group') , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'FAPa H-Score', by=list(data$'Group'), mean) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$'FAPa H-Score', by=list(data$'Group') , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean, my_CI, by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
 ggplot(data) + 
-  geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "Grey", size = 5) +
-  scale_y_continuous(name = "CC3 % Positive Pixel: DIPG Tumor") +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
+  #geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "Grey", size = 5) +
+  scale_y_continuous(name = "FAPa H-Score") +
+  #geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = data$'Group', y = data$'CC3 % Positive Pixel (Tumor)', color = data$Group), width = 0.2, size = 4) +
-  theme(axis.text.x=element_text(angle=45,hjust=1))
+  geom_jitter(aes(x = data$'Group', y = data$'FAPa H-Score', color = data$Group), width = 0.2, size = 4) +
+  theme(axis.text.x=element_text(angle=15,hjust=1))+
+  theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
 
 
 #####SUBSET DATA
@@ -26,16 +27,16 @@ PMBC <- data[ which(data$Cells=='hPBMC'), ]
 
 ############SD
 
-my_mean=aggregate(data$'HSP70 % Positive Pixel (Liver)' , by=list(data$Group) , mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
-my_sd=aggregate(data$'HSP70 % Positive Pixel (Liver)' , by=list(data$Group) , sd, na.rm=TRUE) ; colnames(my_sd)=c("Group" , "sd")
+my_mean=aggregate(data$'% 4T1 Metastasis' , by=list(data$Group) , mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_sd=aggregate(data$'% 4T1 Metastasis' , by=list(data$Group) , sd, na.rm=TRUE) ; colnames(my_sd)=c("Group" , "sd")
 my_info=merge(my_mean , my_sd , by.x=1 , by.y=1)
 
 ggplot(data) + 
   geom_point(data = my_info, aes(x = Group , y = my_info$mean), color = "grey", size = 5) +
-  scale_y_continuous(name = "HSP70 % Positive Pixel: DIPG Liver") + #, limits = c(15, 50)) +
+  scale_y_continuous(name = "% 4T1 Metastasis") + #, limits = c(15, 50)) +
   geom_errorbar(data = my_info, aes(x = Group, y = sd, ymin = mean - sd, ymax = mean + sd), color = "grey", width = 0.2 , size=1) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = data$Group, y = data$'HSP70 % Positive Pixel (Liver)', color = data$Group), width = 0.2, size = 4) +
+  geom_jitter(aes(x = data$Group, y = data$'% 4T1 Metastasis', color = data$Group), width = 0.2, size = 4) +
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
 
@@ -279,7 +280,7 @@ ggplot(data) +
   scale_y_continuous(name = "-") +
   geom_errorbar(data = my_info, aes(x = Groups, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = Groups, y = data$'Carcinoma'), width = 0.2, size = 3) +
+  geom_jitter(aes(x = Groups, y = data$'FAPa H-Score'), width = 0.2, size = 3) +
   theme(axis.title.x=element_blank()) +
   theme(axis.text.x=element_text(angle=45,hjust=1)) 
 
@@ -287,22 +288,22 @@ ggplot(data) +
 
 ###Scatterplots, tumor size over time, etc###
 
-plot(data$'Adenoma', data$'Days')
-abline(lm(data$'Days'~data$'Adenoma'), col="red") # regression line (y~x) 
 
-plot(data$'Adenoma', data$'Days', main="Scatterplot", 
+ggplot(data, aes(x = data$'Vessel Count Per mm²', y = data$'SMA H-Score')) +
+  geom_point(aes(color = data$Group), size = 5)+
+  theme_bw(base_size = 18)+
+  stat_smooth(method = "lm",
+              col = "#C42126",
+              se = F,
+              size = 1)
+
+plot(data$'Vessel Count Per mm²', data$'SMA H-Score')
+abline(lm(data$'SMA H-Score'~data$'Vessel Count Per mm²'), col="red") # regression line (y~x) 
+
+plot(data$'Vessel Count Per mm²', data$'SMA H-Score', main="Scatterplot", 
      xlab="Age (days) ", ylab="Pulmonary Metastatic Density", pch=19)
-abline(lm(data$'Adenoma'~data$Days), col="red") # regression line (y~x) 
-lines(lowess(data$'Adenoma',data$Days), col="blue") # lowess line (x,y)
-
-scatterplot(data$'Mammary Weight' ~ data$"Age" | data$Group, data=data, 
-            xlab="Days", ylab="Allograft Metastatic Density", 
-            main="Enhanced Scatter Plot")
-
-
-scatterplot(data$'Carcinoma' ~ data$Days | data$Groups, data=data,
-            xlab="Days", ylab="Allograft Metastatic Density", 
-            main="Enhanced Scatter Plot")
+abline(lm(data$'Vessel Count Per mm²'~data$'SMA H-Score'), col="red") # regression line (y~x) 
+lines(lowess(data$'Vessel Count Per mm²',data$'SMA H-Score'), col="blue") # lowess line (x,y)
 
 
 qplot(data$Days, data$'Lung Tumors', data = data, colour = data$Groups, geom = "histogram")
