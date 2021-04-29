@@ -389,16 +389,15 @@ library(Rmisc)
 ############
 ############
 
-my.formula <- y ~ x
-ggplot(data = data, aes(x = data$'CD206 Num Positive per mm^2', y = data$'CD86 Num Positive per mm^2'), na.rm=TRUE) +
-  geom_smooth(method = "lm", se=FALSE, color="red", formula = my.formula, na.rm=TRUE) +
-  stat_poly_eq(formula = my.formula, 
-               aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
-               parse = TRUE, na.rm=TRUE) +  
+  
+ggplot(data = data, aes(y = data$'Carcinoma, alveolar', x = data$'Days', color = data$Groups), na.rm=TRUE) +
+  geom_smooth(method = "lm", se=FALSE, formula = my.formula) +
+  stat_poly_eq(formula = y ~ x, show.legend = T, parse = TRUE, na.rm=T) +  
   geom_point(na.rm=TRUE)+
-  scale_y_continuous(name = "CD86 Num Positive per mm^2") +
-  scale_x_continuous(name = "CD206 Num Positive per mm^2") +
+  scale_x_continuous(name = "Days") +
+  scale_y_continuous(name = "Carcinoma, alveolar: number of tumors") +
   theme_bw(base_size = 18)   
+
 
 
 linearMod <- lm(data$'CD206 Num Positive per mm^2' ~ data$'CD86 Num Positive per mm^2', data=data)  # build linear regression model on full data

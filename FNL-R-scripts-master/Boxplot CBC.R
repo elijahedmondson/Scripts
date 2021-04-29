@@ -1,5 +1,5 @@
 ###File
-data <- read_excel("C:/Users/edmondsonef/Desktop/ADME Tox 189.xlsx", sheet = "CBC")
+#data <- read_excel("C:/Users/edmondsonef/Desktop/ADME Tox 189.xlsx", sheet = "CBC")
 
 library(ggplot2)
 library(gridExtra)
@@ -18,7 +18,7 @@ my_info$ref.hi = c(17.14)
 ### WBC Plot
 WBC <- ggplot(data) + 
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$WBC, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$WBC, color = data$Sex), width = 0.1)+
   scale_y_continuous(name = "White Blood Cells") +
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
@@ -38,7 +38,7 @@ my_info$ref.hi = c(9.29)
 ### Nuetrophils plot
 NE <- ggplot(data) + 
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$NE, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$NE, color = data$Sex), width = 0.1)+
   scale_y_continuous(name = "Neutrophils") +
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
@@ -58,7 +58,7 @@ my_info$ref.hi = c(9.86)
 ### Lymphocyes plot
 LY <- ggplot(data) + 
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$LY, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$LY, color = data$Sex), width = 0.1)+
   scale_y_continuous(name = "Lymphocyes") +
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
@@ -77,7 +77,7 @@ my_info$ref.hi = c(1.63)
 ### Monocytes plot
 MO <- ggplot(data) + 
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$MO, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$MO, color = data$Sex), width = 0.1)+
   scale_y_continuous(name = "Monocytes") +
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
@@ -96,7 +96,7 @@ my_info$ref.hi = c(0.39)
 ### Eosinophils plot
 EO <- ggplot(data) + 
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$EO, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$EO, color = data$Sex), width = 0.1)+
   scale_y_continuous(name = "Eosinophils") +
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
@@ -115,7 +115,7 @@ my_info$ref.hi = c(0.41)
 ### Basophils plot
 BA <- ggplot(data) + 
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$BA, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$BA, color = data$Sex), width = 0.1)+
   scale_y_continuous(name = "Basophils") +
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
@@ -134,7 +134,7 @@ my_info$ref.hi = c(57.64)
 ### Hematocrit plot
 HCT <- ggplot(data) + 
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$HCT, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$HCT, color = data$Sex), width = 0.1)+
   scale_y_continuous(name = "Hematocrit") +
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
@@ -154,7 +154,7 @@ my_info$ref.hi = c(1444.39)
 ### Platelets plot
 PLT <- ggplot(data) + 
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$PLT, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$PLT, color = data$Sex), width = 0.1)+
   scale_y_continuous(name = "Platelets") +
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2.5) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +

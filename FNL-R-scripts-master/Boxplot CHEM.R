@@ -1,5 +1,5 @@
 ###File
-data <- read_excel("C:/Users/edmondsonef/Desktop/ADME Tox 189.xlsx", sheet = "Chemistry")
+#data <- read_excel("C:/Users/edmondsonef/Desktop/ADME Tox 189.xlsx", sheet = "Chemistry")
 
 library(ggplot2)
 library(gridExtra)
@@ -20,7 +20,7 @@ my_info$ref.hi = c(4.6)
 ALB <- ggplot(data) + 
   scale_y_continuous(name = "Albumin") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$ALB, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$ALB, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -40,7 +40,7 @@ my_info$ref.hi = c(140)
 ALP <- ggplot(data) + 
   scale_y_continuous(name = "ALP") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$ALP, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$ALP, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -60,7 +60,7 @@ my_info$ref.hi = c(65)
 ALT <- ggplot(data) + 
   scale_y_continuous(name = "ALT") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$ALT, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$ALT, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -79,7 +79,7 @@ my_info$ref.hi = c(29.9)
 BUN <- ggplot(data) + 
   scale_y_continuous(name = "BUN") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$BUN, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$BUN, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -98,7 +98,7 @@ my_info$ref.hi = c(0.5)
 CRE <- ggplot(data) + 
   scale_y_continuous(name = "Creatinine") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$CRE, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$CRE, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -117,7 +117,7 @@ my_info$ref.hi = c(292)
 GLU <- ggplot(data) + 
   scale_y_continuous(name = "GLU") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$GLU, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$GLU, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -136,7 +136,7 @@ my_info$ref.hi = c(6.9)
 TP <- ggplot(data) + 
   scale_y_continuous(name = "Total Protein") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$TP, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$TP, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -155,7 +155,7 @@ my_info$ref.hi = c(3.2)
 GLOB <- ggplot(data) + 
   scale_y_continuous(name = "GLOB") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$GLOB, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$GLOB, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -174,7 +174,7 @@ my_info$ref.hi = c(12.2)
 Ca <- ggplot(data) + 
   scale_y_continuous(name = "Ca2+") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$Ca, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$Ca, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -193,7 +193,7 @@ my_info$ref.hi = c(13.1)
 PHOS <- ggplot(data) + 
   scale_y_continuous(name = "PHOS") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$PHOS, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$PHOS, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -212,7 +212,7 @@ my_info$ref.hi = c(174)
 NaPlus <- ggplot(data) + 
   scale_y_continuous(name = "Na+") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$NaPlus, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$NaPlus, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -231,7 +231,7 @@ my_info$ref.hi = c(11.7)
 KPlus <- ggplot(data) + 
   scale_y_continuous(name = "K+") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$KPlus, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$KPlus, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
@@ -240,7 +240,7 @@ KPlus <- ggplot(data) +
 
 ### TBIL
 my_mean = aggregate(data$TBIL, by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$TBIL , by=list(data$Group, color = data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_CI = aggregate(data$TBIL , by=list(data$Group, color = data$Sex) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 my_info$ref.low = c(0.1)
@@ -250,9 +250,9 @@ my_info$ref.hi = c(0.9)
 TBIL <- ggplot(data) + 
   scale_y_continuous(name = "TBIL") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#CCFFFF", width = 0, size=4) +
-  geom_jitter(aes(x = Group, y = data$TBIL, color = data$Group), width = 0.1)+
+  geom_jitter(aes(x = Group, y = data$TBIL, color = data$Sex), width = 0.1)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
+  #geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw() +
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 8), legend.position="none")
