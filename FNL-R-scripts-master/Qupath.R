@@ -5,20 +5,24 @@ library(ggpubr)
 library(Rmisc)
 library(tidyverse)
 
-my_mean = aggregate(data$'FAPa H-Score', by=list(data$'Group'), mean) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'FAPa H-Score', by=list(data$'Group') , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'Bombesin Stroma: H-score', by=list(data$'Type'), mean, na.action = na.pass, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$'Bombesin Stroma: H-score', by=list(data$'Type'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean, my_CI, by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
 ggplot(data) + 
-  #geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "Grey", size = 5) +
-  scale_y_continuous(name = "FAPa H-Score") +
-  #geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
+  geom_jitter(aes(x = data$'Type', y = data$'Bombesin Stroma: H-score', color = data$'Gleason Score'), width = 0.2, size = 4) +
+  geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "grey", size = 5) +
+  scale_y_continuous(name = "Bombesin Stroma: H-score") +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=2) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = data$'Group', y = data$'FAPa H-Score', color = data$Group), width = 0.2, size = 4) +
   theme(axis.text.x=element_text(angle=15,hjust=1))+
-  theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
+  theme(axis.title.x=element_blank(), text = element_text(size = 20))#, legend.position="none")
 
+
+Stroma
+Epithelial
+Type
 
 #####SUBSET DATA
 data <- read_excel("C:/Users/edmondsonef/Desktop/19-331-M13 Pathology Data.xlsx", na = ".")

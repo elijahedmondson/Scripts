@@ -24,7 +24,7 @@ import static qupath.lib.gui.scripting.QPEx.*
 double downsample = 20
 
 // Add the output file path here
-String pathImage = buildFilePath(PROJECT_BASE_DIR, 'rendered', getProjectEntry().getImageName() + '.png')
+String pathImage = buildFilePath(PROJECT_BASE_DIR, 'export', getProjectEntry().getImageName() + '.png')
 
 print '01. pathImage = ' + (pathImage)
 
@@ -50,7 +50,7 @@ if (pathImage != null) {
 
 //////////////
    
-String pathMask = buildFilePath(PROJECT_BASE_DIR, 'rendered', getProjectEntry().getImageName() + '-mask.png')
+String pathMask = buildFilePath(PROJECT_BASE_DIR, 'export', getProjectEntry().getImageName() + '-mask.png')
 
 print '03. pathMask = ' + (pathMask)
 
@@ -69,3 +69,5 @@ if (pathMask != null) {
     writeImage(serverMask, pathMask)
 } else
     IJTools.convertToImagePlus(serverMask, RegionRequest.createInstance(serverMask)).getImage().show()
+    
+ print '05. Done Done Done Done Done Done'   
