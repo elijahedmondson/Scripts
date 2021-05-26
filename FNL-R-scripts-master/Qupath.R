@@ -4,16 +4,17 @@ library(readxl)
 library(ggpubr)
 library(Rmisc)
 library(tidyverse)
+library(plyr)
 
-my_mean = aggregate(data$'Bombesin Stroma: H-score', by=list(data$'Type'), mean, na.action = na.pass, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'Bombesin Stroma: H-score', by=list(data$'Type'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'3/4/21 BM Grade', by=list(data$'Group')) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$'3/4/21 BM Grade', by=list(data$'Group'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean, my_CI, by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
 ggplot(data) + 
-  geom_jitter(aes(x = data$'Type', y = data$'Bombesin Stroma: H-score', color = data$'Gleason Score'), width = 0.2, size = 4) +
+  geom_jitter(aes(x = data$'Group', y = data$'3/4/21 BM Grade', color = data$'Group'), width = 0.2, size = 4) +
   geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "grey", size = 5) +
-  scale_y_continuous(name = "Bombesin Stroma: H-score") +
+  scale_y_continuous(name = "1st BM") +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=2) +
   theme_bw(base_size = 18) +
   theme(axis.text.x=element_text(angle=15,hjust=1))+
@@ -30,19 +31,41 @@ cd34 <- data[ which(data$Cells=='CD34'), ]
 PMBC <- data[ which(data$Cells=='hPBMC'), ]
 
 ############SD
-
-my_mean=aggregate(data$'% 4T1 Metastasis' , by=list(data$Group) , mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
-my_sd=aggregate(data$'% 4T1 Metastasis' , by=list(data$Group) , sd, na.rm=TRUE) ; colnames(my_sd)=c("Group" , "sd")
-my_info=merge(my_mean , my_sd , by.x=1 , by.y=1)
+############SD funs(mean, sem=sd(.)/sqrt(length(.)))
+############SD
+############SD
+my_mean=aggregate(data$'3/4/21 BM Grade', by=list(data$Group), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_sd=aggregate(data$'H-score', by=list(data$Group), sd, na.rm=TRUE) ; colnames(my_sd)=c("Group" , "sd")
+my_info=merge(my_mean, my_sd, by.x=1 , by.y=1)
+my_info$se <- my_info$sd / sqrt(cdata$N)
 
 ggplot(data) + 
   geom_point(data = my_info, aes(x = Group , y = my_info$mean), color = "grey", size = 5) +
-  scale_y_continuous(name = "% 4T1 Metastasis") + #, limits = c(15, 50)) +
-  geom_errorbar(data = my_info, aes(x = Group, y = sd, ymin = mean - sd, ymax = mean + sd), color = "grey", width = 0.2 , size=1) +
+  scale_y_continuous(name = "Tumor: gH2AX H-score") + #, limits = c(15, 50)) +
+  geom_errorbar(data = my_info, aes(x = Group, y = sd, ymin = mean - sd, ymax = mean + sd), color = "grey", width = 0.2 , size=2) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = data$Group, y = data$'% 4T1 Metastasis', color = data$Group), width = 0.2, size = 4) +
+  geom_jitter(aes(x = data$Group, y = data$'H-score', color = data$Group), width = 0.2, size = 6) +
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
+############SEM
+############SEM
+############SEM 
+############SEM
+my_mean=aggregate(data$'H-score', by=list(data$Group), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_sd=aggregate(data$'H-score', by=list(data$Group), sd, na.rm=TRUE) ; colnames(my_sd)=c("Group" , "sd")
+my_info=merge(my_mean, my_sd, by.x=1 , by.y=1)
+my_info$se <- my_info$sd / sqrt(cdata$N)
+
+ggplot(data) + 
+  geom_point(data = my_info, aes(x = Group , y = my_info$mean), color = "grey", size = 5) +
+  scale_y_continuous(name = "Tumor: gH2AX H-score") + #, limits = c(15, 50)) +
+  geom_errorbar(data = my_info, aes(x = Group, y = se, ymin = mean - se, ymax = mean + se), color = "grey", width = 0.2 , size=2) +
+  theme_bw(base_size = 18) +
+  geom_jitter(aes(x = data$Group, y = data$'H-score', color = data$Group), width = 0.2, size = 6) +
+  theme(axis.text.x=element_text(angle=25,hjust=1)) +
+  theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
+
+
 
 ###########
 ###########
@@ -393,13 +416,13 @@ library(Rmisc)
 ############
 ############
 
-  
-ggplot(data = data, aes(y = data$'Carcinoma, alveolar', x = data$'Days', color = data$Groups), na.rm=TRUE) +
+my.formula <- y ~ x  
+ggplot(data = data, aes(y = data$'3/17/21 BM Grade', x = data$'3/4/21 BM Grade', color = data$Group), na.rm=TRUE) +
   geom_smooth(method = "lm", se=FALSE, formula = my.formula) +
   stat_poly_eq(formula = y ~ x, show.legend = T, parse = TRUE, na.rm=T) +  
   geom_point(na.rm=TRUE)+
-  scale_x_continuous(name = "Days") +
-  scale_y_continuous(name = "Carcinoma, alveolar: number of tumors") +
+  #scale_x_continuous(name = "Days") +
+  #scale_y_continuous(name = "ss") +
   theme_bw(base_size = 18)   
 
 
@@ -412,8 +435,38 @@ summary(linearMod)
 
 ############
 ############
+############
+############
+############ Plot with connected datapoints from different columns
+############
+############
+############
+############
+############
 
+library(hrbrthemes)
+library(GGally)
+library(viridis)
 
+# Plot
+ggparcoord(data, columns = 6:9, groupColumn = 2, scale="uniminmax", showPoints = TRUE, alphaLines = .8) +
+  scale_color_viridis(discrete=TRUE) +
+  theme_ipsum()+
+  theme(
+    plot.title = element_text(size=18)
+  )
+
+## scale = std globalminmax uniminmax center
+############
+############
+############
+############
+############
+############
+############
+############
+############
+############
 
 my.formula <- y ~ x
 pswab1 <- ggplot(data = data1, aes(x = data1$'Urine', y = data1$'Dry Fecal Pellet'), na.rm=TRUE) +
