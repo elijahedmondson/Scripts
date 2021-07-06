@@ -3,16 +3,18 @@ setColorDeconvolutionStains('{"Name" : "H&E default", "Stain 1" : "Hematoxylin",
 //runPlugin('qupath.imagej.detect.tissue.SimpleTissueDetection2', '{"threshold": 210,  "requestedPixelSizeMicrons": 20.0,  "minAreaMicrons": 10000.0,  "maxHoleAreaMicrons": 1000000.0,  "darkBackground": false,  "smoothImage": true,  "medianCleanup": true,  "dilateBoundaries": false,  "smoothCoordinates": true,  "excludeOnBoundary": false,  "singleAnnotation": true}');
 selectAnnotations();
 mergeSelectedAnnotations();
+selectAnnotations();
 
 def minArea = 100.0 // To change
 def minHoleArea = 100.0 // To change
-def classifierName = "Necrosis1" // To change
+def classifierName = "Necrosis3" // To change
 
 // Select all annotations
-selectAnnotations()
-addPixelClassifierMeasurements("Necrosis1", "Necrosis1")
+selectAnnotations();
+
+addPixelClassifierMeasurements("Necrosis3", "Necrosis3");
 
 // Apply pixel classifier inside them
 //createAnnotationsFromPixelClassifier(classifierName, minArea, minHoleArea)
-createDetectionsFromPixelClassifier(classifierName, minArea, minHoleArea)
+createDetectionsFromPixelClassifier(classifierName, minArea, minHoleArea);
 print "Done!"

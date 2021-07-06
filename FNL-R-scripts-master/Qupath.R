@@ -6,19 +6,23 @@ library(Rmisc)
 library(tidyverse)
 library(plyr)
 
-my_mean = aggregate(data$'3/4/21 BM Grade', by=list(data$'Group')) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'3/4/21 BM Grade', by=list(data$'Group'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'CD206 Cells per mm2', by=list(data$'Tumor'), mean, na.rm=TRUE) ; colnames(my_mean)=c("Tumor" , "mean")
+my_CI = aggregate(data$'CD206 Cells per mm2', by=list(data$'Tumor'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean, my_CI, by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
-ggplot(data) + 
-  geom_jitter(aes(x = data$'Group', y = data$'3/4/21 BM Grade', color = data$'Group'), width = 0.2, size = 4) +
-  geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "grey", size = 5) +
-  scale_y_continuous(name = "1st BM") +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=2) +
+Image1 <- ggplot(data) + 
+  geom_point(data = my_info, aes(x = my_info$'Tumor', y = my_info$mean), color = "grey", size = 5) +
+  scale_y_continuous(name = "CD206 Cells per mm2") +
+  geom_errorbar(data = my_info, aes(x = Tumor, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
+  geom_jitter(aes(x = data$'Tumor', y = data$'CD206 Cells per mm2', color = data$'Tumor'), width = 0.2, size = 2) +
   theme_bw(base_size = 18) +
-  theme(axis.text.x=element_text(angle=15,hjust=1))+
-  theme(axis.title.x=element_blank(), text = element_text(size = 20))#, legend.position="none")
+  theme(axis.text.x=element_text(angle=35,hjust=1))+
+  theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
+
+tiff("Image1.tiff", units="in", width=17, height=9, res=300)
+grid.arrange(Image1, ncol = 1, nrow = 1)
+dev.off()
 
 
 Stroma

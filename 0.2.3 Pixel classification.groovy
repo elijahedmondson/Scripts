@@ -6,7 +6,7 @@ mergeSelectedAnnotations();
 
 def minArea = 100.0 // To change
 def minHoleArea = 100.0 // To change
-def classifierName = "Necrosis1" // To change
+def classifierName = "necrosis" // To change
 
 // Select all annotations
 selectAnnotations()
