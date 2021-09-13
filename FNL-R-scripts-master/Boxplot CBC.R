@@ -17,7 +17,7 @@ my_info$ref.hi = c(12.33)
 WBC <- ggplot(data) + 
   scale_y_continuous(name = "White Blood Cells") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = WBC, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = WBC, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
   theme_bw() +
@@ -37,7 +37,7 @@ my_info$ref.hi = c(6.04)
 NE <- ggplot(data) + 
   scale_y_continuous(name = "Neutrophils") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = NE, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = NE, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
   theme_bw() +
@@ -57,7 +57,7 @@ my_info$ref.hi = c(6.99)
 LY <- ggplot(data) + 
   scale_y_continuous(name = "Lymphocyes") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = LY, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = LY, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
   theme_bw() +
@@ -76,7 +76,7 @@ my_info$ref.hi = c(1.04)
 MO <- ggplot(data) + 
   scale_y_continuous(name = "Monocytes") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = MO, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = MO, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
   theme_bw() +
@@ -95,7 +95,7 @@ my_info$ref.hi = c(0.25)
 EO <- ggplot(data) + 
   scale_y_continuous(name = "Eosinophils") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = EO, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = EO, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
   theme_bw() +
@@ -114,7 +114,7 @@ my_info$ref.hi = c(0.23)
 BA <- ggplot(data) + 
   scale_y_continuous(name = "Basophils") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = BA, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = BA, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
   theme_bw() +
@@ -133,7 +133,7 @@ my_info$ref.hi = c(50.71)
 HCT <- ggplot(data) + 
   scale_y_continuous(name = "Hematocrit") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = HCT, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = HCT, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
   theme_bw() +
@@ -152,7 +152,7 @@ my_info$ref.hi = c(1444.39)
 PLT <- ggplot(data) + 
   scale_y_continuous(name = "Platelets") + 
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = PLT, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = PLT, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
   theme_bw() +

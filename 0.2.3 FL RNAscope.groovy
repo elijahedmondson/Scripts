@@ -4,11 +4,11 @@ setChannelNames(
      'Cebpb')
      
 selectAnnotations();
-mergeSelectedAnnotations();
-selectAnnotations();
+//mergeSelectedAnnotations();
+//selectAnnotations();
 runPlugin('qupath.imagej.detect.cells.WatershedCellDetection', '{"detectionImage": "DAPI",  "requestedPixelSizeMicrons": 0.1,  "backgroundRadiusMicrons": 8.0,  "medianRadiusMicrons": 0.0,  "sigmaMicrons": 1.5,  "minAreaMicrons": 10.0,  "maxAreaMicrons": 400.0,  "threshold": 10.0,  "watershedPostProcess": true,  "cellExpansionMicrons": 7.0,  "includeNuclei": true,  "smoothBoundaries": true,  "makeMeasurements": true}');
 selectAnnotations();
-runPlugin('qupath.imagej.detect.cells.SubcellularDetection', '{"detection[Channel 1]": -1.0,  "detection[Channel 2]": 60000.0,  "detection[Channel 3]": 10000.0,  "doSmoothing": false,  "splitByIntensity": false,  "splitByShape": false,  "spotSizeMicrons": 1.0,  "minSpotSizeMicrons": 0.2,  "maxSpotSizeMicrons": 2.0,  "includeClusters": true}');
+runPlugin('qupath.imagej.detect.cells.SubcellularDetection', '{"detection[Channel 1]": -1.0,  "detection[Channel 2]": 60000.0,  "detection[Channel 3]": 17000.0,  "doSmoothing": false,  "splitByIntensity": false,  "splitByShape": false,  "spotSizeMicrons": 1.0,  "minSpotSizeMicrons": 0.2,  "maxSpotSizeMicrons": 2.0,  "includeClusters": true}');
 
 
 def cells = getCellObjects()

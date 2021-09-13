@@ -1,14 +1,7 @@
-
-###Everything after a "#" is a developer comment
-###
-###The first time you work with R, you will need to download all your packages
-
-install.packages("survival")
-
-###
-###Do this for all packages... the second time you open R, you can start with the following
-###
-
+library(survival)
+library(haven)
+Y= Surv(time = data$Age, event = data$Event)
+kmfit = survfit(Y ~ data$Group)
 ###
 ###Start by loading your packages
 ###
@@ -31,13 +24,13 @@ library(Rmisc)
 ###
 ###Then create your survival model
 ###
-surv_object = Surv(time = data$Days, event = data$Group)
+surv_object = Surv(time = data$Age, event = data$Event)
 
 # Regress on a constant
 fit <- survfit(surv_object ~ 1)
 
 # Plot the fit
-ggsurvplot(fit, data.frame(time = data$Days, event = data$Group), conf.int=FALSE)
+ggsurvplot(fit, data.frame(time = data$Age, event = data$Group), conf.int=FALSE)
 
 sarcoma.fit <- survfit(Surv(data$Days, data$Sex) ~ pheno$'Group', data = data)
 HN.fit <- survfit(Surv(data$Days, pheno$Hematopoietic) ~ pheno$'Group', data = pheno)
