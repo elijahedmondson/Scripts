@@ -131,7 +131,7 @@ my_info$ref.hi = c(50.71)
 
 ### Hematocrit plot
 HCT <- ggplot(data) + 
-  scale_y_continuous(name = "Hematocrit") +
+  scale_y_continuous(name = "Hematocrit", limits=c(30, 60)) +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
   geom_jitter(aes(x = Group, y = HCT, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
@@ -159,10 +159,28 @@ PLT <- ggplot(data) +
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank())
 
+### Reticulocytes
+my_mean = aggregate(data$Retics, by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$Retics , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
+my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
+my_info$ref.low = c(89)
+my_info$ref.hi = c(294)
+
+### Reticulocytes plot
+Retics <- ggplot(data) + 
+  scale_y_continuous(name = "Reticulocytes") + 
+  geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
+  geom_jitter(aes(x = Group, y = Retics, color = Sex), width = 0.1, show.legend=F)+
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
+  theme_bw() +
+  theme(axis.text.x=element_text(angle=25,hjust=1)) +
+  theme(axis.title.x=element_blank())
 
 ### Generate Multiplots
 
-tiff("CBC.tiff", units="in", width=7, height=9, res=600)
-grid.arrange(HCT, PLT, WBC, NE, LY, MO, EO, BA, ncol = 2, nrow = 4)
+tiff("CBC.tiff", units="in", width=8, height=7, res=600)
+grid.arrange(HCT, Retics, PLT, WBC, NE, LY, MO, EO, BA, ncol = 3, nrow = 3)
 dev.off()
 

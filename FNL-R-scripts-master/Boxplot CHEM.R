@@ -5,8 +5,6 @@ library(readxl)
 library(ggpubr)
 library(readxl)
 
-
-data <- read_excel("ADME Tox 198.xlsx", sheet = "Chemistry")
 ###Generate Data
 
 ### ALB  
@@ -21,7 +19,7 @@ my_info$ref.hi = c(4.8)
 ALB <- ggplot(data) + 
   scale_y_continuous(name = "Albumin") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = ALB, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = ALB, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -41,7 +39,7 @@ my_info$ref.hi = c(190)
 ALP <- ggplot(data) + 
   scale_y_continuous(name = "ALP") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = ALP, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = ALP, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -61,7 +59,7 @@ my_info$ref.hi = c(66)
 ALT <- ggplot(data) + 
   scale_y_continuous(name = "ALT") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = ALT, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = ALT, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -80,7 +78,7 @@ my_info$ref.hi = c(34.2)
 BUN <- ggplot(data) + 
   scale_y_continuous(name = "BUN") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = BUN, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = BUN, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -99,7 +97,7 @@ my_info$ref.hi = c(0.5)
 CRE <- ggplot(data) + 
   scale_y_continuous(name = "Creatinine") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = CRE, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = CRE, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -118,7 +116,7 @@ my_info$ref.hi = c(292)
 GLU <- ggplot(data) + 
   scale_y_continuous(name = "GLU") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = GLU, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = GLU, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -137,7 +135,7 @@ my_info$ref.hi = c(6.6)
 TP <- ggplot(data) + 
   scale_y_continuous(name = "Total Protein") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = TP, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = TP, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -156,7 +154,7 @@ my_info$ref.hi = c(3.1)
 GLOB <- ggplot(data) + 
   scale_y_continuous(name = "GLOB") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = GLOB, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = GLOB, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -175,7 +173,7 @@ my_info$ref.hi = c(12.2)
 Ca <- ggplot(data) + 
   scale_y_continuous(name = "Ca2+") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = Ca, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = Ca, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -194,7 +192,7 @@ my_info$ref.hi = c(13.1)
 PHOS <- ggplot(data) + 
   scale_y_continuous(name = "PHOS") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = PHOS, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = PHOS, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -213,7 +211,7 @@ my_info$ref.hi = c(174)
 NaPlus <- ggplot(data) + 
   scale_y_continuous(name = "Na+") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = NaPlus, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = NaPlus, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -232,7 +230,7 @@ my_info$ref.hi = c(11.8)
 KPlus <- ggplot(data) + 
   scale_y_continuous(name = "K+") +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
-  geom_jitter(aes(x = Group, y = KPlus, color = Group), width = 0.1, show.legend=F)+
+  geom_jitter(aes(x = Group, y = KPlus, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
@@ -240,6 +238,6 @@ KPlus <- ggplot(data) +
   theme(axis.title.x=element_blank())
 
 
-tiff("Chem.tiff", units="in", width=10, height=10, res=600)
-grid.arrange(TP, ALB, GLOB, ALP, ALT, BUN, CRE, GLU, Ca, PHOS, KPlus, NaPlus, ncol = 3, nrow = 4)
+tiff("Chem.tiff", units="in", width=10, height=7, res=600)
+grid.arrange(TP, ALB, GLOB, ALP, ALT, BUN, CRE, GLU, Ca, PHOS, KPlus, NaPlus, ncol = 4, nrow = 3)
 dev.off()
