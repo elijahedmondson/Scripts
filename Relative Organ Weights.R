@@ -4,9 +4,6 @@ library(ggplot2)
 library(gridExtra)
 library(readxl)
 
-#data <- read_excel("ADME Tox 198.xlsx", sheet = "Tox 198")
-data <- read_excel("MHL Meier NAT10.xlsx", 
-                   +     sheet = "Animal Data")###Generate Data
 
 ### Body Weight  
 my_mean = aggregate(data$Weight, by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
@@ -141,9 +138,9 @@ Graft <- ggplot(data) +
 
 
 ### Make multiple plots
-tiff("Relative Organ Weights.tiff", units="in", width=7, height=9, res=600)
-grid.arrange(Bw, Brain, Spleen, Liver, Lung, Kidney, Heart,
-             ncol = 2, nrow = 4)
+tiff("BW.tiff", units="in", width=3, height=2.5, res=600)
+grid.arrange(BW,
+             ncol = 1, nrow = 1)
 
 dev.off()
 
