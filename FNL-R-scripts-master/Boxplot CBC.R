@@ -185,11 +185,19 @@ grid.arrange(HCT, Retics, PLT, WBC, NE, LY, MO, EO, BA, ncol = 3, nrow = 3)
 dev.off()
 
 
-
-
-
-
-
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
+## RBC ###
 
 ### Hematocrit
 my_mean = aggregate(data$HCT, by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
@@ -216,8 +224,8 @@ my_mean = aggregate(data$Retics, by=list(data$Group), mean) ; colnames(my_mean)=
 my_CI = aggregate(data$Retics , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
-#my_info$ref.low = c(6)
-#my_info$ref.hi = c(10)
+my_info$ref.low = c(6)
+my_info$ref.hi = c(6)
 
 ### Reticulocytes plot
 Retics <- ggplot(data) + 
@@ -344,6 +352,66 @@ RDW <- ggplot(data) +
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank())
 
-tiff("CBC.tiff", units="in", width=8, height=7, res=600)
+tiff("RBC.tiff", units="in", width=8, height=7, res=600)
 grid.arrange(HCT, Hb, MCH, MCHC, MCV, RBC, RDW, Retics, ncol = 3, nrow = 3)
+dev.off()
+
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+###PLATELETS
+
+### Platelets
+my_mean = aggregate(data$PLT, by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$PLT , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
+my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
+my_info$ref.low = c(305.79)
+my_info$ref.hi = c(1444.39)
+
+### Platelets plot
+PLT <- ggplot(data) + 
+  scale_y_continuous(name = "Platelets") + 
+  geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
+  geom_jitter(aes(x = Group, y = PLT, color = Sex), width = 0.1, show.legend=F)+
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
+  theme_bw() +
+  theme(axis.text.x=element_text(angle=25,hjust=1)) +
+  theme(axis.title.x=element_blank())
+
+
+### MPV
+my_mean = aggregate(data$MPV, by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$MPV , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
+my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
+my_info$ref.low = c(4)
+my_info$ref.hi = c(10.6)
+
+### Platelets plot
+MPV <- ggplot(data) + 
+  scale_y_continuous(name = "MPV") + 
+  geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
+  geom_jitter(aes(x = Group, y = MPV, color = Sex), width = 0.1, show.legend=F)+
+  geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.3 , size=1) +
+  theme_bw() +
+  theme(axis.text.x=element_text(angle=25,hjust=1)) +
+  theme(axis.title.x=element_blank())
+
+tiff("Platelets.tiff", units="in", width=8, height=2.33, res=600)
+grid.arrange(PLT, MPV, ncol = 3, nrow = 1)
 dev.off()
