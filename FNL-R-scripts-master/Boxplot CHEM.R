@@ -6,6 +6,9 @@ library(ggpubr)
 library(readxl)
 
 ###Generate Data
+data <- read_excel("ADME Tox 202.xlsx", sheet = "Chemistry")
+CBC <- read_excel("ADME Tox 202.xlsx", sheet = "CBC")
+AData <- read_excel("ADME Tox 202.xlsx", sheet = "Animal Data")
 
 ### ALB  
 my_mean = aggregate(data$ALB, by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
@@ -239,5 +242,6 @@ KPlus <- ggplot(data) +
 
 
 tiff("Chem.tiff", units="in", width=10, height=7, res=600)
+#Add A:G ratio
 grid.arrange(TP, ALB, GLOB, ALP, ALT, BUN, CRE, GLU, Ca, PHOS, KPlus, NaPlus, ncol = 4, nrow = 3)
 dev.off()
