@@ -139,7 +139,7 @@ Graft <- ggplot(data) +
 
 ### Make multiple plots
 tiff("BW.tiff", units="in", width=6, height=2.5, res=600)
-grid.arrange(BW, Graft,
+grid.arrange(BW, 
              ncol = 2, nrow = 1)
 
 dev.off()

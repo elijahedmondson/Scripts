@@ -1,3 +1,6 @@
+
+data <- read_excel("MHL 19-331-114 Efficacy.xlsx", sheet = "CBC")
+
 library(ggplot2)
 library(gridExtra)
 library(readxl)

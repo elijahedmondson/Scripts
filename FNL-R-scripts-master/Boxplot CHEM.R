@@ -1,4 +1,6 @@
 
+data <- read_excel("MHL 19-331-114 Efficacy.xlsx", sheet = "Chemistry")
+
 library(ggplot2)
 library(gridExtra)
 library(readxl)
@@ -102,7 +104,7 @@ CRE <- ggplot(data) +
   geom_errorbar(data = my_info, aes(x = Group, ymin = ref.low, ymax = ref.hi), color = "#f5f5f5", width = 0, size=10) +
   geom_jitter(aes(x = Group, y = CRE, color = Sex), width = 0.1, show.legend=F)+
   geom_point(data = my_info, aes(x = Group , y = mean), color = "#a9a9a9", size = 2) +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
+  #geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "#a9a9a9", width = 0.2 , size=1) +
   theme_bw() +
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank())

@@ -1,3 +1,5 @@
+data <- read_excel("MHL 19-331-114 Efficacy.xlsx", sheet = "Path Data")
+
 library(ggplot2)
 library(gridExtra)
 library(readxl)
@@ -38,19 +40,20 @@ PMBC <- data[ which(data$Cells=='hPBMC'), ]
 ############SD funs(mean, sem=sd(.)/sqrt(length(.)))
 ############SD
 ############SD
-my_mean=aggregate(data$'3/4/21 BM Grade', by=list(data$Group), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
-my_sd=aggregate(data$'H-score', by=list(data$Group), sd, na.rm=TRUE) ; colnames(my_sd)=c("Group" , "sd")
+my_mean=aggregate(data$'Sum on Marrow Grade', by=list(data$Group), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_sd=aggregate(data$'Sum on Marrow Grade', by=list(data$Group), sd, na.rm=TRUE) ; colnames(my_sd)=c("Group" , "sd")
 my_info=merge(my_mean, my_sd, by.x=1 , by.y=1)
 my_info$se <- my_info$sd / sqrt(cdata$N)
 
 ggplot(data) + 
   geom_point(data = my_info, aes(x = Group , y = my_info$mean), color = "grey", size = 5) +
-  scale_y_continuous(name = "Tumor: gH2AX H-score") + #, limits = c(15, 50)) +
+  scale_y_continuous(name = "Bone Marrow Histopathology: Grade") + #, limits = c(15, 50)) +
   geom_errorbar(data = my_info, aes(x = Group, y = sd, ymin = mean - sd, ymax = mean + sd), color = "grey", width = 0.2 , size=2) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = data$Group, y = data$'H-score', color = data$Group), width = 0.2, size = 6) +
+  geom_jitter(aes(x = data$Group, y = data$'Sum on Marrow Grade', color = data$Group), width = 0.2, size = 4) +
   theme(axis.text.x=element_text(angle=25,hjust=1)) +
   theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
+
 ############SEM
 ############SEM
 ############SEM 
@@ -301,17 +304,17 @@ ggarrange(First, Second,
 
 
 ########
-my_mean = aggregate(data$'Carcinoma', by=list(data$Groups), mean, na.rm=TRUE) ; colnames(my_mean)=c("Groups" , "mean")
-my_CI = aggregate(data$'Carcinoma' , by=list(data$Groups) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Groups" , "CI")
+my_mean = aggregate(data$'Aspirate Grade', by=list(data$Group), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$'Aspirate Grade' , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
 ggplot(data) + 
-  geom_point(data = my_info, aes(x = Groups , y = mean), color = "grey", size = 3) +
+  geom_point(data = my_info, aes(x = Group, y = mean), color = "grey", size = 3) +
   scale_y_continuous(name = "-") +
-  geom_errorbar(data = my_info, aes(x = Groups, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
+  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
   theme_bw(base_size = 18) +
-  geom_jitter(aes(x = Groups, y = data$'FAPa H-Score'), width = 0.2, size = 3) +
+  geom_jitter(aes(x = Group, y = data$'Aspirate Grade'), width = 0.2, size = 3) +
   theme(axis.title.x=element_blank()) +
   theme(axis.text.x=element_text(angle=45,hjust=1)) 
 
@@ -320,8 +323,10 @@ ggplot(data) +
 ###Scatterplots, tumor size over time, etc###
 
 
-ggplot(data, aes(x = data$'Vessel Count Per mm²', y = data$'SMA H-Score')) +
+ggplot(data, aes(x = data$'Age', y = data$'Sum on Marrow Grade')) +
   geom_point(aes(color = data$Group), size = 5)+
+  scale_y_continuous(name = "Bone Marrow Histopathology: Grade") +
+  scale_x_continuous(name = "Age (days)") +
   theme_bw(base_size = 18)+
   stat_smooth(method = "lm",
               col = "#C42126",

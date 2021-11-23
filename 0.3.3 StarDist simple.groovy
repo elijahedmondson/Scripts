@@ -10,7 +10,7 @@ selectAnnotations();
 
 var stardist = StarDist2D.builder(pathModel)
       .ignoreCellOverlaps(false)   // Set to true if you don't care if cells expand into one another
-      .threshold(0.2)              // Prediction threshold
+      .threshold(0.05)              // Prediction threshold
       .normalizePercentiles(1, 99) // Percentile normalization
       .pixelSize(0.5)              // Resolution for detection
       .includeProbability(true)    // Include prediction probability as measurement
@@ -31,7 +31,7 @@ if (pathObjects.isEmpty()) {
 stardist.detectObjects(imageData, pathObjects)
 println '3'
 
-setDetectionIntensityClassifications("DAB: Mean", 0.3, 0.5, 0.7)
+setDetectionIntensityClassifications("DAB: Mean", 0.13, 0.5, 0.9)
 
 //Additional options
 //var stardist = StarDist2D.builder(pathModel)

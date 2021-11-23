@@ -1,86 +1,50 @@
+data <- read_excel("JBM 336.xlsx")
+
+library(survMisc)
 library(survival)
-library(haven)
-Y= Surv(time = data$Age, event = data$Event)
-kmfit = survfit(Y ~ data$Group)
-###
-###Start by loading your packages
-###
-library(plyr)
-library(dplyr)
-library(readr)
+library(jskm)
+library(survey)
+
+####### OPTION 1 ####### 
+####### OPTION 1 ####### 
+####### OPTION 1 ####### 
+####### OPTION 1 ####### 
+####### OPTION 1 ####### 
+####### OPTION 1 ####### 
+####### OPTION 1 ####### 
+####### OPTION 1 ####### 
+####### OPTION 1 ####### 
+
+fit <- survfit(Surv(Age,Status)~Groups, data=data)
+
+jskm(fit)
+jskm(fit, ci = F, cumhaz = F, legendposition = c(0.2,0.2),  mark = F, table = T, ylab = "Cumulative incidence (%)", surv.scale = "percent")#, pval =T, pval.size = 6, pval.coord = c(300, 0.7))
+
+tiff("JBM336.tiff", units="in", width=10, height=5, res=300)
+jskm(fit, ci = F, cumhaz = F, legendposition = c(0.2,0.2),  mark = F, ylab = "Cumulative incidence (%)", surv.scale = "percent")
+dev.off()
+
+
+####### OPTION 2 ####### 
+####### OPTION 2 ####### 
+####### OPTION 2 ####### 
+####### OPTION 2 ####### 
+####### OPTION 2 ####### 
+####### OPTION 2 #######
+####### OPTION 2 ####### 
+####### OPTION 2 ####### 
+####### OPTION 2 #######
 library(survival)
-library(survminer)
-library(readxl)
 library(ggplot2)
-library(gridExtra)
-library(readxl)
-library(ggpubr)
-library(Rmisc)
+library(ggfortify)
 
-###
-### Then load in your file
-###
+model_fit <- survfit(Surv(Age, Status) ~ Groups, data = data)
 
-###
-###Then create your survival model
-###
-surv_object = Surv(time = data$Age, event = data$Event)
-
-# Regress on a constant
-fit <- survfit(surv_object ~ 1)
-
-# Plot the fit
-ggsurvplot(fit, data.frame(time = data$Age, event = data$Group), conf.int=FALSE)
-
-sarcoma.fit <- survfit(Surv(data$Days, data$Sex) ~ pheno$'Group', data = data)
-HN.fit <- survfit(Surv(data$Days, pheno$Hematopoietic) ~ pheno$'Group', data = pheno)
-
-###
-### Visualize with survminer
-###
-ggsurvplot(sarcoma.fit, data = pheno, risk.table = TRUE, conf.int = F, pval= T)
-ggsurvplot(HN.fit, data = pheno, risk.table = TRUE, conf.int = F, pval= T)
+autoplot(model_fit) + 
+  labs(x = "\n Survival Time (Days) ", y = "Survival Probabilities \n", 
+       title = "Survival Times \n JBM 336 \n") + 
+  theme_bw()
 
 
-
-
-
-
-
-###
-### Other code
-###
-###
-### Other code
-###
-###
-### Other code
-###
-###
-### Other code
-###
-
-
-fit2 <- survfit(Surv(Days, data$'Pulmonary carcinoma') ~ Groups, data = data)
-ggsurvplot(fit2, data = data, risk.table = TRUE, conf.int = F, pval= T)
-print(fit2, print.rmean=TRUE)
-
-rm(fit2)
-
-
-
-library(survival)
-library(survminer)
-
-fit <- survfit(Surv(Age) ~ data$'Group', data = data)
-# Visualize with survminer
-ggsurvplot(fit, data = data, risk.table = TRUE, conf.int = F, pval= T)
-
-
-
-newdata <- subset(data, data$'Proliferative Pulmonary Lesions'=='1')
-fit2 <- survfit(Surv(Days) ~ Groups, data = newdata)
-ggsurvplot(fit2, data = newdata, risk.table = TRUE, conf.int = F, pval= T)
-print(fit2, print.rmean=TRUE)
-
-rm(fit2)
+autoplot(survfit(Surv(Age, Status) ~ Groups, data = data))
+autoplot(survfit(Surv(Age, Status) ~ Groups, data = data), conf.int = FALSE, censor = T)
