@@ -122,14 +122,14 @@ Kidney <- ggplot(data) +
 
 
 ### Graft Weight
-my_mean = aggregate(data$'Xenograft Weight', by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'Xenograft' , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'Allograft Weight', by=list(data$Group), mean) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$'Allograft' , by=list(data$Group) , FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean , my_CI , by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
 ### Graft plot
 Graft <- ggplot(data) + 
-  geom_jitter(aes(x = Group, y = data$'Xenograft Weight', color = Sex), width = 0.1, show.legend=F) +
+  geom_jitter(aes(x = Group, y = data$'Allograft Weight', color = Sex), width = 0.1, show.legend=F) +
   geom_point(data = my_info, aes(x = Group , y = mean), color = "grey", size = 2) +
   scale_y_continuous(name = "Graft")+#, limits=c(0, 10)) +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=0.5) +
@@ -143,6 +143,8 @@ Graft <- ggplot(data) +
 tiff("Absolute Organ Weights.tiff", units="in", width=9, height=5, res=600)
 grid.arrange(Brain, Spleen, Liver, Lung, Kidney, Heart,
              ncol = 3, nrow = 2)
-
 dev.off()
 
+#tiff("Absolute Organ Weights.tiff", units="in", width=9, height=7.5, res=600)
+#grid.arrange(BW, Graft, Brain, Spleen, Liver, Lung, Kidney, Heart, ncol = 3, nrow = 3)
+#dev.off()

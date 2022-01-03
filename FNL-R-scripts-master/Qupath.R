@@ -8,21 +8,21 @@ library(Rmisc)
 library(tidyverse)
 library(plyr)
 
-my_mean = aggregate(data$'% Necrosis', by=list(data$'Group'), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'% Necrosis', by=list(data$'Group'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'Aspirate Grade', by=list(data$'Group'), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$'Aspirate Grade', by=list(data$'Group'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean, my_CI, by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
-ggplot(data) + 
+Image1 <- ggplot(data) + 
   geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "grey", size = 5) +
-  scale_y_continuous(name = "% Necrosis") +
+  scale_y_continuous(name = "Bone Marrow Aspirate Grade") +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
-  geom_jitter(aes(x = data$'Group', y = data$'% Necrosis', color = data$'Timepoint'), width = 0.2, size = 2) +
+  geom_jitter(aes(x = data$'Group', y = data$'Aspirate Grade', color = data$'Group'), width = 0.2, height = 0.1, size = 2) +
   theme_bw(base_size = 18) +
   theme(axis.text.x=element_text(angle=35,hjust=1))+
   theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
 
-tiff("Image1.tiff", units="in", width=17, height=9, res=300)
+tiff("Image1.tiff", units="in", width=7, height=6, res=300)
 grid.arrange(Image1, ncol = 1, nrow = 1)
 dev.off()
 

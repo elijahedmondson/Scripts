@@ -1,6 +1,4 @@
-//setChannelNames(
-//      'DAPI',
-//     'SynMUT1')
+setChannelNames('DAPI', 'GFP','CD45R')
      
 selectAnnotations();
 
