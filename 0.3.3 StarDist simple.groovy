@@ -1,8 +1,8 @@
 import qupath.ext.stardist.StarDist2D
-setColorDeconvolutionStains('{"Name" : "H-DAB default", "Stain 1" : "Hematoxylin", "Values 1" : "0.65111 0.70119 0.29049", "Stain 2" : "DAB", "Values 2" : "0.26917 0.56824 0.77759", "Background" : " 228 223 226"}');
+//setColorDeconvolutionStains('{"Name" : "H-DAB default", "Stain 1" : "Hematoxylin", "Values 1" : "0.65111 0.70119 0.29049", "Stain 2" : "DAB", "Values 2" : "0.26917 0.56824 0.77759", "Background" : " 228 223 226"}');
 
 // Specify the model file (you will need to change this!)
-var pathModel = 'C:/Users/edmondsonef/QuPath/Stardist Trained Models/he_heavy_augment.pb'
+var pathModel = 'F:/QuPath/Stardist/he_heavy_augment.pb'
 
 // Get current image - assumed to have color deconvolution stains set
 println '1'
@@ -10,7 +10,7 @@ selectAnnotations();
 
 var stardist = StarDist2D.builder(pathModel)
       .ignoreCellOverlaps(false)   // Set to true if you don't care if cells expand into one another
-      .threshold(0.12)              // Prediction threshold
+      .threshold(0.4)              // Prediction threshold
       .normalizePercentiles(1, 99) // Percentile normalization
       .pixelSize(0.2)              // Resolution for detection
       .includeProbability(true)    // Include prediction probability as measurement
