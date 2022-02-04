@@ -1,4 +1,5 @@
 data <- read_excel("MHL 19-331-114 Efficacy.xlsx", sheet = "Path Data")
+setwd("F:/QuPath/Scripts/FNL-R-scripts-master")
 
 library(ggplot2)
 library(gridExtra)

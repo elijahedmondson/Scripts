@@ -16,7 +16,7 @@ ggplot(aes(humanized$"Strain",humanized$"CD45%")) +
 ggsave("huCD45.percent.png")
 
 
-tiff("Plot.tiff", units="in", width=12, height=6, res=300)
+tiff("Plot.tiff", units="in", width=12, height=6, res=150)
 grid.arrange(plot, ncol = 1, nrow = 1)
 dev.off()
 
