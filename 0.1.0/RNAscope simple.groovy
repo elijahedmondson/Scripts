@@ -7,17 +7,7 @@ setColorDeconvolutionStains('{"Name" : "H-DAB default", "Stain 1" : "Hematoxylin
 selectAnnotations();
 
 runPlugin('qupath.imagej.detect.nuclei.WatershedCellDetection', '{"detectionImageBrightfield": "Hematoxylin OD",  "requestedPixelSizeMicrons": 0.5,  "backgroundRadiusMicrons": 8,  "medianRadiusMicrons": 0.0,  "sigmaMicrons": 1.5,  "minAreaMicrons": 20.0,  "maxAreaMicrons": 400.0,  "threshold": 0.05,  "maxBackground": 2.0,  "watershedPostProcess": true,  "excludeDAB": false,  "cellExpansionMicrons": 10.0,  "includeNuclei": true,  "smoothBoundaries": true,  "makeMeasurements": true}');
-
-runPlugin('qupath.imagej.detect.cells.SubcellularDetection', '{"detection[DAB]": 0.6,  "doSmoothing": false,  "splitByIntensity": true,  "splitByShape": false,  "spotSizeMicrons": .3,  "minSpotSizeMicrons": 0.01,  "maxSpotSizeMicrons": 1.5,  "includeClusters": false}');
+selectAnnotations();
+runPlugin('qupath.imagej.detect.cells.SubcellularDetection', '{"detection[DAB]": 0.4,  "doSmoothing": false,  "splitByIntensity": true,  "splitByShape": false,  "spotSizeMicrons": .3,  "minSpotSizeMicrons": 0.01,  "maxSpotSizeMicrons": 1.5,  "includeClusters": false}');
 setCellIntensityClassifications("Subcellular: DAB: Num spots estimated", 1, 4, 10)
 
-
-
-//SAVE ANNOTATIONS //
-
-def name = getProjectEntry().getImageName() + '.txt'
-//def path = buildFilePath('C:/Users/edmondsonef/Desktop/QuPath/Venditti/', 'RNAscope quantification')
-def path = buildFilePath(PROJECT_BASE_DIR, 'RNAscope')
-mkdirs(path)
-path = buildFilePath(path, name)
-saveAnnotationMeasurements(path)
