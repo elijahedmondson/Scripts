@@ -8,30 +8,33 @@ var pathModel = 'F:/QuPath/Stardist/he_heavy_augment.pb'
 println '1'
 //runPlugin('qupath.imagej.detect.tissue.SimpleTissueDetection2', '{"threshold": 230,  "requestedPixelSizeMicrons": 20.0,  "minAreaMicrons": 1000000.0,  "maxHoleAreaMicrons": 5000.0,  "darkBackground": false,  "smoothImage": true,  "medianCleanup": true,  "dilateBoundaries": false,  "smoothCoordinates": true,  "excludeOnBoundary": false,  "singleAnnotation": true}');
 
-selectAnnotations();
-
+//selectAnnotations();
+selectTMACores();
 var stardist = StarDist2D.builder(pathModel)
       .ignoreCellOverlaps(false)   // Set to true if you don't care if cells expand into one another
-      .threshold(0.2)              // Prediction threshold
+      .threshold(0.4)              // Prediction threshold
       .normalizePercentiles(2, 99) // Percentile normalization
-      .pixelSize(0.9)              // Resolution for detection
+      .pixelSize(0.2531)              // Resolution for detection
       //.includeProbability(true)    // Include prediction probability as measurement
       .cellExpansion(7.0)          // Approximate cells based upon nucleus expansion
       .cellConstrainScale(3)       // Constrain cell expansion using nucleus size
-      //.measureShape()              // Add shape measurements
-      //.measureIntensity()          // Add cell measurements (in all compartments)
-      //.doLog()                     // Use this to log a bit more information while running the script
+      .measureShape()              // Add shape measurements
+      .measureIntensity()          // Add cell measurements (in all compartments)
+      .doLog()                     // Use this to log a bit more information while running the script
       .build()
 println '2'
 // Run detection for the selected objects
 var imageData = getCurrentImageData()
+println '3'
 var pathObjects = getSelectedObjects()
+println '4'
 if (pathObjects.isEmpty()) {
     Dialogs.showErrorMessage("StarDist", "Please select a parent object!")
     return
 }
+println '5'
 stardist.detectObjects(imageData, pathObjects)
-println '3'
+println '6'
 
 
 //IHC//
@@ -39,7 +42,11 @@ println '3'
 //IHC//
 //IHC//
 //IHC//
-//setDetectionIntensityClassifications("DAB: Mean", 0.13, 0.5, 0.9)
+setDetectionIntensityClassifications("DAB: Cell: Mean", 0.1, 0.3, 0.5)
+//setDetectionIntensityClassifications("DAB: Nucleus: Mean", 0.1, 0.3, 0.5)
+//setDetectionIntensityClassifications("DAB: Cytoplasm: Mean", 0.1, 0.3, 0.5)
+//setDetectionIntensityClassifications("DAB: Membrane: Mean", 0.1, 0.3, 0.5)
+println '7'
 
 
 
@@ -47,8 +54,8 @@ println '3'
 //RNASCOPE//
 //RNASCOPE//
 //RNASCOPE//
-runPlugin('qupath.imagej.detect.nuclei.WatershedCellDetection', '{"detectionImageBrightfield": "Hematoxylin OD",  "requestedPixelSizeMicrons": 0.5,  "backgroundRadiusMicrons": 8,  "medianRadiusMicrons": 0.0,  "sigmaMicrons": 1.5,  "minAreaMicrons": 20.0,  "maxAreaMicrons": 400.0,  "threshold": 0.05,  "maxBackground": 2.0,  "watershedPostProcess": true,  "excludeDAB": false,  "cellExpansionMicrons": 10.0,  "includeNuclei": true,  "smoothBoundaries": true,  "makeMeasurements": true}');
-selectAnnotations();
-runPlugin('qupath.imagej.detect.cells.SubcellularDetection', '{"detection[DAB]": 0.3,  "doSmoothing": false,  "splitByIntensity": true,  "splitByShape": false,  "spotSizeMicrons": .2,  "minSpotSizeMicrons": 0.01,  "maxSpotSizeMicrons": 1.5,  "includeClusters": false}');
-setCellIntensityClassifications("Subcellular: DAB: Num spots estimated", 1, 4, 10)
-
+//runPlugin('qupath.imagej.detect.nuclei.WatershedCellDetection', '{"detectionImageBrightfield": "Hematoxylin OD",  "requestedPixelSizeMicrons": 0.5,  "backgroundRadiusMicrons": 8,  "medianRadiusMicrons": 0.0,  "sigmaMicrons": 1.5,  "minAreaMicrons": 20.0,  "maxAreaMicrons": 400.0,  "threshold": 0.05,  "maxBackground": 2.0,  "watershedPostProcess": true,  "excludeDAB": false,  "cellExpansionMicrons": 10.0,  "includeNuclei": true,  "smoothBoundaries": true,  "makeMeasurements": true}');
+//selectAnnotations();
+//runPlugin('qupath.imagej.detect.cells.SubcellularDetection', '{"detection[DAB]": 0.3,  "doSmoothing": false,  "splitByIntensity": true,  "splitByShape": false,  "spotSizeMicrons": .2,  "minSpotSizeMicrons": 0.01,  "maxSpotSizeMicrons": 1.5,  "includeClusters": false}');
+//setCellIntensityClassifications("Subcellular: DAB: Num spots estimated", 1, 4, 10)
+println '8'
