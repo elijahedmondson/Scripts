@@ -3,20 +3,21 @@ import qupath.ext.stardist.StarDist2D
 
 // Specify the model file (you will need to change this!)
 var pathModel = 'F:/QuPath/Stardist/he_heavy_augment.pb'
-
+//REQUIRED CONVERSION FOR GPU PROCESSING
+def dnn = DnnTools.builder(pathModel).build();
 // Get current image - assumed to have color deconvolution stains set
 println '1'
 //runPlugin('qupath.imagej.detect.tissue.SimpleTissueDetection2', '{"threshold": 230,  "requestedPixelSizeMicrons": 20.0,  "minAreaMicrons": 1000000.0,  "maxHoleAreaMicrons": 5000.0,  "darkBackground": false,  "smoothImage": true,  "medianCleanup": true,  "dilateBoundaries": false,  "smoothCoordinates": true,  "excludeOnBoundary": false,  "singleAnnotation": true}');
 
 //selectAnnotations();
-selectTMACores();
+//selectTMACores();
 var stardist = StarDist2D.builder(pathModel)
       .ignoreCellOverlaps(false)   // Set to true if you don't care if cells expand into one another
-      .threshold(0.4)              // Prediction threshold
+      .threshold(0.5)              // Prediction threshold
       .normalizePercentiles(2, 99) // Percentile normalization
-      .pixelSize(0.2531)              // Resolution for detection
+      //.pixelSize(0)              // Resolution for detection
       //.includeProbability(true)    // Include prediction probability as measurement
-      .cellExpansion(7.0)          // Approximate cells based upon nucleus expansion
+      .cellExpansion(10.0)          // Approximate cells based upon nucleus expansion
       .cellConstrainScale(3)       // Constrain cell expansion using nucleus size
       .measureShape()              // Add shape measurements
       .measureIntensity()          // Add cell measurements (in all compartments)
@@ -36,6 +37,14 @@ println '5'
 stardist.detectObjects(imageData, pathObjects)
 println '6'
 
+
+Thread.sleep(100)
+// Try to reclaim whatever memory we can, including emptying the tile cache
+javafx.application.Platform.runLater {
+    getCurrentViewer().getImageRegionStore().cache.clear()
+    System.gc()
+}
+Thread.sleep(100)
 
 //IHC//
 //IHC//
