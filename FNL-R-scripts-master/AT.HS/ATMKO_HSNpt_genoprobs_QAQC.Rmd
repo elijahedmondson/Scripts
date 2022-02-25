@@ -1,0 +1,258 @@
+---
+title: "ATM KO HS/Npt genoprobs QAQC"
+author: "Daniel M. Gatti, Ph.D."
+date: "8/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(knitr)
+library(hierfstat)
+library(tidyverse)
+library(qtl2)
+library(qtl2convert)
+
+base_dir = '/media/dmgatti/data1/ColoState/ATM'
+geno_dir = file.path(base_dir, 'data', 'genotypes')
+hap_dir  = file.path(base_dir, 'haplo_reconstr')
+qtl2_dir = file.path(hap_dir, 'qtl2')
+results_dir  = file.path(base_dir, 'results')
+probs_file   = file.path(hap_dir, 'atmko_hs_alleleprobs.rds')
+probs_file_clean = file.path(hap_dir, 'atmko_hs_alleleprobs_cleaned.rds')
+cross_file   = file.path(qtl2_dir, 'atmko_hs.json')
+
+muga_dir     = '/media/dmgatti/data0/MUGA/'
+gm_unc_file  = file.path(muga_dir, 'snps.gigamuga.Rdata')
+gm_wisc_file = file.path(muga_dir, 'gm_uwisc_v1.csv')
+geno_file    = file.path(geno_dir, 'csu_genotypes.rds')
+
+
+founder_names = c('A/J', 'AKR/J', 'BALB/cJ', 'C3H/HeJ', 'C57BL/6J', 'CBA/J', 'DBA/2J', 'LP/J', '129S6/SvEvTac-Atm/J')
+
+HScolors = CCcolors
+HScolors = c(CCcolors, '129SvE' = '#BB5500')
+HScolors[1] = '#FFC800'
+names(HScolors) = founder_names
+
+HSletters = setNames(names(HScolors), LETTERS[1:9])
+```
+
+Below are the HS/Npt strain names and letters. We'll use the CC colors in the same order.
+
+A: A/J
+B: AKR/J
+C: BALB/cJ
+D: C3H/HeJ
+E: C57BL/6J
+F: CBA/J
+G: DBA/2J
+H: LP/J
+
+The 129S KO strain will be 'I' and will be brown.
+
+I: 129SvE
+
+## Genotypes and Diversity
+
+Read in the cross object.
+
+```{r read_cross}
+cross = read_cross2(file = cross_file, quiet = FALSE)
+markers = read.csv(gm_wisc_file)
+```
+
+Calculate the minor allele frequency at the markers.
+
+```{r calc_maf}
+maf = calc_raw_maf(cross, by = 'marker')
+maf = data.frame(marker = names(maf), maf = maf) %>% 
+        right_join(select(markers, marker:bp_mm10)) %>% 
+        mutate(pos = bp_mm10 * 1e-6,
+               maf = if_else(maf > 0.5, 1.0 - maf, maf))
+```
+
+```{r plot_maf,fig.height=16,fig.width=6}
+maf %>% 
+  filter(chr %in% c(1:19, 'X')) %>% 
+  mutate(chr = factor(chr, levels = c(1:19, 'X'))) %>% 
+  ggplot(aes(pos, maf)) +
+    geom_point() +
+    geom_smooth(method = 'loess', span = 0.1) +
+    facet_wrap(~chr, ncol = 1) +
+    labs(title = 'MAF using Gigamuga Markers')
+```
+
+The MAF varies a lot across the genome.
+
+```{r maf_by_chr_box}
+maf %>% 
+  filter(chr %in% c(1:19, 'X')) %>% 
+  mutate(chr = factor(chr, levels = c(1:19, 'X'))) %>% 
+  ggplot(aes(chr, maf)) +
+    geom_boxplot()
+```
+
+Median MAF is ~6%, which is low. We expect a low MAF on Chr 9 because ATM is located there and we selected mice based on homozygosity at the ATM locus (~54 Mb).
+
+Look at haplotype diversity.
+
+Read in the genoprobs. 
+
+```{r read_genoprobs}
+probs = readRDS(probs_file)
+markers = read.csv(file.path(hap_dir, 'qtl2', 'pmap.csv'))
+map = map_df_to_list(markers, pos_column = 'pos')
+```
+
+Get founder allele probs across the genome.
+
+```{r founder_prop_genome}
+fpr = apply(probs[[1]], c(2,3), mean) %>%
+        t() %>% 
+        as.data.frame() 
+
+for(chr in names(probs)[-1]) {
+  fpr = bind_rows(fpr, apply(probs[[chr]], c(2,3), mean) %>%
+                       t() %>% 
+                       as.data.frame())
+} # for(chr)
+
+fpr = right_join(markers, rownames_to_column(fpr, var = 'marker'))
+colnames(fpr) = c('marker', 'chr', 'pos', founder_names)
+
+saveRDS(fpr, file.path(results_dir, 'founder_prop_genome.rds'))
+```
+
+
+```{r plot_founder_prop_genome,fig.width=8,fig.height=12}
+fpr %>%
+  mutate(chr = factor(chr, levels = c(1:19, 'X'))) %>%
+  pivot_longer(cols = `A/J`:`129S6/SvEvTac-Atm/J`, names_to = 'founder', values_to = 'freq') %>%
+  ggplot() +
+    geom_hline(aes(yintercept = 0.0625), linetype = 2, color = 'grey50') +
+    geom_line(aes(pos, freq, color = founder)) +
+    scale_color_manual(values = HScolors) +
+    facet_wrap(~chr, ncol = 2, dir = 'v') +
+    labs(title = "Founder Allele Frequency by Chromosome")
+```
+
+What proportion of each chromosome is 129?
+
+```{r}
+fpr %>% 
+  group_by(chr) %>% 
+  summarize(median_129 = median(`129S6/SvEvTac-Atm/J`, na.rm = TRUE))
+```
+
+
+Limit the y-axis to 0.25 to look at the 8 founder strains.
+
+```{r plot_founder_prop_genome2,fig.width=8,fig.height=20}
+fpr %>%
+  mutate(chr = factor(chr, levels = c(1:19, 'X'))) %>%
+  pivot_longer(cols = `A/J`:`129S6/SvEvTac-Atm/J`, names_to = 'founder', values_to = 'freq') %>%
+  ggplot() +
+    geom_hline(aes(yintercept = 0.0625), linetype = 2, color = 'grey50') +
+    geom_line(aes(pos, freq, color = founder)) +
+    scale_color_manual(values = HScolors) +
+    facet_wrap(~chr, ncol = 1, scales = 'free_x') +
+    lims(y = c(0, 0.3)) + 
+    labs(title = "Founder Allele Frequency by Chromosome")
+```
+
+Founder allele probs by sample.
+
+```{r founder_prop_sample}
+fpr_samp = apply(probs[[1]], c(1:2), mean) %>%
+            as.data.frame() %>% 
+            rownames_to_column(var = 'sample') %>% 
+            pivot_longer(cols = A:I, names_to = 'founder', values_to = 'proportion') %>% 
+            mutate(founder = fct_relabel(founder, 
+                                         function(z) {
+                                           HSletters[z]
+                                         }))
+```
+
+Each sample should have ~6.25% of the eight HS founders and ~50% of 129SvE
+
+```{r plot_founder_prop_sample,fig.height=12,fig.width=8}
+fpr_samp %>% 
+  ggplot() +
+    geom_line(aes(sample, proportion, group = founder, color = founder)) +
+    geom_hline(aes(yintercept = 0.0625), col = 'red', lintetype = 'dashed') +
+    scale_color_manual(values = HScolors) +
+    facet_wrap(~founder, ncol = 1)
+```
+
+
+Extract duplicate samples and compare them.
+
+```{r compare_duplicates}
+raw_ids = strsplit(rownames(probs[[1]]), split = '\\.')
+raw_ids = sapply(raw_ids, '[', 2)
+dupl = raw_ids[which(duplicated(raw_ids))]
+dupl_idx = apply(sapply(dupl, '==', raw_ids), 2, which)
+
+compare_fxn = function(idx1, idx2) {
+
+  retval = vector('list', length(probs))
+
+  for(chr in seq_along(probs)) {
+    p1 = probs[[chr]][idx1,,]
+    p2 = probs[[chr]][idx2,,]
+    retval[[chr]] = diag(cor(p1, p2))
+  } # for(chr)
+  
+  return(mean(unlist(retval)))
+
+} # compare_fxn()
+```
+
+```{r compare_dupl2}
+dupl_comp = data.frame(id = colnames(dupl_idx), cor = rep(0, ncol(dupl_idx)))
+for(i in 1:ncol(dupl_idx)) {
+  dupl_comp$cor[i] = compare_fxn(dupl_idx[1,i], dupl_idx[2,i])
+}
+
+dupl_comp
+```
+
+The correlations should be near 0.95 for true duplicates. I don't know how to assign these correctly and so, will remove them.
+
+Remove duplicates.
+
+```{r}
+samples = rownames(probs[[1]])
+samples = strsplit(samples, split = '\\.')
+samples = sapply(samples, '[', 2)
+
+probs = lapply(probs, function(z) { rownames(z) = samples; z })
+
+for(s in dupl) {
+  
+  pr = probs[[1]][rownames(probs[[1]]) != s,,]
+  
+} # for(s)
+
+probs = lapply(probs, function(z) { z[!duplicated(rownames(z)),,] })
+
+attr(probs, 'crosstype') = 'genail9'
+attr(probs, 'is_x_chr') = setNames(c(rep(F, 19), T), c(1:19, 'X'))
+attr(probs, 'alleles') = LETTERS[1:9]
+attr(probs, 'alleleprobs') = TRUE
+attr(probs, 'class') = c('calc_genoprob', 'list')
+
+saveRDS(probs, probs_file_clean)
+
+```
+
+
+
+
+
+
+
+
+

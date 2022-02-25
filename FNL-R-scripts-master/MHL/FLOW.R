@@ -50,7 +50,7 @@ library(ggplot2)
 
 # load data (download file from link above or GitHub repository)
 
-file <- "data/Samusik_01_notransform.fcs"
+file <- "C:\Users\edmondsonef\Desktop\Humanized Mouse Models\Flow\___.fcs"
 data <- flowCore::exprs(flowCore::read.FCS(file, transformation = FALSE, truncate_max_range = FALSE))
 
 head(data)

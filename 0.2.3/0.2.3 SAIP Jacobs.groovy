@@ -7,12 +7,12 @@ selectAnnotations();
 
 def minArea = 100.0 // To change
 def minHoleArea = 100.0 // To change
-def classifierName = "Necrosis3" // To change
+def classifierName = "Necrosis2" // To change
 
 // Select all annotations
 selectAnnotations();
 
-addPixelClassifierMeasurements("Necrosis3", "Necrosis3");
+addPixelClassifierMeasurements(classifierName, classifierName);
 
 // Apply pixel classifier inside them
 //createAnnotationsFromPixelClassifier(classifierName, minArea, minHoleArea)

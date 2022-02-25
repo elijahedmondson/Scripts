@@ -1,0 +1,123 @@
+---
+title: "ATM KO HS/Npt Minor Allele Frequency"
+author: "Daniel M. Gatti, Ph.D."
+date: "8/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(qtl2convert)
+library(qtl2)
+library(tidyverse)
+
+base_dir   = '/media/dmgatti/data1/ColoState'
+hap_dir    = file.path(base_dir, 'haplo_reconstr')
+probs_file = file.path(hap_dir, 'atmko_hs_alleleprobs_cleaned.rds')
+results_dir = file.path(base_dir, 'results', 'at_modifier')
+
+muga_dir     = '/media/dmgatti/data0/MUGA/'
+gm_wisc_file = file.path(muga_dir, 'gm_uwisc_v1.csv')
+# Made using my script.
+#hs_snp_file  = file.path(muga_dir, 'atmkohsnpt_variants.sqlite')
+# Made using Karl's script.
+hs_snp_file  = file.path(muga_dir, 'atmkohsnpt_variants_129S5SvEvBrd.sqlite')
+
+gene_file    = file.path(muga_dir, 'mouse_genes_mgi.sqlite')
+
+founder_names = c('A/J', 'AKR/J', 'BALB/cJ', 'C3H/HeJ', 'C57BL/6J', 'CBA/J', 'DBA/2J', 'LP/J', '129S6/SvEvTac-Atm/J')
+
+HScolors = CCcolors
+HScolors = c(CCcolors, '129SvE' = '#BB5500')
+HScolors[1] = '#FFC800'
+names(HScolors) = founder_names
+
+# SNP query function.
+snp_func = qtl2::create_variant_query_func(hs_snp_file)
+
+```
+
+Read in the markers and probs.
+
+```{r}
+probs = readRDS(probs_file)
+markers = read.csv(gm_wisc_file)
+markers = subset(markers, chr %in% c(1:19, 'X'))
+markers$pos = markers$bp_mm10 * 1e-6
+map = qtl2convert::map_df_to_list(markers, pos_column = 'pos')
+
+for(i in seq_along(probs)) {
+  map[[i]] = map[[i]][names(map[[i]]) %in% dimnames(probs[[i]])[[3]]]
+  stopifnot(all(names(map[[i]]) == dimnames(probs[[i]])[[3]]))
+}
+```
+
+
+For each chromosome, get the MAF at each unique SDP.
+
+```{r get_maf}
+unique_chr = names(probs)
+
+num_snps = setNames(rep(0, length(unique_chr)), unique_chr)
+maf = vector('list', length(unique_chr))
+names(maf) = unique_chr
+
+all_sdps = vector('list', length(unique_chr))
+names(all_sdps) = unique_chr
+
+for(chr in unique_chr) {
+  
+  print(paste('CHR', chr))
+
+  snpinfo = snp_func(chr = chr, start = 0, end = 2e6)
+  snpinfo = index_snps(map, snpinfo)
+  all_sdps[[chr]] = qtl2::genoprob_to_snpprob(probs, snpinfo)[[1]]
+
+  sdp = all_sdps[[chr]][,'A',]
+  sdp = round(2 * sdp)
+  tmp = apply(sdp, 2, table)
+  tmp = lapply(tmp, function(z) { z / sum(z) })
+  tmp = sapply(tmp, min)
+  flip = which(tmp > 0.5)
+  tmp[flip] = 1.0 - tmp[flip]
+
+  maf[[chr]] = tmp
+  
+  rm(snpinfo, sdp, tmp)
+  gc()
+
+} # for(chr)
+```
+Save the data in case we need to do further analyses.
+
+```{r save_data}
+saveRDS(all_sdps, file = file.path(results_dir, 'all_sdps.rds'))
+saveRDS(maf, file = file.path(results_dir, 'maf.rds'))
+```
+
+Plot MAF on each chromosome.
+
+```{r reshape_maf}
+# Convert to a large data.frame.
+maf = unlist(maf)
+tmp = strsplit(names(maf), '_')
+tmp = sapply(tmp, '[', 1)
+tmp = strsplit(tmp, '\\.')
+tmp = sapply(tmp, '[', 2)
+tmp = strsplit(tmp, ':')
+chr = sapply(tmp, '[', 1)
+pos = as.numeric(sapply(tmp, '[', 2)) * 1e-6
+
+maf = data.frame(chr = chr, pos = pos, maf = maf)
+```
+
+```{r plot_maf,fig.width=10}
+maf %>% 
+  mutate(chr = factor(chr, levels = c(1:19, 'X'))) %>% 
+  ggplot(aes(pos, maf)) +
+    geom_line() +
+    facet_wrap(~chr, ncol = 5)
+```
+
+

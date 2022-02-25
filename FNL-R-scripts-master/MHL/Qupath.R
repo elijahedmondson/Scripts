@@ -9,16 +9,16 @@ library(Rmisc)
 library(tidyverse)
 library(plyr)
 
-my_mean = aggregate(data$'Aspirate Grade', by=list(data$'Group'), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'Aspirate Grade', by=list(data$'Group'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'Tumor: % Positive Pixel', by=list(data$'Group'), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$'Tumor: % Positive Pixel', by=list(data$'Group'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean, my_CI, by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
 Image1 <- ggplot(data) + 
   geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "grey", size = 5) +
-  scale_y_continuous(name = "Bone Marrow Aspirate Grade") +
-  geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
-  geom_jitter(aes(x = data$'Group', y = data$'Aspirate Grade', color = data$'Group'), width = 0.2, height = 0.1, size = 2) +
+  scale_y_continuous(name = "Tumor: % Positive Pixel") +
+  #geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
+  geom_jitter(aes(x = data$'Group', y = data$'Tumor: % Positive Pixel', color = data$'Group'), width = 0.2, height = 0.000000001, size = 2) +
   theme_bw(base_size = 18) +
   theme(axis.text.x=element_text(angle=35,hjust=1))+
   theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
@@ -324,10 +324,10 @@ ggplot(data) +
 ###Scatterplots, tumor size over time, etc###
 
 
-ggplot(data, aes(x = data$'Age', y = data$'Sum on Marrow Grade')) +
+ggplot(data, aes(x = data$'rankZ', y = data$'log_days')) +
   geom_point(aes(color = data$Group), size = 5)+
-  scale_y_continuous(name = "Bone Marrow Histopathology: Grade") +
-  scale_x_continuous(name = "Age (days)") +
+  scale_y_continuous(name = "log_days") +
+  scale_x_continuous(name = "rankZ") +
   theme_bw(base_size = 18)+
   stat_smooth(method = "lm",
               col = "#C42126",
@@ -365,6 +365,35 @@ scatterplot3d(data$Urine, data$`Dry Fecal Pellet`, data$swab, pch = 16, color = 
               ylab = "Fecal Pellet PCR", zlab = "Cage Swab PCR")
 
 
+#############Histogram
+#############Histogram
+#############Histogram
+#############Histogram
+#############Histogram
+#############Histogram
+data$log_days = log(data$Age)
+
+par(mfrow=c(2,2))
+hist(data$Age, breaks=40)
+hist(data$log_days, breaks=40)
+hist(data$rankZ, breaks=40)
+
+hist(data$`PreT LL Transform`, breaks=100)
+hist(data$`CNS Polyglucosan Body Transform`, breaks=100)
+
+
+
+res.cox <- coxph(Surv(data$days, data$event), data = data)
+
+#############Histogram
+#############Histogram
+#############Histogram
+#############Histogram
+#############Histogram
+#############Histogram
+#############Histogram
+#############Histogram
+
 
 library(ggplot2)
 library(ggpmisc)
@@ -376,14 +405,14 @@ library(Rmisc)
 
 
 my.formula <- y ~ x
-ggplot(data = data, aes(x = data$'CC3 % Dark', y = data$'Stain 2 H-Score', color = data$Strain), na.rm=TRUE) +
+ggplot(data = data, aes(x = data$'rankZ', y = data$'PreT LL', color = data$'PreT LL'), na.rm=TRUE) +
   geom_smooth(method = "lm", se=FALSE, color="red", formula = my.formula, na.rm=TRUE) +
   stat_poly_eq(formula = my.formula, 
                aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
                parse = TRUE, na.rm=TRUE) +  
   geom_point(na.rm=TRUE)+
-  scale_y_continuous(name = "Stain 2 H-Score") +
-  scale_x_continuous(name = "CC3 % Dark") + #, limits = c(20, 36)) +
+  scale_y_continuous(name = "PreT LL") +
+  scale_x_continuous(name = "rankZ") + #, limits = c(20, 36)) +
     theme_bw(base_size = 16)      
 
 pswab1 <- ggplot(data = data1, aes(x = data1$'Urine.log', y = data1$'Swab.log'), na.rm=TRUE) +

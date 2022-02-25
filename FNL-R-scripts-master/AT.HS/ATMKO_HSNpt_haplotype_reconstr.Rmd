@@ -1,0 +1,488 @@
+---
+title: "ATM KO HS/Npt"
+author: "Daniel M. Gatti, Ph.D."
+date: "8/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(knitr)
+library(argyle)
+library(mclust)
+library(qtl2)
+library(qtl2convert)
+
+base_dir = '/media/dmgatti/data1/ColoState/ATM'
+geno_dir = file.path(base_dir, 'data', 'genotypes')
+hap_dir  = file.path(base_dir, 'haplo_reconstr')
+qtl2_dir = file.path(hap_dir, 'qtl2')
+control_file = file.path(qtl2_dir, 'atmko_hs.json')
+
+muga_dir     = '/media/dmgatti/data0/MUGA/'
+gm_unc_file  = file.path(muga_dir, 'snps.gigamuga.Rdata')
+gm_wisc_file = file.path(muga_dir, 'gm_uwisc_v1.csv')
+
+founder_names = c("129SVEF", "129SVEM", "AJF", "AJM", "AKRF", "AKRM", "BALBF", "BALBM", "C3HF", "C3HM", "C57F", "C57M", "CBAF", "CBAM", "DBAF", "DBAM", "LPM")
+
+hs_founder_prop_file = '/media/dmgatti/data1/ColoState/HS/results/genome_founder_prop.csv'
+```
+
+Below are the HS/Npt strain names and letters. We'll use the CC colors in the same order.
+
+A: A/J
+B: AKR/J
+C: BALB/cJ
+D: C3H/HeJ
+E: C57BL/6J
+F: CBA/J
+G: DBA/2J
+H: LP/J
+
+
+`argyle` uses the UNC SNP file. Read this in. I'll use the U Wisc. one later.
+
+```{r}
+# Loads in an object called 'snps'.
+load(gm_unc_file)
+unc_snps = snps
+rm(snps)
+```
+
+Read in the genotypes.
+
+```{r}
+data_dirs = dir(geno_dir, pattern = '^CSU', full.names = TRUE)
+
+# Variables for genotypes and samples.
+geno    = NULL
+
+# Read in all of the data and merge into one large object.
+for(d in data_dirs) {
+  
+  print(d)
+  
+  ds = unlist(strsplit(d, split = "/"))
+  ds = ds[length(ds)]
+  
+  # Read in data from Neogen file.
+  tmp = read.beadstudio(prefix = "ds__", snps = unc_snps, in.path = d)
+  
+  # Add batch to sample IDs. 
+  tmp = replace.names(gty = tmp, nn = paste(ds, samples(tmp)$iid, sep = "."))
+  
+  if(is.null(geno)) {
+    geno = tmp
+  } else {
+    geno = cbind.genotypes(geno, tmp) 
+  } # else
+
+} # for(d)
+
+# Fix some founder IDs by removing punctuation.
+geno = replace.names(gty = geno, nn = sub('/|-', '', samples(geno)$iid))
+```
+
+How many samples are there?
+
+```{r num_samples}
+dim(geno)
+```
+
+The founders are interspersed with the samples.
+
+```{r}
+sort(samples(geno)$fid)
+```
+
+There are three HS samples without 'A' in front of them. Add the 'A' to those samples.
+
+```{r add_A}
+ids = samples(geno)$fid
+wh_notA = ids[grep('^[0-9]', ids)]
+# Don't add an 'A' to the 129S samples.
+wh_notA = wh_notA[-grep('^129SVE', wh_notA)]
+
+samples = samples(geno)
+
+for(i in seq_along(wh_notA)) {
+  
+  samples$iid = sub(paste0('\\.', wh_notA[i], '$'), 
+                    paste0('.A', wh_notA[i]), samples$iid)
+  
+} # for(i)
+
+geno = replace.names(gty = geno, nn = samples$iid)
+
+samples = samples(geno)
+samples$fid = sub('/|-', '', samples$fid)
+wh_notA = ids[grep('^[0-9]', samples$fid)]
+# Don't add an 'A' to the 129S samples.
+wh_notA = wh_notA[-grep('^129SVE', wh_notA)]
+samples$fid[samples$fid %in% wh_notA] = paste0('A', wh_notA)
+```
+
+Filter genotypes to remove those with a no-call rate > 10%.
+
+```{r filter_genotypes}
+intensities = argyle::intensity(geno)
+geno = as.data.frame(geno)
+rownames(geno) = geno$marker
+geno = as.matrix(geno[,-(1:6)])
+call_rate = colMeans(geno != 'N', na.rm = TRUE)
+# There is one sample with a call rate of 0.892.
+# I'm lowering the call rate cutoff to include this sample.
+cutoff = 0.89
+outliers = call_rate[call_rate < cutoff]
+outliers = data.frame(sample = names(outliers), call_rate = outliers)
+tmp = strsplit(outliers$sample, '\\.')
+outliers = data.frame(batch     = sapply(tmp, '[', 1),
+                      samples   = sapply(tmp, '[', 2),
+                      call_rate = outliers$call_rate)
+rm(tmp)
+kable(outliers)
+write.csv(outliers, file = file.path(base_dir, 'results', 'genotype_outliers.csv'))
+# Remove bad samples from genotypes.
+geno    = geno[,call_rate >= cutoff]
+samples = samples[call_rate >= cutoff,]
+intensities$x = intensities$x[,call_rate >= cutoff]
+intensities$y = intensities$y[,call_rate >= cutoff]
+stopifnot(nrow(samples) == ncol(geno))
+```
+
+Filter markers with no-call rates over 40%.
+
+```{r filter_markers}
+call_rate = rowMeans(geno != 'N', na.rm = T)
+keep = rownames(geno)[call_rate > 0.4]
+geno = geno[keep,]
+intensities$x = intensities$x[keep,]
+intensities$y = intensities$y[keep,]
+```
+
+Remove markers with het rates over 0.6.
+
+```{r filter_markers_het}
+het_rate = rowMeans(geno == 'H')
+keep = rownames(geno)[het_rate < 0.6]
+geno = geno[keep,]
+intensities$x = intensities$x[keep,]
+intensities$y = intensities$y[keep,]
+```
+
+Subset the markers to retain those in Karl's marker set.
+
+```{r subset_markers}
+markers = read.csv(gm_wisc_file)
+rownames(markers) = markers$marker
+markers = subset(markers, markers$unique)
+
+common_markers = intersect(markers$marker, rownames(geno))
+
+dim(geno)
+geno    = geno[common_markers,]
+intensities$x = intensities$x[common_markers,]
+intensities$y = intensities$y[common_markers,]
+markers = markers[common_markers,]
+dim(geno)
+```
+
+Write out the genotypes and intensities.
+
+```{r}
+saveRDS(geno,          file.path(geno_dir, 'csu_genotypes.rds'))
+saveRDS(intensities$x, file.path(geno_dir, 'csu_x_intensities.rds'))
+saveRDS(intensities$y, file.path(geno_dir, 'csu_y_intensities.rds'))
+saveRDS(samples,       file.path(geno_dir,  'csu_samples.rds'))
+saveRDS(markers,       file.path(geno_dir, 'csu_markers.rds'))
+```
+
+
+Get sex from the marker intensities.
+
+```{r predict_sex}
+chrx_mkr = which(markers$chr == 'X')
+chry_mkr = which(markers$chr == 'Y')
+chrm_mkr = which(markers$chr == 'M')
+
+x_means = colMeans(intensities$x[chrx_mkr,] + intensities$y[chrx_mkr,], na.rm = TRUE)
+y_means = colMeans(intensities$x[chry_mkr,] + intensities$y[chry_mkr,], na.rm = TRUE)
+xy_means = data.frame(x = x_means, y = y_means, row.names = names(x_means))
+
+mcl = mclust::Mclust(xy_means, G = 2, modelNames = 'EVV')
+# 1 = Females, 2 = Males
+sex = mcl$classification
+
+plot(x_means, y_means, xlab = 'Chr X Intensisites', ylab = 'Chr Y Intensities', col = sex)
+```
+
+We have two XO females and a one mouse with uncertain sex.
+
+At this point, I want to pull out the Chr Y and M markers and perform clustering and classification on them.
+
+```{r chry_founders}
+chry_geno = geno[chry_mkr,]
+
+# Get founders
+chry_founders = grep(paste0(founder_names, collapse = '|'), colnames(chry_geno))
+chry_founders = chry_geno[,chry_founders]
+chry_geno     = chry_geno[,setdiff(colnames(chry_geno), colnames(chry_founders))]
+colnames(chry_founders) = sapply(strsplit(colnames(chry_founders), '\\.'), '[', 2)
+# Keep only the males.
+chry_founders = chry_founders[,grep('M$', colnames(chry_founders))]
+colnames(chry_founders) = gsub('-?(F|M)$', '', colnames(chry_founders))
+# Reorder and rename the founders.
+colnames(chry_founders) = c('A/J', 'AKR/J', 'BALB/cJ', 'C3H/HeJ', 'C57BL/6J', 'CBA/J', 'DBA/2J', 'LP/J', '129SvE')
+# Remove uninformative markers.
+num_alleles = sapply(apply(chry_founders, 1, unique), length)
+chry_founders = chry_founders[num_alleles > 1,]
+alleles = t(apply(chry_founders, 1, unique))
+chry_founders = encode_geno(chry_founders, alleles, output_codes = c('-1', '1', '2', '3'))
+chry_founders = matrix(as.numeric(chry_founders), nrow = nrow(chry_founders),
+                       dimnames = dimnames(chry_founders))
+plot(hclust(stats::dist(t(chry_founders))))
+```
+
+There are four genotypes on Chr Y in the HS with 129Sv added in: AKR, CBA/DBA/C3H, AJ, & 129/BL6/BALB/LP.
+
+```{r chry_samples}
+colnames(chry_geno) = sapply(strsplit(colnames(chry_geno), '\\.'), '[', 2)
+# Keep the same markers as the founders. PAR markers should have been remove when we
+# selected markers that map uniquely.
+chry_geno = chry_geno[rownames(chry_founders),]
+chry_geno = encode_geno(chry_geno, alleles, output_codes = c('-1', '1', '2', '3'))
+chry_geno = matrix(as.numeric(chry_geno), nrow = nrow(chry_geno),
+                       dimnames = dimnames(chry_geno))
+# Remove females. They should have mostly -1 values and hence, colmeans < 0.
+chry_geno = chry_geno[,colMeans(chry_geno) > 0]
+
+# Combine the founders and samples.
+chry_data = cbind(chry_founders, chry_geno)
+chry_pca = prcomp(chry_data)
+pca_dist = as.matrix(stats::dist(chry_pca$rotation, diag = T, upper = T))
+pca_dist = pca_dist[1:9,]
+nearest = data.frame(samples = rownames(pca_dist), 
+                     nearest = rownames(pca_dist)[apply(pca_dist, 2, which.min)])
+kable(nearest)
+
+```
+
+All of the samples seem to cluster near 129SvE. Was the ATM KO mouse a male?
+
+```{r chrm_founders}
+chrm_geno = geno[chrm_mkr,]
+
+# Get founders
+chrm_founders = grep(paste0(founder_names, collapse = '|'), colnames(chrm_geno))
+chrm_founders = chrm_geno[,chrm_founders]
+chrm_geno     = chrm_geno[,setdiff(colnames(chrm_geno), colnames(chrm_founders))]
+colnames(chrm_founders) = sapply(strsplit(colnames(chrm_founders), '\\.'), '[', 2)
+# Get consensus genotypes for each strain.
+unique_founders = unique(gsub('-?(F|M)$', '', colnames(chrm_founders)))
+f_geno = matrix('', nrow = nrow(chrm_founders), ncol = length(unique_founders),
+                dimnames = list(rownames(chrm_founders), unique_founders))
+for(i in seq_along(unique_founders)) {
+   tmp = chrm_founders[,grep(unique_founders[i], colnames(chrm_founders))]
+   f_geno[,i] = qtl2convert::find_consensus_geno(tmp)
+} # for(i)
+chrm_founders = f_geno
+rm(f_geno)
+
+# Reorder and rename the founders.
+colnames(chrm_founders) = c('A/J', 'AKR/J', 'BALB/cJ', 'C3H/HeJ', 'C57BL/6J', 'CBA/J', 'DBA/2J', 'LP/J', '129SvE')
+# Remove uninformative markers.
+num_alleles = sapply(apply(chrm_founders, 1, unique), length)
+chrm_founders = chrm_founders[num_alleles > 1,]
+
+dim(chrm_founders)
+```
+
+There are no differences in the mitochondrial genome that we can detect in this cross.
+
+Write out the marker maps. Note that we are still on mm10 (GRCm37).
+
+Encode genotypes.
+
+```{r encode_genotypes}
+# Retain only autosomes and Chr X.
+markers = subset(markers, markers$chr %in% c(1:19, 'X'))
+geno = geno[markers$marker,]
+
+# Get allele codes from Karl's marker file.
+alleles = matrix(unlist(strsplit(markers$snp, split = '')), ncol = 2, byrow = TRUE,
+                 dimnames = list(markers$marker, c('one', 'two')))
+# Flip the nucleotides on the minus strand.
+dna = setNames(c('A', 'C', 'G', 'T'), c('T', 'G', 'C', 'A'))
+minus = which(markers$strand == 'minus')
+alleles[minus,1] = dna[alleles[minus,1]]
+alleles[minus,2] = dna[alleles[minus,2]]
+rm(minus)
+
+geno_enc = qtl2convert::encode_geno(geno = geno, allele_codes = alleles, cores = 4)
+
+# Separate founders.
+founder_colnames = samples$iid[samples$fid %in% founder_names]
+founders = geno_enc[,founder_colnames]
+# Note that 'geno' is now encoded.
+geno = geno_enc[,!colnames(geno_enc) %in% founder_colnames]
+
+# Get consensus genotypes for founders
+colnames(founders) = sapply(strsplit(colnames(founders), '\\.'), '[', 2)
+unique_founders = unique(gsub('(F|M)$', '', colnames(founders)))
+f_geno = matrix('', nrow = nrow(founders), ncol = length(unique_founders),
+                dimnames = list(rownames(founders), unique_founders))
+for(i in seq_along(unique_founders)) {
+   tmp = founders[,grep(unique_founders[i], colnames(founders))]
+   f_geno[,i] = qtl2convert::find_consensus_geno(tmp)
+} # for(i)
+founders = f_geno
+rm(f_geno)
+
+# Reorder and rename the founders.
+colnames(founders) = c('A_J', 'AKR_J', 'BALB_cJ', 'C3H_HeJ', 'C57BL_6J', 'CBA_J', 'DBA_2J', 'LP_J', '129SvE')
+# Remove uninformative markers.
+num_alleles = sapply(apply(founders, 1, unique), length)
+founders = founders[num_alleles > 1,]
+geno = geno[rownames(founders),]
+markers = markers[rownames(founders),]
+
+# 68479 informative markers
+
+# Rename founder columns using letters.
+colnames(founders) = LETTERS[1:9]
+founders = data.frame(marker = rownames(founders), founders)
+founders[is.na(founders)] = '-'
+write.csv(founders, file = file.path(qtl2_dir, "founder_geno.csv"), quote = FALSE, row.names = FALSE)
+
+# Write samples.
+geno = data.frame(marker = rownames(geno), geno)
+write.csv(geno, file = file.path(qtl2_dir, "sample_geno.csv"), quote = FALSE, row.names = FALSE)
+```
+
+Write covariates and cross info.
+
+```{r write_covar_cross_info}
+sex = sex[colnames(geno)[-1]]
+
+covar = data.frame(id = names(sex), sample = names(sex), sex = c('F', 'M')[sex],
+                   row.names = names(sex))
+write.csv(covar, file = file.path(qtl2_dir, 'covar.csv'), row.names = FALSE,
+          quote = FALSE)
+
+# Use the HS HZE genotypes to estimate the HS founder proportions.
+hs_founder_prop = read.csv(hs_founder_prop_file)
+
+# See select_129prop_gen.R for the selection of these values.
+gen = 100
+total   = 10000
+ko_prop = 0.2
+hs_prop = hs_founder_prop$mean_prop * (total - (ko_prop * total))
+cross_info = data.frame(id = names(sex), ngen = gen,      A = hs_prop[1], B = hs_prop[2], 
+                        C = hs_prop[3],  D = hs_prop[4],  E = hs_prop[5], F = hs_prop[6],
+                        G = hs_prop[7],  H = hs_prop[8],  I = ko_prop * total)
+write.csv(cross_info, file = file.path(qtl2_dir, 'cross_info.csv'), row.names = FALSE, 
+          quote = FALSE)
+
+# Write a fake phenotype file.
+pheno = data.frame(id = names(sex), junk = rnorm(length(sex)))
+write.csv(pheno, file = file.path(qtl2_dir, 'pheno.csv'), row.names = FALSE, quote = FALSE)
+```
+
+There are only 68,479 informative markers in this cross.
+
+```{r write_markers}
+pmap = markers[,c('marker', 'chr', 'bp_mm10')]
+colnames(pmap)[3] = 'pos'
+pmap$pos = pmap$pos * 1e-6
+write.csv(pmap, file = file.path(qtl2_dir, 'pmap.csv'), row.names = FALSE)
+
+gmap = markers[,c('marker', 'chr', 'cM_cox')]
+colnames(gmap)[3] = 'pos'
+write.csv(gmap, file = file.path(qtl2_dir, 'gmap.csv'), row.names = FALSE)
+
+tmp = markers[,c('marker', 'chr', 'bp_mm10', 'cM_cox')]
+colnames(tmp)[3:4] = c('pos', 'cM')
+tmp$pos = tmp$pos * 1e-6
+write.csv(tmp, file = file.path(qtl2_dir, 'markers.csv'))
+```
+
+Clear workspace.
+
+```{r}
+rm(list = ls())
+gc()
+```
+
+
+
+
+################################################
+# START HERE ONCE ABOVE HAS BEEN RUN.
+################################################
+
+```{r load_libs}
+options(stringsAsFactors = FALSE)
+knitr::opts_chunk$set(echo = FALSE)
+library(knitr)
+library(qtl2)
+library(qtl2convert)
+
+base_dir = '/media/dmgatti/data1/ColoState/ATM'
+geno_dir = file.path(base_dir, 'data', 'genotypes')
+hap_dir  = file.path(base_dir, 'haplo_reconstr')
+qtl2_dir = file.path(hap_dir, 'qtl2')
+control_file = file.path(qtl2_dir, 'atmko_hs.json')
+
+founder_names = c("AJ", "AKR", "BALB", "C3H", "C57", "CBA", "DBA", "LP", "129SvE")
+```
+
+Read in the DO cross.
+
+```{r read_cross}
+cross = qtl2::read_cross2(file = control_file, quiet = FALSE)
+```
+
+```{r estimate_haplotype_probs}
+# Run haplotype reconstruction.
+probs = qtl2:::calc_genoprob2(cross = cross, quiet = FALSE, cores = 8)
+saveRDS(probs, file = file.path(hap_dir, paste0('atmko_hs_genoprobs.rds')))
+
+gc()
+
+# Convert to allele probs.
+aprobs = genoprob_to_alleleprob(probs = probs, quiet = FALSE, cores = 8)
+saveRDS(aprobs, file = file.path(hap_dir, paste0('atmko_hs_alleleprobs.rds')))
+
+rm(probs)
+gc()
+```
+
+
+
+```{r plot_genome}
+rm(aprobs)
+probs = readRDS(file = file.path(hap_dir, paste0('atmko_hs_genoprobs.rds')))
+maxgt = maxmarg(probs)
+ph = guess_phase(cross, maxgt)
+HScolors = c(CCcolors, '129SvE' = '#BB5500')
+names(HScolors) = founder_names
+plot_onegeno(ph, cross$pmap, ind = 'CSU_Garcia_MURGIGV01_20171208.A612', shift = TRUE, col = HScolors)
+```
+
+There are a lot of missing sections. Trying it by hand.
+
+```{r}
+for(chr in names(probs)) {
+  maxgt[[chr]] = apply(probs[[chr]], c(1,3), which.max)
+} # for(chr)
+plot_onegeno(maxgt, cross$pmap, ind = 'CSU_Garcia_MURGIGV01_20171207.A55', col = HScolors)
+```
+
+All of the mice should be homozygous for 129 at the ATM locus: Chr 9: 53.4 Mb.
+
+Many samples are partly HI. LP/J is related to the 129 strains from the 1940s.
+
+
+
+
