@@ -48,9 +48,24 @@ library(ggplot2)
 ### LOAD AND PREPARE DATA ###
 #############################
 
+FCS_Path = "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15709 15Feb2022 Simone/"
+list.files(FCS_Path)
+
+FF_2.15.22 <- read.flowSet(path = FCS_Path)
+
+PlotFileScatters(FF_2.15.22)
+
+##TRAINING A FLOWSOM MODEL##
+FlowSOM(FF_2.15.22, scale=F, colsToUse=1:3, xdim=10, ydim=10, nClus=10, seed=NULL)
+
+
+
+
+
+
 # load data (download file from link above or GitHub repository)
 
-file <- "C:\Users\edmondsonef\Desktop\Humanized Mouse Models\Flow\___.fcs"
+file <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15709 15Feb2022 Simone/Samples_Tube_014 Animal 141_026.fcs"
 data <- flowCore::exprs(flowCore::read.FCS(file, transformation = FALSE, truncate_max_range = FALSE))
 
 head(data)
@@ -58,7 +73,7 @@ dim(data)
 
 # select protein marker columns to use for clustering
 
-marker_cols <- 9:47
+marker_cols <- 1:18
 
 # apply arcsinh transformation
 # (with standard scale factor of 5 for CyTOF data; alternatively 150 for flow 
