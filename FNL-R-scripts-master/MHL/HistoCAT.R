@@ -1,5 +1,5 @@
 #devtools::install_github("BodenmillerGroup/neighbouRhood")
-
+#https://github.com/BodenmillerGroup/neighbouRhood/blob/master/vignettes/example_permutation_analysis.md#2-calculate-the-baseline-statistics
 library(data.table)
 library(dplyr)
 library(magrittr)
