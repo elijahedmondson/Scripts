@@ -1,23 +1,122 @@
 
-
- if (!requireNamespace("BiocManager", quietly = TRUE))
-   install.packages("BiocManager")
- BiocManager::install("flowAI")
-
 library(flowCore)
 library(flowWorkspace)
 library(openCyto)
 library(ggcyto)
 library(flowAI)
 library(gridExtra)
+library(tidyverse)
+library(flowStats)
 
 #manual
 #Load data
-myfiles <- list.files(path="C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15709 15Feb2022 Simone/", pattern = ".FCS", ignore.case = TRUE)
-fs <- read.flowSet(myfiles, path="C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15709 15Feb2022 Simone/")
+#myfiles <- list.files(path="C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15701 02Feb2022 Simone/", pattern = ".FCS", ignore.case = TRUE)
+#fs <- read.flowSet(myfiles, path="C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15701 02Feb2022 Simone/")#, truncate_max_range = FALSE)
+myfiles <- list.files(path="C:/Users/edmondsonef/Desktop/samp/", pattern = ".FCS", ignore.case = TRUE)
+fs <- read.flowSet(myfiles, path="C:/Users/edmondsonef/Desktop/samp/", truncate_max_range = FALSE)
 fs_comp <-compensate(fs, spillover(fs[[1]])$SPILL)
+
+
+###https://jchellmuth.com/posts/FACS-with-R/
+###https://jchellmuth.com/posts/FACS-with-R/
+###https://jchellmuth.com/posts/FACS-with-R/
+###https://jchellmuth.com/posts/FACS-with-R/
+###https://jchellmuth.com/posts/FACS-with-R/
+
+
+
+pData(fs) %>% head(3)
+pData(fs)$well <- gsub(".*_.*_(.*)_.*.fcs","\\1",sampleNames(fs)) # extract well from name and add new 'well' column
+pData(fs) %>% head(3)
+colnames(fs)
+
+colnames(fs)[colnames(fs)=="BB515-A"] <- "CD8"
+colnames(fs)[colnames(fs)=="BB700-P-A"] <- "CD4"
+colnames(fs)[colnames(fs)=="APC-A"] <- "CD11b"
+colnames(fs)[colnames(fs)=="APC-Cy7-A"] <- "CD19"
+colnames(fs)[colnames(fs)=="BV421-A"] <- "CD3"
+colnames(fs)[colnames(fs)=="BV786-A"] <- "CD33"
+colnames(fs)[colnames(fs)=="BUV395-A"] <- "mCD45"
+colnames(fs)[colnames(fs)=="BUV805-A"] <- "huCD45"
+colnames(fs)[colnames(fs)=="PE-A"] <- "CD56"
+colnames(fs)[colnames(fs)=="PE-CF594-A"] <- "CD66b"
+colnames(fs)[colnames(fs)=="PE-Cy7-A"] <- "CD25"
+#fs <- fsApply(fs, function(x) {transform(x, estimateLogicle(x, c("CD8", "CD4", "CD11b","CD19", "CD3", "CD33",
+#                                                                       "mCD45", "huCD45", "CD56", "CD66b")))})
+#fs <- fs_trans
+gs <- GatingSet(fs)
+g.singlets <- polygonGate(filterId = "Singlets","FSC-A"=c(2e4,26e4,26e4,2e4),"FSC-H"=c(0e4,16e4,24e4,6e4)) # define gate
+gs_pop_add(gs,g.singlets) # add gate to GatingSet
+
+ggcyto(fs[[1]], aes(x="FSC-A",y="FSC-H"),subset="root") + geom_hex(bins = 500) + 
+  labs(title = "huCD45 vs FSC", y = "FSC-H", x = "FSC-A") + ggcyto_par_set(limits = "instrument") +
+  geom_gate(g.singlets) +
+  theme_bw() + theme(legend.position = "none", aspect.ratio = 1) + facet_wrap(~name, ncol = 4) 
+gs_pop_add(gs,g.singlets) # add gate to GatingSet
+
+
+recompute(gs)
+
+ggcyto(gs[[1]],aes(x="FSC-A",y="SSC-A"),subset="root")+geom_hex(bins = 200)+ggcyto_par_set(limits = "instrument")
+ggcyto(gs[[1]],aes(x="FSC-A",y="SSC-A"),subset="Singlets")+geom_hex(bins = 200)+ggcyto_par_set(limits = "instrument")
+
+ggcyto(gs,aes(x="FSC-A",y="FSC-H"),subset="root")+geom_hex(bins = 100)+geom_gate("Singlets")+
+  geom_stats(adjust = 0.8)+ggcyto_par_set(limits = "instrument")+
+  facet_wrap(~well,ncol = 10)
+
+
+g.live <- polygonGate(filterId = "Live","FSC-A"=c(8e4,28e4,28e4,8e4),"SSC-A"=c(3e4,4e4,28e4,28e4)) # define gate
+ggcyto(gs[[1]],aes(x="FSC-A",y="SSC-A"),subset="Singlets")+geom_hex(bins = 200)+geom_gate(g.live)+ggcyto_par_set(limits = "instrument") # check gate
+gs_pop_add(gs,g.live,parent="Singlets") # add gate to GatingSet
+recompute(gs)
+
+
+ggcyto(gs,aes(x="FSC-A",y="SSC-A"),subset="Singlets")+geom_hex(bins = 100)+geom_gate("Live")+
+  geom_stats(adjust = 0.8)+ggcyto_par_set(limits = "instrument")+
+  facet_wrap(~well,ncol = 10)
+
+g.huCD45 <- rectangleGate(filterId="huCD45 positive","huCD45"=c(1000, Inf)) # set gate
+ggcyto(gs[[1]],aes(x=huCD45),subset="Live")+geom_density(fill="forestgreen")+geom_gate(g.huCD45)+ggcyto_par_set(limits = "instrument")+scale_x_flowJo_biexp() # check gate
+gs_pop_add(gs,g.huCD45,parent="Live")
+recompute(gs)
+
+
+ggcyto(gs,aes(x=huCD45),subset="Live",)+geom_density(fill="forestgreen")+geom_gate("huCD45 positive")+
+  geom_stats()+
+  ggcyto_par_set(limits = "instrument")+scale_x_flowJo_biexp()+
+  facet_wrap(~well,ncol = 10)
+
+gs_pop_get_count_fast(gs) %>% head
+ps <- data.frame(gs_pop_get_count_fast(gs))
+
+ps$percent_of_parent <- ps$Count/ps$ParentCount*100
+psm <- merge(ps,pData(fs),by="name")
+
+###https://jchellmuth.com/posts/FACS-with-R/
+###https://jchellmuth.com/posts/FACS-with-R/
+###https://jchellmuth.com/posts/FACS-with-R/
+###https://jchellmuth.com/posts/FACS-with-R/
+###https://jchellmuth.com/posts/FACS-with-R/
+## Not run: 
+
+
+
+# fr is a flowFrame
+sg <- gate_singlet(fs, area = "FSC-A", height = "FSC-H")
+sg
+# plot the gate 
+xyplot(`FSC-H` ~ `FSC-A`, fr, filter = sg)
+
+## End(Not run)
+
+
+
+
+
+
+
 fs_comp_clean <- flow_auto_qc(fs_comp)
-trans <- estimateLogicle(fs_comp_clean[[1]], colnames(fs_comp_clean[,3:7]))
+trans <- estimateLogicle(fs_comp_clean[[1]], colnames(fs_comp_clean[,3:15]))
 fs_comp_clean_trans <- transform(fs_comp_clean, trans)
 
 #Visualise file
@@ -25,17 +124,28 @@ fs_comp_clean_trans[[1]]
 autoplot(fs_comp_clean_trans[[1]])
 
 #Basic gating
-ggcyto(fs_comp_clean_trans[[1]], aes(x="FSC-A", y="SSC-A"))+geom_hex(bins=256)
+ggcyto(fs_comp_clean_trans[[1]], aes(x="FSC-A", y="SSC-A"))+geom_hex(bins=512)
+ggcyto(fs_comp_clean_trans[[2]], aes(x="BUV805-A", y="BUV395-A"))+geom_hex(bins=512)
+ggcyto(fs_comp_clean_trans[[2]], aes(x="BV421-A", y="APC-Cy7-A"))+geom_hex(bins=512)
+ggcyto(fs_comp_clean_trans[[2]], aes(x="BUV805-A", y="SSC-A"))+geom_hex(bins=512)
+
+
+names(fs_comp_clean_trans[[2]])
+#exprs(fs_comp_clean_trans[[2]])
+#each_col(fs_comp_clean_trans[[2]], median)
+
 
 #create the empty gating set
 gs<-GatingSet(fs_comp_clean_trans)
 
+
 #Cells - FSC SSC
-rg1<-rectangleGate("FSC-A"=c(15000, Inf), filterId = "NoneDebris")
+#CREATES RECTANGLE FOR GATING
+rg1<-rectangleGate("BUV805-A"=c(2, Inf), filterId = "huCD45")
 gs_pop_add(gs, rg1, parent="root")
 recompute(gs)
 gs_get_pop_paths(gs)
-ggcyto(fs_comp_clean_trans[[1]], aes(x="FSC-A", y="SSC-A"))+geom_hex(bins=256)+geom_gate(gs_pop_get_gate(gs, "NoneDebris"))
+ggcyto(fs_comp_clean_trans[[1]], aes(x="BUV805-A", y="BUV395-A"))+geom_hex(bins=256)+geom_gate(gs_pop_get_gate(gs, "huCD45"))
 gs_pop_get_stats(gs)
 
 #Singlet gating
@@ -136,296 +246,19 @@ gs_pop_get_stats(auto_gs, gs_get_pop_paths(auto_gs), type = pop.mean)
 
 
 
-#### Install the libraries #####################################################
-# if (!requireNamespace("BiocManager", quietly = TRUE))
-#   install.packages("BiocManager")
-# BiocManager::install("flowCore")
-# BiocManager::install("ggplot2")
-# BiocManager::install("ggpubr")
-# BiocManager::install("pheatmap")
-# BiocManager::install("tidyr")
-# BiocManager::install("FlowRepositoryR")
-if (!requireNamespace("devtools", quietly = TRUE))
-  install.packages("devtools")
-devtools::install_github("saeyslab/FlowSOM")
-devtools::install_github("saeyslab/PeacoQC")
 
-#### Download the data #########################################################
-ds <- FlowRepositoryR::download(FlowRepositoryR::flowRep.get("FR-FCM-ZZQY"), 
-                                "Data/Raw")
-ds <- FlowRepositoryR::download(FlowRepositoryR::flowRep.get("FR-FCM-Z2TQ"), 
-                                "Data/Raw")
 
-# If the above lines of code give an error, download the data directly from the
-# FlowRepository website:
-# https://flowrepository.org/experiments/833/download_ziped_files
-# https://flowrepository.org/experiments/3002/download_ziped_files
 
-#### Prepare data ##############################################################
-#microbenchmark::microbenchmark({
-# 1. Load the libraries
-library(flowCore)
-library(FlowSOM)
-library(ggplot2)
 
-# 2. Define the general and preprocessing variables
-file_pattern <- "\\d.fcs" #digit at the end and fcs extension
-reference_file <- read.FCS("C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15709 15Feb2022 Simone/Samples_Tube_040 NSG  in house control 1_052.fcs", truncate_max_range = FALSE)
-reference_marker <- "PE-A" # Scatter values will be scaled to have the same range
+
+
+
+
 
 markers_of_interest <- c("SSC-A", "CD8", "CD4", "CD3", "CD33",
                          "CD11b", "CD25", "mCD45", "huCD45", "CD56", 
                          "CD19", "CD66b")
 
-live_gate <- flowCore::polygonGate(filterId = "Live",
-                                   .gate = matrix(data = c(60000, 100000, 150000, 
-                                                           250000, 250000, 60000, 
-                                                           60000, 1.6, 1.9, 2.5,
-                                                           2.5, -0.3, -0.3, 1.6),
-                                                  ncol = 2,
-                                                  dimnames = list(c(), 
-                                                                  c("FSC-A", 
-                                                                    "APC-Cy7-A"))))
-
-# 3. Define and create the directories
-dir_prepr <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/Preprocessed/" #where the preprocessed data will be stored
-dir_QC <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/QC/" #where the data QC results will be stored
-dir_RDS <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/RDS/" #where the R objects will be stored
-dir_results <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/Results/" #where the results will be stored
-dir_raw <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15709 15Feb2022 Simone/" #where the raw data is located
-#path_comp <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/COMP/" #where comp matrix is located
-comp_list <- spillover(reference_file)
-compensation_matrix <- comp_list[[1]]
-
-
-for (path in c(dir_prepr, dir_QC, dir_RDS, dir_results)){
-  dir.create(path)
-}
-
-# 4. Prepare some additional information for preprocessing the files 
-# given the variable choices of step 2.
-files <- list.files(path = dir_raw,
-                    pattern = file_pattern)
-channels_of_interest <- GetChannels(object = reference_file,
-                                    markers = markers_of_interest, 
-                                    exact = FALSE)
-#compensation_matrix <- read.csv(path_comp, 
-#                                check.names = FALSE, row.names = 1)
-
-colnames(compensation_matrix) <- sub(" :: .*", "",         
-                                     colnames(compensation_matrix))
-
-# Compute transformation list
-ff_m <- PeacoQC::RemoveMargins(reference_file, channels_of_interest)
-names(ff_m)
-exprs(ff_m)
-each_col(ff_m, median)
-
-ff_c <- flowCore::compensate(ff_m, compensation_matrix)
-translist <- estimateLogicle(ff_c, colnames(compensation_matrix))
-ff_t <- flowCore::transform(ff_c, translist)
-q5_goal <- quantile(exprs(ff_t)[,reference_marker], 0.05)
-q95_goal <- quantile(exprs(ff_t)[,reference_marker], 0.95)
-q5_SSCA <- quantile(exprs(ff_t)[,"SSC-A"], 0.05)
-q95_SSCA <- quantile(exprs(ff_t)[,"SSC-A"], 0.95)
-SSCA_a <- (q95_goal - q5_goal) / (q95_SSCA - q5_SSCA)
-SSCA_b <- q5_goal - q5_SSCA * (q95_goal - q5_goal) / (q95_SSCA - q5_SSCA)
-translist <- c(translist, 
-               transformList("SSC-A", flowCore::linearTransform(a = SSCA_a,
-                                                                b = SSCA_b)))
-
-# 5. Read the first fcs file into a flowframe
-ff <- read.FCS(paste0(dir_raw, files[1]), truncate_max_range = FALSE)
-
-# 6. Remove margin events
-ff_m <- PeacoQC::RemoveMargins(ff, channels_of_interest)
-
-# 7. Compensate
-ff_c <- flowCore::compensate(ff_m, compensation_matrix)
-
-# 8. Transform, logicle for marker channels, linear for scatter channel
-ff_t <- flowCore::transform(ff_c, translist)
-
-# 9. Remove doublets and filter live cells
-ff_s <- PeacoQC::RemoveDoublets(ff_t)
-#selected_live <- filter(ff_s, live_gate)
-#ff_l <- ff_s[selected_live@subSet, ]
-
-# 10. QC with PeacoQC
-PQC <- PeacoQC::PeacoQC(ff = ff_s,
-                        channels = channels_of_interest,
-                        plot = TRUE, save_fcs = FALSE,
-                        output_directory = dir_QC)
-
-# 11. Save the preprocessed data
-write.FCS(PQC$FinalFF,
-          file = paste0(dir_prepr, files[1]))
-
-# 12. Visualize the preprocessing
-filter_plot <- function(ff_pre, ff_post, title, channel_x, channel_y){
-  df <- data.frame(x = exprs(ff_pre)[,channel_x],
-                   y = exprs(ff_pre)[,channel_y])
-  i <- sample(nrow(df), 10000)
-  if (!"Original_ID" %in% colnames(exprs(ff_pre))) {
-    ff_pre@exprs <- cbind(ff_pre@exprs,
-                          Original_ID = seq_len(nrow(ff_pre@exprs)))
-  }
-  p <- ggplot(df[i,], aes(x = x, y = y)) +
-    geom_point(size = 0.5,
-               color = ifelse(exprs(ff_pre)[i,"Original_ID"] %in%
-                                exprs(ff_post)[,"Original_ID"], 'blue', 'red')) +
-    xlab(GetMarkers(ff_pre, channel_x)) + 
-    ylab(GetMarkers(ff_pre, channel_y)) +
-    theme_minimal() + theme(legend.position = "none") +
-    ggtitle(title)
-  return(p)
-}
-to_plot <- list(list(ff_pre = ff,
-                     ff_post = ff_m,
-                     title = "Removed margin events",
-                     channel_x = "PerCP-Cy5-5-A",
-                     channel_y = "BV605-A"),
-                list(ff_pre = ff_t,
-                     ff_post = ff_s,
-                     title = "Removed doublets",
-                     channel_x = "FSC-A",
-                     channel_y = "FSC-H"),
-                list(ff_pre = ff_s,
-                     ff_post = ff_s,
-                     title = "Removed debris and dead cells",
-                     channel_x = "FSC-A",
-                     channel_y = "APC-Cy7-A"),
-                list(ff_pre = ff_l,
-                     ff_post = PQC$FinalFF,
-                     title = "Removed low quality events",
-                     channel_x = "Time",
-                     channel_y = "PerCP-Cy5-5-A"))
-
-plot_list <- list()
-for (plot in to_plot) {
-  plot_list[[length(plot_list) + 1]] <- filter_plot(ff_pre = plot$ff_pre,
-                                                    ff_post = plot$ff_post,
-                                                    title = plot$title,
-                                                    channel_x = plot$channel_x,
-                                                    channel_y = plot$channel_y)
-}
-
-png(paste0(dir_QC, sub("fcs", "png", files[1])), width = 1920)
-print(ggpubr::ggarrange(plotlist = plot_list, nrow = 1))
-dev.off()
-
-# 13. Run the preprocessing pipeline for all the files
-for (file in files){
-  ff <- read.FCS(paste0(dir_raw, file), truncate_max_range = FALSE)
-  ff_m <- PeacoQC::RemoveMargins(ff, channels_of_interest)
-  ff_c <- flowCore::compensate(ff_m, compensation_matrix)
-  ff_t <- flowCore::transform(ff_c, translist)
-  ff_s <- PeacoQC::RemoveDoublets(ff_t)
-  #selected_live <- filter(ff_s, live_gate)
-  #ff_l <- ff_s[selected_live@subSet, ]
-  
-  PQC <- PeacoQC::PeacoQC(ff = ff_s,
-                          channels = channels_of_interest,
-                          plot = TRUE, save_fcs = FALSE,
-                          output_directory = dir_QC)
-  
-  write.FCS(PQC$FinalFF,
-            file = paste0(dir_prepr, file))
-}
-
-
-
-###EFE DELETED PLOT CODE
-
-
-
-
-# 14. Perform quality control between all files
-# 14.(A) Plot the signal per channel and per file
-# 14.(A)(i) Define the variables
-file_names <- sub(".*15_(.*).fcs", "\\1", files)
-file_groups <- rep(c("NSG", "Control"), 
-                   times = c(26, 2))
-
-# 14.(A)(ii) Make the overview plot
-PlotFileScatters(input = paste0(dir_prepr, files),
-                 channels = channels_of_interest,
-                 names = file_names, legend = TRUE,
-                 groups = file_groups, nrow = 2,
-                 plotFile = paste0(dir_QC, "file_scatters.png"))
-
-# 14.(B) Perform principal commponent analysis (PCA)
-# 14.(B)(i) Retrieve the median marker expression values per file
-medians <- matrix(data = NA,
-                  nrow = length(files), ncol = length(channels_of_interest),
-                  dimnames = list(files, channels_of_interest))
-
-for (file in files){
-  ff <- read.FCS(paste0(dir_prepr, file))
-  medians[file,] <- apply(exprs(ff)[,channels_of_interest], 2, median)
-}
-
-# 14.(B)(ii) Calculate the PCs
-pc <- prcomp(medians, scale. = TRUE)
-
-# 14.(B)(iii) Visualize the PCs
-ggplot(data.frame(pc$x[,1:2], file_groups)) + 
-  geom_point(aes(x= PC1, y = PC2, col = file_groups)) +
-  theme_minimal()
-ggsave(paste0(dir_QC, "file_PCA.png"), width = 5)
-
-#}, times = 10)
-
-#### Create an aggregate file ##################################################
-#microbenchmark::microbenchmark({
-
-# 15. Choose the number of cells to include in the aggregate file
-n <- 700000
-
-# 16. Make an aggregate file
-set.seed(2020)
-agg <- AggregateFlowFrames(paste0(dir_prepr, files),
-                           cTotal = n,
-                           writeOutput = TRUE,
-                           outputFile = paste0(dir_prepr, "aggregate.fcs"))
-
-#}, times = 10)
-
-#### Train FlowSOM model #######################################################
-#microbenchmark::microbenchmark({
-
-# 17. Specify the FlowSOM variables
-SOM_x <- 10
-SOM_y <- 10
-n_meta <- 8
-seed <- 2020
-scaling <- FALSE
-
-
-names(agg)
-exprs(agg)
-markers_of_interest <- c("SSC-A", "CD8", "CD4", "CD3", "CD33",
-                         "CD11b", "CD25", "mCD45", "huCD45", "CD56", 
-                         "CD19", "CD66b")
-markers_of_interest <- c("SSC-A", "CD4", "CD3", "CD33",
-                         "CD11b", "CD25", "mCD45", "huCD45", "CD56", 
-                         "CD19", "CD66b")
-
-# 18. Compute the FlowSOM object
-fsom <- FlowSOM(input = agg,
-                scale = scaling,
-                colsToUse = c(4,7:16),
-                seed = seed,
-                nClus = n_meta,
-                xdim = SOM_x, ydim = SOM_y)
-saveRDS(fsom, paste(dir_RDS, "fsom.rds"))
-
-# 19. Visualize the FlowSOM object
-PlotStars(fsom = fsom,
-          backgroundValues = fsom$metaclustering)
-ggsave(paste0(dir_results, "fsom_tree.pdf"),height = 8.5, width = 11)
-
-#}, times = 10)
 
 
 

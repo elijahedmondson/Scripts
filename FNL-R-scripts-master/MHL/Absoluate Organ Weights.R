@@ -1,5 +1,5 @@
 
-
+data <- read_excel("C:/Users/edmondsonef/Desktop/MHL 19-331-121 Efficacy.xlsx", sheet = "19-331-121 Chem")
 library(ggplot2)
 library(gridExtra)
 library(readxl)
