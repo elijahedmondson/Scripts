@@ -1,4 +1,4 @@
-data <- read_excel("JBM 336.xlsx")
+#data <- read_excel("JBM 336.xlsx")
 
 library(survMisc)
 library(survival)
@@ -19,7 +19,7 @@ library(ggfortify)
 ####### OPTION 1 ####### 
 ####### OPTION 1 ####### 
 
-fit <- survfit(Surv(Age)~Status, data=data)
+fit <- survfit(Surv(Days)~Group, data=data)
 
 jskm(fit)
 jskm(fit, ci = F, cumhaz = F, legendposition = c(0.2,0.2),  mark = F, table = T, ylab = "Cumulative incidence (%)", surv.scale = "percent")#, pval =T, pval.size = 6, pval.coord = c(300, 0.7))

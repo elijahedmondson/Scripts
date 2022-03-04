@@ -9,21 +9,23 @@ library(Rmisc)
 library(tidyverse)
 library(plyr)
 
-my_mean = aggregate(data$'Ki67.median.transform', by=list(data$'Group'), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
-my_CI = aggregate(data$'Ki67.median.transform', by=list(data$'Group'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
+my_mean = aggregate(data$'KM.mean.per.mm.2', by=list(data$'Group'), mean, na.rm=TRUE) ; colnames(my_mean)=c("Group" , "mean")
+my_CI = aggregate(data$'KM.mean.per.mm.2', by=list(data$'Group'), FUN = function(x) t.test(x)$conf.int) ; colnames(my_CI)=c("Group" , "CI")
 my_info = merge(my_mean, my_CI, by.x=1 , by.y=1)
 my_info$CIdiff = ((my_CI$CI[,2] - my_CI$CI[,1])/2)
 
 Image1 <- ggplot(data) + 
   geom_point(data = my_info, aes(x = my_info$'Group', y = my_info$mean), color = "grey", size = 5) +
-  scale_y_continuous(name = "Ki67.median.transform") +
+  scale_y_continuous(name = "KM cells per unit area") +
   geom_errorbar(data = my_info, aes(x = Group, y = CIdiff, ymin = mean - CIdiff, ymax = mean + CIdiff), color = "grey", width = 0.2 , size=1) +
-  geom_jitter(aes(x = data$'Group', y = data$'Ki67.median.transform', color = data$'Sex'), width = 0.2, height = 0.00001, size = 2) +
+  geom_jitter(aes(x = data$'Group', y = data$'KM.mean.per.mm.2', color = data$'Sex'), width = 0.2, height = 0.00001, size = 2) +
   theme_bw(base_size = 18) +
-  theme(axis.text.x=element_text(angle=35,hjust=1))+
-  theme(axis.title.x=element_blank(), text = element_text(size = 20), legend.position="none")
+  #theme(axis.text.x=element_text(angle=25,hjust=1))+
+  theme(axis.title.x=element_blank(), text = element_text(size = 20))+
+  theme(axis.title.x=element_blank())#, legend.position="none")
+Image1
 
-tiff("Image1.tiff", units="in", width=7, height=6, res=300)
+tiff("Ki67.mean.per.mm.2.tiff", units="in", width=9, height=6, res=300)
 grid.arrange(Image1, ncol = 1, nrow = 1)
 dev.off()
 
