@@ -9,7 +9,7 @@ def dnn = DnnTools.builder(pathModel).build();
 println '1'
 //runPlugin('qupath.imagej.detect.tissue.SimpleTissueDetection2', '{"threshold": 230,  "requestedPixelSizeMicrons": 20.0,  "minAreaMicrons": 1000000.0,  "maxHoleAreaMicrons": 5000.0,  "darkBackground": false,  "smoothImage": true,  "medianCleanup": true,  "dilateBoundaries": false,  "smoothCoordinates": true,  "excludeOnBoundary": false,  "singleAnnotation": true}');
 
-selectAnnotations();
+//selectAnnotations();
 //selectTMACores();
 var stardist = StarDist2D.builder(pathModel)
       .ignoreCellOverlaps(false)   // Set to true if you don't care if cells expand into one another
@@ -17,8 +17,8 @@ var stardist = StarDist2D.builder(pathModel)
       .normalizePercentiles(2, 99) // Percentile normalization
       //.pixelSize(0)              // Resolution for detection
       //.includeProbability(true)    // Include prediction probability as measurement
-      .cellExpansion(10.0)          // Approximate cells based upon nucleus expansion
-      .cellConstrainScale(3)       // Constrain cell expansion using nucleus size
+      .cellExpansion(15.0)          // Approximate cells based upon nucleus expansion
+      .cellConstrainScale(4)       // Constrain cell expansion using nucleus size
       .measureShape()              // Add shape measurements
       .measureIntensity()          // Add cell measurements (in all compartments)
       .doLog()                     // Use this to log a bit more information while running the script
@@ -51,7 +51,7 @@ Thread.sleep(100)
 //IHC//
 //IHC//
 //IHC//
-setDetectionIntensityClassifications("DAB: Cell: Mean", 0.1, 0.3, 0.5)
+//setDetectionIntensityClassifications("DAB: Cell: Mean", 0.1, 0.3, 0.5)
 //setDetectionIntensityClassifications("DAB: Nucleus: Mean", 0.1, 0.3, 0.5)
 //setDetectionIntensityClassifications("DAB: Cytoplasm: Mean", 0.1, 0.3, 0.5)
 //setDetectionIntensityClassifications("DAB: Membrane: Mean", 0.1, 0.3, 0.5)
@@ -63,8 +63,15 @@ println '7'
 //RNASCOPE//
 //RNASCOPE//
 //RNASCOPE//
-//runPlugin('qupath.imagej.detect.nuclei.WatershedCellDetection', '{"detectionImageBrightfield": "Hematoxylin OD",  "requestedPixelSizeMicrons": 0.5,  "backgroundRadiusMicrons": 8,  "medianRadiusMicrons": 0.0,  "sigmaMicrons": 1.5,  "minAreaMicrons": 20.0,  "maxAreaMicrons": 400.0,  "threshold": 0.05,  "maxBackground": 2.0,  "watershedPostProcess": true,  "excludeDAB": false,  "cellExpansionMicrons": 10.0,  "includeNuclei": true,  "smoothBoundaries": true,  "makeMeasurements": true}');
 //selectAnnotations();
-//runPlugin('qupath.imagej.detect.cells.SubcellularDetection', '{"detection[DAB]": 0.3,  "doSmoothing": false,  "splitByIntensity": true,  "splitByShape": false,  "spotSizeMicrons": .2,  "minSpotSizeMicrons": 0.01,  "maxSpotSizeMicrons": 1.5,  "includeClusters": false}');
-//setCellIntensityClassifications("Subcellular: DAB: Num spots estimated", 1, 4, 10)
+runPlugin('qupath.imagej.detect.cells.SubcellularDetection', '{"detection[DAB]": 0.3,  "doSmoothing": false,  "splitByIntensity": true,  "splitByShape": false,  "spotSizeMicrons": .2,  "minSpotSizeMicrons": 0.01,  "maxSpotSizeMicrons": 1.5,  "includeClusters": false}');
+setCellIntensityClassifications("Subcellular: DAB: Num spots estimated", 1, 4, 10)
 println '8'
+
+Thread.sleep(100)
+// Try to reclaim whatever memory we can, including emptying the tile cache
+javafx.application.Platform.runLater {
+    getCurrentViewer().getImageRegionStore().cache.clear()
+    System.gc()
+}
+Thread.sleep(100)
