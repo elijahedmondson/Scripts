@@ -95,8 +95,8 @@ fsom <- FlowSOM(gatingResult$flowFrame,
                        #compensate = TRUE, 
                        #transform = TRUE,
                        #toTransform = c(7:8,11), 
-                       colsToUse = c(7:8,11),
-                       nClus = 5,
+                       colsToUse = c(7:17),
+                       nClus = 20,
                        seed = 1)
 PlotStars(fsom)
 PlotFlowSOM(fsom, equalNodeSize = F)
@@ -112,4 +112,4 @@ dups <- duplicated(fsom)
 fsom <- fsom[!dups, ]
 
 
-tSNE <- PlotDimRed(fsom, colsToUse = c(7:8,11), colorBy = "metaclusters", check_duplicates = FALSE)
+PlotDimRed(fsom, cTotal = 10000, colsToUse = fsom$map$colsUsed, colorBy = "metaclusters", check_duplicates = FALSE)
