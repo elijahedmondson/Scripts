@@ -18,14 +18,11 @@ myfiles <- list.files(path="C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/",
 wsp_file <- "C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp"
 wsp <- open_flowjo_xml("C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp")
 fcs_file <- "C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/Samples_Tube_018 Animal 120 BMC_018.fcs"
-
-
-myfiles <- list.files(path="C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/", pattern = ".FCS", ignore.case = TRUE)
 #fs <- read.flowSet(myfiles, path="C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022", truncate_max_range = FALSE)
 #fs_comp <-compensate(fs, spillover(fs[[1]])$SPILL)
 
-#tail(fj_ws_get_sample_groups(wsp))
-#fj_ws_get_samples(wsp, group_id = 1)
+tail(fj_ws_get_sample_groups(wsp))
+fj_ws_get_samples(wsp, group_id = 1)
 
 
 
@@ -40,8 +37,66 @@ autoplot(gs[[1]])
 gs_get_pop_paths(gs)
 recompute(gs)
 
+
+sampStats <- gs_pop_get_stats(gs)
+
+### Get Stats on Manual Gates or Nodes
+### Get Stats on Manual Gates or Nodes
+### Get Stats on Manual Gates or Nodes
+### Get Stats on Manual Gates or Nodes
+nodes <- c("/scatter/sing/", "/scatter/sing/hCD45+",
+                "Q6: CD3+ , CD4 [PCP55]+",
+                "Q10: CD3+ , CD8 [FITC]+",
+                "Q13: CD3- , CD19 [AFire750]+",
+                "Q17: CD3- , CD56+",
+                "Q18: CD3+ , CD56+",
+                "Q29: CD66b [PEDazz]- , CD11b [AF647]+",
+                "Q30: CD66b [PEDazz]+ , CD11b [AF647]+",
+                "Q31: CD66b [PEDazz]+ , CD11b [AF647]-",
+                "Q33: CD33- , CD11b [AF647]+",
+                "Q38: CD25+ , CD3+",
+                "Q35: CD33+ , CD11b [AF647]-",
+                "Q39: CD25+ , CD3-")
+gs_pop_get_stats(gs, nodes, "percent")
+nodeCount <- gs_pop_get_stats(gs, nodes, "count")
+nodeCount
+#write.csv(nodeCount, "C:/Users/edmondsonef/Desktop/nodeCount.csv")
+### Pass a build-in function
+nodePopMFI <- gs_pop_get_stats(gs, nodes, type = pop.MFI)
+nodePopMFI
+# compute the stats based on the raw data scale
+nodePopMFI.inv <- gs_pop_get_stats(gs, nodes, type = pop.MFI, inverse.transform = TRUE)
+nodePopMFI.inv
+# supply user-defined stats fun
+pop.quantiles <- function(fr){
+  chnls <- colnames(fr)
+  res <- matrixStats::colQuantiles(exprs(fr), probs = 0.75)
+  names(res) <- chnls
+  res
+}
+quants <- gs_pop_get_stats(gs, nodes, type = pop.quantiles)
+
+
+#nodeCount <- as.data.frame(nodeCount)
+#nodePopMFI <- as.data.frame(nodePopMFI)
+#write.csv(nodeCount, "C:/Users/edmondsonef/Desktop/nodeCount.csv")
+#nodeCount <- read.csv("C:/Users/edmondsonef/Desktop/nodeCount.csv")
+#write.csv(nodePopMFI, "C:/Users/edmondsonef/Desktop/nodePopMFI.csv")
+#nodePopMFI <- read.csv("C:/Users/edmondsonef/Desktop/nodePopMFI.csv")
+
+FULL <- dplyr::right_join(nodeCount, nodePopMFI, by = "X")
+write.csv(FULL, "C:/Users/edmondsonef/Desktop/FULL.csv")
+### Get Stats on Manual Gates or Nodes
+### Get Stats on Manual Gates or Nodes
+### Get Stats on Manual Gates or Nodes
+### Get Stats on Manual Gates or Nodes
+
+
 autoplot(gs, "hCD45+")
 ggcyto(gs, aes(x = `FSC-A`)) + geom_density() + geom_gate("hCD45+")
+
+
+
 
 gh_pop_get_stats(gs[[5]], "hCD45+")
 
@@ -99,7 +154,7 @@ cell_types <- c("/scatter/sing/hCD45+",
                 "Q31: CD66b [PEDazz]+ , CD11b [AF647]-",
                 "Q33: CD33- , CD11b [AF647]+",
                 "Q38: CD25+ , CD3+",
-                "Q35: CD33+ , CD11b [AF647]",
+                "Q35: CD33+ , CD11b [AF647]-",
                 "Q39: CD25+ , CD3-")
 
 #cell_types <- c("/scatter/sing/hCD45+")

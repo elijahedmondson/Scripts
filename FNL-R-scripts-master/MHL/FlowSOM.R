@@ -1,31 +1,6 @@
 
-#### Install the libraries #####################################################
-# if (!requireNamespace("BiocManager", quietly = TRUE))
-#   install.packages("BiocManager")
-# BiocManager::install("flowCore")
-# BiocManager::install("ggplot2")
-# BiocManager::install("ggpubr")
-# BiocManager::install("pheatmap")
-# BiocManager::install("tidyr")
-# BiocManager::install("FlowRepositoryR")
-if (!requireNamespace("devtools", quietly = TRUE))
-  install.packages("devtools")
-devtools::install_github("saeyslab/FlowSOM")
-devtools::install_github("saeyslab/PeacoQC")
 
-#### Download the data #########################################################
-ds <- FlowRepositoryR::download(FlowRepositoryR::flowRep.get("FR-FCM-ZZQY"), 
-                                "Data/Raw")
-ds <- FlowRepositoryR::download(FlowRepositoryR::flowRep.get("FR-FCM-Z2TQ"), 
-                                "Data/Raw")
 
-# If the above lines of code give an error, download the data directly from the
-# FlowRepository website:
-# https://flowrepository.org/experiments/833/download_ziped_files
-# https://flowrepository.org/experiments/3002/download_ziped_files
-
-#### Prepare data ##############################################################
-#microbenchmark::microbenchmark({
 # 1. Load the libraries
 library(flowCore)
 library(FlowSOM)
@@ -33,32 +8,29 @@ library(ggplot2)
 
 # 2. Define the general and preprocessing variables
 file_pattern <- "\\d.fcs" #digit at the end and fcs extension
-reference_file <- read.FCS("C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15709 15Feb2022 Simone/Samples_Tube_040 NSG  in house control 1_052.fcs", truncate_max_range = FALSE)
+reference_file <- read.FCS("C:/Users/edmondsonef/Desktop/Humanized/Flow/6-10Mar2022/Samples_Tube_014 Animal 120 blood_014.fcs", truncate_max_range = FALSE)
 reference_marker <- "PE-A" # Scatter values will be scaled to have the same range
 
-markers_of_interest <- c("SSC-A", "CD8", "CD4", "CD3", "CD33",
-                         "CD11b", "CD25", "mCD45", "huCD45", "CD56", 
-                         "CD19", "CD66b")
+markers_of_interest <- c("BB515-A",
+                         "BB700-P-A",
+                         "APC-A",
+                         "APC-Cy7-A",
+                         "BV421-A",
+                         "BV786-A",
+                         "BUV395-A",
+                         "BUV805-A",
+                         "PE-A",
+                         "PE-CF594-A",
+                         "PE-Cy7-A")
 
-live_gate <- flowCore::polygonGate(filterId = "Live",
-                                   .gate = matrix(data = c(60000, 100000, 150000, 
-                                                           250000, 250000, 60000, 
-                                                           60000, 1.6, 1.9, 2.5,
-                                                           2.5, -0.3, -0.3, 1.6),
-                                                  ncol = 2,
-                                                  dimnames = list(c(), 
-                                                                c("FSC-A", 
-                                                                    "APC-Cy7-A"))))
 
 # 3. Define and create the directories
-dir_prepr <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/Preprocessed/" #where the preprocessed data will be stored
-dir_QC <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/QC/" #where the data QC results will be stored
-dir_RDS <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/RDS/" #where the R objects will be stored
-dir_results <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/Results/" #where the results will be stored
-dir_raw <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/15709 15Feb2022 Simone/" #where the raw data is located
-#path_comp <- "C:/Users/edmondsonef/Desktop/Humanized Mouse Models/Flow/COMP/" #where comp matrix is located
-comp_list <- spillover(reference_file)
-compensation_matrix <- comp_list[[1]]
+dir_prepr <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/Preprocessed/" #where the preprocessed data will be stored
+dir_QC <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/QC/" #where the data QC results will be stored
+dir_RDS <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/RDS/" #where the R objects will be stored
+dir_results <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/Results/" #where the results will be stored
+dir_raw <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/6-10Mar2022/" #where the raw data is located
+path_comp <- "C:/Users/edmondsonef/Desktop/10Mar2022/table_compensation/autospill_compensation.csv" #where comp matrix is located
 
 
 for (path in c(dir_prepr, dir_QC, dir_RDS, dir_results)){
@@ -68,12 +40,13 @@ for (path in c(dir_prepr, dir_QC, dir_RDS, dir_results)){
 # 4. Prepare some additional information for preprocessing the files 
 # given the variable choices of step 2.
 files <- list.files(path = dir_raw,
-                    pattern = file_pattern)
+                    pattern = "Samples")
+
 channels_of_interest <- GetChannels(object = reference_file,
                                     markers = markers_of_interest, 
                                     exact = FALSE)
-#compensation_matrix <- read.csv(path_comp, 
-#                                check.names = FALSE, row.names = 1)
+compensation_matrix <- read.csv(path_comp, 
+                                check.names = FALSE, row.names = 1)
 
 colnames(compensation_matrix) <- sub(" :: .*", "",         
                                      colnames(compensation_matrix))
@@ -158,7 +131,7 @@ to_plot <- list(list(ff_pre = ff,
                      title = "Removed debris and dead cells",
                      channel_x = "FSC-A",
                      channel_y = "APC-Cy7-A"),
-                list(ff_pre = ff_l,
+                list(ff_pre = ff_s,
                      ff_post = PQC$FinalFF,
                      title = "Removed low quality events",
                      channel_x = "Time",
@@ -207,17 +180,19 @@ for (file in files){
 # 14.(A) Plot the signal per channel and per file
 # 14.(A)(i) Define the variables
 file_names <- sub(".*15_(.*).fcs", "\\1", files)
-file_groups <- rep(c("NSG", "Control"), 
-                   times = c(26, 2))
+file_groups <- c("NSG-IL15-blood", "NSG-blood", "Control-blood",
+                 "Control-blood", "NSG-IL15-bm", "NSG-bm",
+                 "NSG-IL15-sp", "NSG-sp")
 
 # 14.(A)(ii) Make the overview plot
 PlotFileScatters(input = paste0(dir_prepr, files),
                  channels = channels_of_interest,
-                 names = file_names, legend = TRUE,
-                 groups = file_groups, nrow = 2,
+                 #names = file_names, 
+                 legend = TRUE,
+                 groups = file_groups, nrow = 3,
                  plotFile = paste0(dir_QC, "file_scatters.png"))
 
-# 14.(B) Perform principal commponent analysis (PCA)
+# 14.(B) Perform principal component analysis (PCA)
 # 14.(B)(i) Retrieve the median marker expression values per file
 medians <- matrix(data = NA,
                   nrow = length(files), ncol = length(channels_of_interest),
@@ -240,7 +215,54 @@ ggsave(paste0(dir_QC, "file_PCA.png"), width = 5)
 #}, times = 10)
 
 #### Create an aggregate file ##################################################
-#microbenchmark::microbenchmark({
+
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+wsp_file <- "C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp"
+wsp <- open_flowjo_xml("C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp")
+
+gs <- flowjo_to_gatingset(wsp, name = 1, path ="C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/")
+plot(gs)
+
+
+gs_get_pop_paths(gs)
+recompute(gs)
+nodelist <- gs_get_pop_paths(gs, path = "auto")
+nodelist
+
+fs1 <- gh_pop_get_data(gs[[1]], "hCD45+")
+fs2 <- gh_pop_get_data(gs[[2]], "hCD45+")
+fs3 <- gh_pop_get_data(gs[[3]], "hCD45+")
+fs4 <- gh_pop_get_data(gs[[4]], "hCD45+")
+fs5 <- gh_pop_get_data(gs[[5]], "hCD45+")
+fs6 <- gh_pop_get_data(gs[[6]], "hCD45+")
+fs7 <- gh_pop_get_data(gs[[7]], "hCD45+")
+fs8 <- gh_pop_get_data(gs[[8]], "hCD45+")
+
+
+fs1 <- cytoframe_to_flowFrame(fs1)
+fs2 <- cytoframe_to_flowFrame(fs2)
+fs3 <- cytoframe_to_flowFrame(fs3)
+fs4 <- cytoframe_to_flowFrame(fs4)
+fs5 <- cytoframe_to_flowFrame(fs5)
+fs6 <- cytoframe_to_flowFrame(fs6)
+fs7 <- cytoframe_to_flowFrame(fs7)
+fs8 <- cytoframe_to_flowFrame(fs8)
+class(FS)
+
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+########MOVE TO EARLIER FOR SUBSETTING
+
 
 # 15. Choose the number of cells to include in the aggregate file
 n <- 700000
@@ -251,7 +273,10 @@ agg <- AggregateFlowFrames(paste0(dir_prepr, files),
                            cTotal = n,
                            writeOutput = TRUE,
                            outputFile = paste0(dir_prepr, "aggregate.fcs"))
-
+agg <- AggregateFlowFrames(c(fs1, fs2, fs3, fs4, fs5, fs6, fs7, fs8),
+                           cTotal = n,
+                           writeOutput = TRUE,
+                           outputFile = paste0(dir_prepr, "hCD45aggregateEFE.fcs"))
 #}, times = 10)
 
 #### Train FlowSOM model #######################################################
@@ -267,26 +292,38 @@ scaling <- FALSE
 
 names(agg)
 exprs(agg)
+colnames(agg)
 markers_of_interest <- c("SSC-A", "CD8", "CD4", "CD3", "CD33",
                          "CD11b", "CD25", "mCD45", "huCD45", "CD56", 
                          "CD19", "CD66b")
 markers_of_interest <- c("SSC-A", "CD4", "CD3", "CD33",
                          "CD11b", "CD25", "mCD45", "huCD45", "CD56", 
                          "CD19", "CD66b")
+markers_of_interest <- c("BB515-A",
+                         "BB700-P-A",
+                         "APC-A",
+                         "APC-Cy7-A",
+                         "BV421-A",
+                         "BV786-A",
+                         "PE-A",
+                         "PE-CF594-A",
+                         "PE-Cy7-A")
 
 # 18. Compute the FlowSOM object
 fsom <- FlowSOM(input = agg,
                 scale = scaling,
-                colsToUse = c(4,7:16),
+                colsToUse = c(7:12,15:17),
                 seed = seed,
                 nClus = n_meta,
                 xdim = SOM_x, ydim = SOM_y)
-saveRDS(fsom, paste(dir_RDS, "fsom.rds"))
+saveRDS(fsom, paste(dir_RDS, "10Mar.hC45fsomEFE.rds"))
 
 # 19. Visualize the FlowSOM object
 PlotStars(fsom = fsom,
           backgroundValues = fsom$metaclustering)
 ggsave(paste0(dir_results, "fsom_tree.pdf"),height = 8.5, width = 11)
+
+
 
 #}, times = 10)
 
@@ -311,16 +348,33 @@ Plot2DScatters(fsom = fsom,
                clusters = clusters_of_interest,
                plotFile = paste0(dir_results, "fsom_2D_scatters.png"))
 
+
+
+
+
 # 20.(B) Check the consistency with manual labeling
 # 20.(B)(i) Extract the gating information from the wsp file
 gating <- GetFlowJoLabels(files = files,
-                          wspFile = "Data/Raw/attachments/General_panel.wsp",
+                          wspFile = "C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp",
                           path = dir_raw)
-
+names(gating)
+head(gating)
 # 20.(B)(ii) Get an overview of the gatenames and define the cell types of interest
-print(levels(gating[[1]][["manual"]]))
-cell_types_of_interest <- c("B cells", "NK cells", "T cells", "Macrophages", 
-                            "DCs", "Neutrophils","Non neutrophils")
+new <- GetChannels(agg)
+
+
+cell_types_of_interest <- c("Q6: CD3+ , CD4 [PCP55]+",
+                            "Q10: CD3+ , CD8 [FITC]+",
+                            "Q13: CD3- , CD19 [AFire750]+",
+                            "Q17: CD3- , CD56+",
+                            "Q18: CD3+ , CD56+",
+                            "Q29: CD66b [PEDazz]- , CD11b [AF647]+",
+                            "Q30: CD66b [PEDazz]+ , CD11b [AF647]+",
+                            "Q31: CD66b [PEDazz]+ , CD11b [AF647]-",
+                            "Q33: CD33- , CD11b [AF647]+",
+                            "Q38: CD25+ , CD3+",
+                            "Q35: CD33+ , CD11b [AF647]-",
+                            "Q39: CD25+ , CD3-")
 
 # 20.(B)(iii) Compile the labels of the aggregate file
 aggregate_labels <- c()
@@ -334,9 +388,8 @@ for (file in unique(exprs(agg)[, "File"])) {
 
 # 20.(B)(iv) Show the manual labeling on the FlowSOM tree
 PlotPies(fsom = fsom,
-         cellTypes = factor(aggregate_labels, levels = c("Unlabeled",
-                                                         cell_types_of_interest)))
-ggsave("Results/fsom_manual.pdf")
+         cellTypes = factor(aggregate_labels, levels = c(cell_types_of_interest)))
+ggsave(paste0(dir_QC, "fsom_manual.pdf"))
 
 # 19.(B)(v) Calculate the purity of the FlowSOM clustering
 Purity(realClusters = aggregate_labels,
@@ -344,7 +397,7 @@ Purity(realClusters = aggregate_labels,
 
 # 20.(C) Inspect the file contribution per cluster
 # 20.(C)(i) Specify a color vector (optional)
-file_colors <- c("#990000", "#cc0000", "#ff0000", #Different shades within the groups
+file_colors <- c("#990000", "#cc0000", "#ff0000","#4677c7","#4677c7", #Different shades within the groups
                  "#1d1d77", "#2b3b92", "#3859ac", "#4677c7") 
 
 # 20.(C)(ii) Show the file contribution
