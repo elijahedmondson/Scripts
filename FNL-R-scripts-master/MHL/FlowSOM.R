@@ -1,14 +1,72 @@
+# Bioconductor
+library(FlowRepositoryR)
+library(flowCore)
+library(openCyto)
+library(ggcyto)
+library(FlowSOM)
+library(CytoML)
+# Tidyverse
+library(fs)
+library(janitor)
+library(tidyverse)
+library(reshape2)
+# General purpose
+library(curl)
+# Visualization
+library(umap)
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+dir_prepr <- "C:/Users/edmondsonef/Desktop/FACS/1-Preprocessed/" #where the preprocessed data will be stored
+dir_QC <- "C:/Users/edmondsonef/Desktop/FACS/2-QC/" #where the data QC results will be stored
+dir_RDS <- "C:/Users/edmondsonef/Desktop/FACS/3-RDS/" #where the R objects will be stored
+dir_results <- "C:/Users/edmondsonef/Desktop/FACS/4-Results/" #where the results will be stored
+dir_raw <- "C:/Users/edmondsonef/Desktop/FACS/" #where the raw data is located
+path_comp <- "C:/Users/edmondsonef/Desktop/0-Autospill/table_compensation/autospill_compensation.csv" #where comp matrix is located
+files <- list.files(path = dir_prepr, pattern = "Samples")
+wsp_file <- 'C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp'
+ws <- open_flowjo_xml(wsp_file)
+ws
+fj_ws_get_samples(ws, group_id = 1)
+gh_pop_get_stats(gs[[54]], "/scatter/sing")
+gs <- flowjo_to_gatingset(ws, name = 1, path=dir_raw)
+gh_pop_get_stats(gs[[1]], "/scatter/sing")
+cs <- gs_pop_get_data(gs, "/scatter/sing")
+fs <- cytoset_to_flowSet(cs)
+dir <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/"
+
+fs@phenoData@data$name
+write.flowSet(fs, outdir=dir, filename = fs@phenoData@data$name)
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
+### Loop preprocessing pipeline for all the files
 
 
 
-# 1. Load the libraries
+
+
+
+
+# 1. Load the libraries# 1. Load the librariesdesc()
 library(flowCore)
 library(FlowSOM)
 library(ggplot2)
 
 # 2. Define the general and preprocessing variables
+data_dir <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/"
+#wsp_file <- paste0(data_dir, '15708 15Feb2022 Simone.wsp')
 file_pattern <- "\\d.fcs" #digit at the end and fcs extension
-reference_file <- read.FCS("C:/Users/edmondsonef/Desktop/Humanized/Flow/6-10Mar2022/Samples_Tube_014 Animal 120 blood_014.fcs", truncate_max_range = FALSE)
+reference_file <- read.FCS(paste0(data_dir, 'Samples_Tube_015 Animal 142_027.fcs'), truncate_max_range = FALSE)
 reference_marker <- "PE-A" # Scatter values will be scaled to have the same range
 
 markers_of_interest <- c("BB515-A",
@@ -23,15 +81,13 @@ markers_of_interest <- c("BB515-A",
                          "PE-CF594-A",
                          "PE-Cy7-A")
 
-
 # 3. Define and create the directories
-dir_prepr <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/Preprocessed/" #where the preprocessed data will be stored
-dir_QC <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/QC/" #where the data QC results will be stored
-dir_RDS <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/RDS/" #where the R objects will be stored
-dir_results <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/Results/" #where the results will be stored
-dir_raw <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/6-10Mar2022/" #where the raw data is located
-path_comp <- "C:/Users/edmondsonef/Desktop/10Mar2022/table_compensation/autospill_compensation.csv" #where comp matrix is located
-
+dir_prepr <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/1-Preprocessed/" #where the preprocessed data will be stored
+dir_QC <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/2-QC/" #where the data QC results will be stored
+dir_RDS <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/3-RDS/" #where the R objects will be stored
+dir_results <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/4-Results/" #where the results will be stored
+dir_raw <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/" #where the raw data is located
+path_comp <- "C:/Users/edmondsonef/Desktop/0-Autospill/table_compensation/autospill_compensation.csv" #where comp matrix is located
 
 for (path in c(dir_prepr, dir_QC, dir_RDS, dir_results)){
   dir.create(path)
@@ -41,7 +97,7 @@ for (path in c(dir_prepr, dir_QC, dir_RDS, dir_results)){
 # given the variable choices of step 2.
 files <- list.files(path = dir_raw,
                     pattern = "Samples")
-
+files
 channels_of_interest <- GetChannels(object = reference_file,
                                     markers = markers_of_interest, 
                                     exact = FALSE)
@@ -54,7 +110,7 @@ colnames(compensation_matrix) <- sub(" :: .*", "",
 # Compute transformation list
 ff_m <- PeacoQC::RemoveMargins(reference_file, channels_of_interest)
 names(ff_m)
-exprs(ff_m)
+#exprs(ff_m)
 each_col(ff_m, median)
 
 ff_c <- flowCore::compensate(ff_m, compensation_matrix)
@@ -69,9 +125,11 @@ SSCA_b <- q5_goal - q5_SSCA * (q95_goal - q5_goal) / (q95_SSCA - q5_SSCA)
 translist <- c(translist, 
                transformList("SSC-A", flowCore::linearTransform(a = SSCA_a,
                                                                 b = SSCA_b)))
+translist
+#rm(ff_c, ff_m, ff_t, reference_file)
 
 # 5. Read the first fcs file into a flowframe
-ff <- read.FCS(paste0(dir_raw, files[1]), truncate_max_range = FALSE)
+ff <- read.FCS(paste0(dir_raw, files[2]), truncate_max_range = FALSE)
 
 # 6. Remove margin events
 ff_m <- PeacoQC::RemoveMargins(ff, channels_of_interest)
@@ -84,7 +142,7 @@ ff_t <- flowCore::transform(ff_c, translist)
 
 # 9. Remove doublets and filter live cells
 ff_s <- PeacoQC::RemoveDoublets(ff_t)
-#selected_live <- filter(ff_s, live_gate)
+#selected_live <- flowCore::filter(ff_s, live_gate)
 #ff_l <- ff_s[selected_live@subSet, ]
 
 # 10. QC with PeacoQC
@@ -125,17 +183,7 @@ to_plot <- list(list(ff_pre = ff,
                      ff_post = ff_s,
                      title = "Removed doublets",
                      channel_x = "FSC-A",
-                     channel_y = "FSC-H"),
-                list(ff_pre = ff_s,
-                     ff_post = ff_s,
-                     title = "Removed debris and dead cells",
-                     channel_x = "FSC-A",
-                     channel_y = "APC-Cy7-A"),
-                list(ff_pre = ff_s,
-                     ff_post = PQC$FinalFF,
-                     title = "Removed low quality events",
-                     channel_x = "Time",
-                     channel_y = "PerCP-Cy5-5-A"))
+                     channel_y = "FSC-H"))
 
 plot_list <- list()
 for (plot in to_plot) {
@@ -223,7 +271,7 @@ ggsave(paste0(dir_QC, "file_PCA.png"), width = 5)
 ########MOVE TO EARLIER FOR SUBSETTING
 ########MOVE TO EARLIER FOR SUBSETTING
 ########MOVE TO EARLIER FOR SUBSETTING
-wsp_file <- "C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp"
+
 wsp <- open_flowjo_xml("C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp")
 
 gs <- flowjo_to_gatingset(wsp, name = 1, path ="C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/")

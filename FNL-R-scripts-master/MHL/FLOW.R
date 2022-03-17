@@ -15,8 +15,8 @@ library(FlowSOM)
 
 
 myfiles <- list.files(path="C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/", pattern = ".FCS", ignore.case = TRUE)
-wsp_file <- "C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp"
-wsp <- open_flowjo_xml("C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp")
+wsp_file <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/3-15Feb2022/15708 15Feb2022 Simone.wsp"
+wsp <- open_flowjo_xml(wsp_file)
 fcs_file <- "C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/Samples_Tube_018 Animal 120 BMC_018.fcs"
 #fs <- read.flowSet(myfiles, path="C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022", truncate_max_range = FALSE)
 #fs_comp <-compensate(fs, spillover(fs[[1]])$SPILL)
@@ -30,12 +30,15 @@ fj_ws_get_samples(wsp, group_id = 1)
 #Removing stuff
 #Removing stuff
 #Removing stuff
-gs <- flowjo_to_gatingset(wsp, name = 1, path ="C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/")
+gs <- flowjo_to_gatingset(wsp, name = 1, path ="C:/Users/edmondsonef/Desktop/Humanized/Flow/3-15Feb2022/")
 plot(gs)
 autoplot(gs[[1]])
 
 gs_get_pop_paths(gs)
 recompute(gs)
+
+gs_pop_get_gate(gs, "/scatter")
+x <- gs_pop_get_gate(gs[[1]], "/scatter")
 
 
 sampStats <- gs_pop_get_stats(gs)
@@ -92,7 +95,7 @@ write.csv(FULL, "C:/Users/edmondsonef/Desktop/FULL.csv")
 ### Get Stats on Manual Gates or Nodes
 
 
-autoplot(gs, "hCD45+")
+autoplot(gs, "/scatter")
 ggcyto(gs, aes(x = `FSC-A`)) + geom_density() + geom_gate("hCD45+")
 
 
