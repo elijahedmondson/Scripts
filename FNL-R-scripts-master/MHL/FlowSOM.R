@@ -28,13 +28,13 @@ dir_RDS <- "C:/Users/edmondsonef/Desktop/FACS/3-RDS/" #where the R objects will 
 dir_results <- "C:/Users/edmondsonef/Desktop/FACS/4-Results/" #where the results will be stored
 dir_raw <- "C:/Users/edmondsonef/Desktop/FACS/" #where the raw data is located
 path_comp <- "C:/Users/edmondsonef/Desktop/0-Autospill/table_compensation/autospill_compensation.csv" #where comp matrix is located
-files <- list.files(path = dir_prepr, pattern = "Samples")
+files <- list.files(path = dir_raw, pattern = "Samples")
+
 wsp_file <- 'C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp'
 ws <- open_flowjo_xml(wsp_file)
 ws
-fj_ws_get_samples(ws, group_id = 1)
-gh_pop_get_stats(gs[[54]], "/scatter/sing")
-gs <- flowjo_to_gatingset(ws, name = 1, path=dir_raw)
+fj_ws_get_samples(ws, group_id = 4)
+gs <- flowjo_to_gatingset(ws, name = 4, path=dir_raw)
 gh_pop_get_stats(gs[[1]], "/scatter/sing")
 cs <- gs_pop_get_data(gs, "/scatter/sing")
 fs <- cytoset_to_flowSet(cs)
@@ -95,8 +95,7 @@ for (path in c(dir_prepr, dir_QC, dir_RDS, dir_results)){
 
 # 4. Prepare some additional information for preprocessing the files 
 # given the variable choices of step 2.
-files <- list.files(path = dir_raw,
-                    pattern = "Samples")
+files <- list.files(path = dir_raw, pattern = "Samples")
 files
 channels_of_interest <- GetChannels(object = reference_file,
                                     markers = markers_of_interest, 
@@ -227,13 +226,14 @@ for (file in files){
 # 14. Perform quality control between all files
 # 14.(A) Plot the signal per channel and per file
 # 14.(A)(i) Define the variables
-file_names <- sub(".*15_(.*).fcs", "\\1", files)
-file_groups <- c("NSG-IL15-blood", "NSG-blood", "Control-blood",
-                 "Control-blood", "NSG-IL15-bm", "NSG-bm",
-                 "NSG-IL15-sp", "NSG-sp")
+files <- list.files(path = "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/1-Preprocessed/1-05Jan2022/", pattern = "Samples")
+files
+dir_new <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/1-Preprocessed/1-05Jan2022/"
+#file_names <- sub(".*15_(.*).fcs", "\\1", files)
+file_groups <- data$Group
 
 # 14.(A)(ii) Make the overview plot
-PlotFileScatters(input = paste0(dir_prepr, files),
+PlotFileScatters(input = paste0(dir_new, files),
                  channels = channels_of_interest,
                  #names = file_names, 
                  legend = TRUE,
@@ -247,7 +247,7 @@ medians <- matrix(data = NA,
                   dimnames = list(files, channels_of_interest))
 
 for (file in files){
-  ff <- read.FCS(paste0(dir_prepr, file))
+  ff <- read.FCS(paste0(dir_new, file))
   medians[file,] <- apply(exprs(ff)[,channels_of_interest], 2, median)
 }
 
@@ -271,17 +271,26 @@ ggsave(paste0(dir_QC, "file_PCA.png"), width = 5)
 ########MOVE TO EARLIER FOR SUBSETTING
 ########MOVE TO EARLIER FOR SUBSETTING
 ########MOVE TO EARLIER FOR SUBSETTING
-
-wsp <- open_flowjo_xml("C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp")
-
-gs <- flowjo_to_gatingset(wsp, name = 1, path ="C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/")
+wsp_file <- 'C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp'
+ws <- open_flowjo_xml(wsp_file)
+ws
+gs <- flowjo_to_gatingset(ws, name = 4, path ="C:/Users/edmondsonef/Desktop/FACS/")
 plot(gs)
 
 
 gs_get_pop_paths(gs)
 recompute(gs)
-nodelist <- gs_get_pop_paths(gs, path = "auto")
-nodelist
+gs_get_pop_paths(gs, path = "auto")
+recompute(gs)
+
+
+fj_ws_get_samples(ws, group_id = 4)
+gs <- flowjo_to_gatingset(ws, name = 4, path=dir_raw)
+gh_pop_get_stats(gs[[1]], "/scatter/sing")
+
+
+cs <- gs_pop_get_data(gs, "/scatter/sing")
+fs <- cytoset_to_flowSet(cs)
 
 fs1 <- gh_pop_get_data(gs[[1]], "hCD45+")
 fs2 <- gh_pop_get_data(gs[[2]], "hCD45+")
@@ -317,14 +326,11 @@ n <- 700000
 
 # 16. Make an aggregate file
 set.seed(2020)
-agg <- AggregateFlowFrames(paste0(dir_prepr, files),
-                           cTotal = n,
-                           writeOutput = TRUE,
-                           outputFile = paste0(dir_prepr, "aggregate.fcs"))
+
 agg <- AggregateFlowFrames(c(fs1, fs2, fs3, fs4, fs5, fs6, fs7, fs8),
                            cTotal = n,
-                           writeOutput = TRUE,
-                           outputFile = paste0(dir_prepr, "hCD45aggregateEFE.fcs"))
+                           writeOutput = FALSE)
+#                           outputFile = paste0(dir_prepr, "hCD45aggregateEFE.fcs"))
 #}, times = 10)
 
 #### Train FlowSOM model #######################################################
@@ -333,7 +339,7 @@ agg <- AggregateFlowFrames(c(fs1, fs2, fs3, fs4, fs5, fs6, fs7, fs8),
 # 17. Specify the FlowSOM variables
 SOM_x <- 10
 SOM_y <- 10
-n_meta <- 8
+n_meta <- 10
 seed <- 2020
 scaling <- FALSE
 
@@ -357,14 +363,24 @@ markers_of_interest <- c("BB515-A",
                          "PE-CF594-A",
                          "PE-Cy7-A")
 
+markers_of_interest <- c("Comp-BB515-A",
+                         "Comp-BB700-P-A",
+                         "Comp-APC-A",
+                         "Comp-APC-Cy7-A",
+                         "Comp-BV421-A",
+                         "Comp-BV786-A",
+                         "Comp-PE-A",
+                         "Comp-PE-CF594-A",
+                         "Comp-PE-Cy7-A")
+
 # 18. Compute the FlowSOM object
-fsom <- FlowSOM(input = agg,
+fsom <- FlowSOM(input = cs,
                 scale = scaling,
                 colsToUse = c(7:12,15:17),
                 seed = seed,
                 nClus = n_meta,
                 xdim = SOM_x, ydim = SOM_y)
-saveRDS(fsom, paste(dir_RDS, "10Mar.hC45fsomEFE.rds"))
+saveRDS(fsom, paste(dir_RDS, "JANfsomEFE.rds"))
 
 # 19. Visualize the FlowSOM object
 PlotStars(fsom = fsom,
@@ -403,12 +419,12 @@ Plot2DScatters(fsom = fsom,
 # 20.(B) Check the consistency with manual labeling
 # 20.(B)(i) Extract the gating information from the wsp file
 gating <- GetFlowJoLabels(files = files,
-                          wspFile = "C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp",
+                          wspFile = wsp_file,
                           path = dir_raw)
 names(gating)
 head(gating)
 # 20.(B)(ii) Get an overview of the gatenames and define the cell types of interest
-new <- GetChannels(agg)
+new <- GetChannels(fs[[1]])
 
 
 cell_types_of_interest <- c("Q6: CD3+ , CD4 [PCP55]+",
