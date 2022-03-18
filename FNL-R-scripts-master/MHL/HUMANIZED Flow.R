@@ -14,15 +14,7 @@ library(flowCore)
 library(ggplot2)
 library(ggpubr)
 
-########### 1. Generate Counts From Manual Gating ########### 
-########### 1. Generate Counts From Manual Gating ###########
-########### 1. Generate Counts From Manual Gating ###########
-########### 1. Generate Counts From Manual Gating ########### 
-########### 1. Generate Counts From Manual Gating ###########
-########### 1. Generate Counts From Manual Gating ###########
-########### 1. Generate Counts From Manual Gating ########### 
-########### 1. Generate Counts From Manual Gating ###########
-########### 1. Generate Counts From Manual Gating ###########
+
 ########### 1. Generate Counts From Manual Gating ########### 
 ########### 
 plot_dir <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/Plots/"
@@ -62,15 +54,7 @@ png(paste0(plot_dir,"6-10Mar2022-07_CD33-CD11b.png"), width = 3000, height =2400
 autoplot(gs, "Q34: CD33+ , CD11b [AF647]+")
 dev.off()
 
-########### 2. Preprocessing and QC ###########
-########### 2. Preprocessing and QC ###########
-########### 2. Preprocessing and QC ###########
-########### 2. Preprocessing and QC ###########
-########### 2. Preprocessing and QC ###########
-########### 2. Preprocessing and QC ###########
-########### 2. Preprocessing and QC ###########
-########### 2. Preprocessing and QC ###########
-########### 2. Preprocessing and QC ###########
+
 ########### 2. Preprocessing and QC ###########
 ###########  ###########
 library(flowCore)
@@ -303,14 +287,7 @@ for (file in files){
   dev.off()
 
   
-  ########### 3. Additional QC ###########
-  ########### 3. Additional QC ###########
-  ########### 3. Additional QC ###########
-  ########### 3. Additional QC ###########
-  ########### 3. Additional QC ###########
-  ########### 3. Additional QC ###########
-  ########### 3. Additional QC ###########
-  ########### 3. Additional QC ###########
+
   ########### 3. Additional QC ###########
   ###########  ###########
   
@@ -352,14 +329,7 @@ for (file in files){
   
   
 
-  ########### 4. Create Aggegregate Files ###########
-  ########### 4. Create Aggegregate Files ###########
-  ########### 4. Create Aggegregate Files ###########
-  ########### 4. Create Aggegregate Files ###########
-  ########### 4. Create Aggegregate Files ###########
-  ########### 4. Create Aggegregate Files ###########
-  ########### 4. Create Aggegregate Files ###########
-  ########### 4. Create Aggegregate Files ###########
+
   ########### 4. Create Aggegregate Files ###########
   ###########  ###########
   # 15. Choose the number of cells to include in the aggregate file
@@ -379,17 +349,20 @@ for (file in files){
   
   #}, times = 10)
   
-  ########### 5. Train FlowSOM model ###########
-  ########### 5. Train FlowSOM model ###########
-  ########### 5. Train FlowSOM model ###########
-  ########### 5. Train FlowSOM model ###########
-  ########### 5. Train FlowSOM model ###########
-  ########### 5. Train FlowSOM model ###########
-  ########### 5. Train FlowSOM model ###########
-  ########### 5. Train FlowSOM model ###########
+
   ########### 5. Train FlowSOM model ###########
   ###########  ###########
- 
+  markers_of_interest <- c("BB515-A",
+                           "BB700-P-A",
+                           "APC-A",
+                           "APC-Cy7-A",
+                           "BV421-A",
+                           "BV786-A",
+                           #"BUV395-A",
+                           #"BUV805-A",
+                           "PE-A",
+                           "PE-CF594-A",
+                           "PE-Cy7-A")
   # 17. Specify the FlowSOM variables
   SOM_x <- 10
   SOM_y <- 10
@@ -411,14 +384,8 @@ for (file in files){
             backgroundValues = fsom$metaclustering)
   ggsave(paste0(dir_results, "fsom_tree.pdf"),height = 8.5, width = 11)
   
-  ########### 6. Test Quality ###########
-  ########### 6. Test Quality ###########
-  ########### 6. Test Quality ###########
-  ########### 6. Test Quality ###########
-  ########### 6. Test Quality ###########
-  ########### 6. Test Quality ###########
-  ########### 6. Test Quality ###########
-  ########### 6. Test Quality ###########
+
+  
   ########### 6. Test Quality ###########
   ###########  ###########
   
@@ -446,14 +413,7 @@ for (file in files){
                  clusters = clusters_of_interest,
                  plotFile = paste0(dir_results, "fsom_2D_scatters.png"))
   
-  ########### 7. Test with Manual Gating ###########
-  ########### 7. Test with Manual Gating ###########
-  ########### 7. Test with Manual Gating ###########
-  ########### 7. Test with Manual Gating ###########
-  ########### 7. Test with Manual Gating ###########
-  ########### 7. Test with Manual Gating ###########
-  ########### 7. Test with Manual Gating ###########
-  ########### 7. Test with Manual Gating ###########
+
   ########### 7. Test with Manual Gating ###########
   ########### 
   wspFile = "C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp"
@@ -469,8 +429,19 @@ for (file in files){
   
   # 20.(B)(ii) Get an overview of the gatenames and define the cell types of interest
   print(levels(gating[[1]][["manual"]]))
-  cell_types_of_interest <- c("B cells", "NK cells", "T cells", "Macrophages", 
-                              "DCs", "Neutrophils","Non neutrophils")
+  cell_types_of_interest <- c("hCD45+","Q6: CD3+ , CD4 [PCP55]+",
+                  "Q10: CD3+ , CD8 [FITC]+",
+                  "Q13: CD3- , CD19 [AFire750]+",
+                  "Q17: CD3- , CD56+",
+                  "Q18: CD3+ , CD56+",
+                  "Q29: CD66b [PEDazz]- , CD11b [AF647]+",
+                  "Q30: CD66b [PEDazz]+ , CD11b [AF647]+",
+                  "Q31: CD66b [PEDazz]+ , CD11b [AF647]-",
+                  "Q33: CD33- , CD11b [AF647]+",
+                  "Q38: CD25+ , CD3+",
+                  "Q35: CD33+ , CD11b [AF647]-",
+                  "Q39: CD25+ , CD3-")
+  
   
   # 20.(B)(iii) Compile the labels of the aggregate file
   aggregate_labels <- c()
@@ -486,6 +457,11 @@ for (file in files){
            cellTypes = factor(aggregate_labels, levels = c("Unlabeled",
                                                            cell_types_of_interest)))
   ggsave("Results/fsom_manual.pdf")
+  
+
+ ## ????? FlowSOMSubset(fsom, cellTypes = "hCD45+")
+  
+  
   
   # 19.(B)(v) Calculate the purity of the FlowSOM clustering
   Purity(realClusters = aggregate_labels,
@@ -511,31 +487,228 @@ for (file in files){
                colorPalette = file_colors)
   ggsave(paste0(dir_results, "fsom_filecontribution.pdf"))
   
-  ########### 8. Discovery and downstream analysis ###########
-  ########## 8. Discovery and downstream analysis ###########
-  ########## 8. Discovery and downstream analysis ###########
-  ########## 8. Discovery and downstream analysis ###########
-  ########## 8. Discovery and downstream analysis ###########
-  ########## 8. Discovery and downstream analysis ###########
-  ########## 8. Discovery and downstream analysis ###########
-  ########## 8. Discovery and downstream analysis ###########
+
+  
   ########## 8. Discovery and downstream analysis ###########
   ########## 
   
   
+  # 21. Explore the FlowSOM result
+  # 21.(A) Create the FlowSOMmary
+  FlowSOMmary(fsom = fsom,
+              plotFile = paste0(dir_results, "fsom_summary.pdf"))
+  
+  # 21.(B) Look for nodes with a specific pattern
+  # 21.(B)(i) Specify the query
+  query <- list("B cells" = c("CD19" = "high", "CD3" = "low"),
+                "NK cells" = c("CD19" = "low", "CD161" = "high", 
+                               "MHCII" = "low"),
+                "T cells" = c("CD3" = "high", "MHCII" = "low", "Ly-6G" = "low"),
+                "Macrophages" = c("CD64" = "high", "FcERI" = "high", 
+                                  "MHCII" = "high", "CD49b" = "high", 
+                                  "Ly-6G" = "low"),
+                "Dendritic cells" = c("CD11c" = "high", "MHCII" = "high", 
+                                      "CD11b" = "high", "FcERI" = "low"),
+                "Neutrophils" = c("Ly-6G" = "high", "CD11b" = "high", 
+                                  "CD3" = "low"))
+  
+  # 21.(B)(ii) Retrieve the cluster labels based on the query
+  labels <- QueryMultiple(fsom = fsom,
+                          cellTypes = query,
+                          plotFile = paste0(dir_results, "fsom_QueryStarPlot.pdf"))
+  
+  # 21.(B)(iii) Show the retrieved labels on the FlowSOM tree
+  PlotVariable(fsom = fsom,
+               variable = labels)
+  ggsave(paste0(dir_results, "fsom_query.pdf"))
+  
+  # 22. Get features per fcs file
+  # Specify the variables of interest
+  types <- c("counts", "percentages", "MFIs")
+  MFIs <- c("CD49b", "Ly-6G")
+  
+  # Get the features
+  features <- GetFeatures(fsom = fsom,
+                          files = paste0(dir_prepr, files),
+                          filenames = file_names,
+                          type = types,
+                          MFI = MFIs)
+  
+
+  ########## 9. Compare Groups ###########
+  ########## 
+  
+  # 23. Define the groups and feature you would want to compare.
+  feature <- "cluster_percentages"
+  grouplist <- list("KO" = file_names[1:3],
+                    "WT" = file_names[4:7])
+  stat <- "fold changes"
+  
+  # 24. Compare the 2 groups of interest
+  stats <- GroupStats(features = features[[feature]],
+                      groups = grouplist)
+  
+  # 25. Show the findings of step 24 on the trees
+  # Define the plotting variables
+  stat_levels <- c(paste0(names(grouplist)[2], " underrepresented compared to ",
+                          names(grouplist)[1]),
+                   paste0(names(grouplist)[1], " underrepresented compared to ",
+                          names(grouplist)[2]),
+                   "--")
+  colors <- c("blue", "red", "white")
+  
+  # Show statistical findings on FlowSOM trees
+  cluster_stat <- stats[stat,]
+  cluster_stat <- factor(ifelse(cluster_stat < -2.5, stat_levels[1],
+                                ifelse(cluster_stat > 2.5, stat_levels[2],
+                                       stat_levels[3])), 
+                         levels = stat_levels)
+  cluster_stat[is.na(cluster_stat)] <- stat_levels[3]
+  gr_1 <- PlotStars(fsom = fsom, title = names(grouplist)[1], 
+                    nodeSizes = stats[paste0("medians ", names(grouplist)[1]),], 
+                    backgroundValues = cluster_stat,
+                    backgroundColors = colors, 
+                    list_insteadof_ggarrange = TRUE)
+  gr_2 <- PlotStars(fsom = fsom, title = names(grouplist)[2], 
+                    nodeSizes = stats[paste0("medians ", names(grouplist)[2]),],
+                    backgroundValues = cluster_stat,
+                    backgroundColors = colors,
+                    list_insteadof_ggarrange = TRUE)
+  ggpubr::ggarrange(plotlist = list(gr_1$tree, gr_2$tree, gr_2$starLegend, 
+                                    gr_2$backgroundLegend), 
+                    heights = c(3,1))
+  ggsave(paste0(dir_results, "fsom_groups.pdf"), width = 10, height = 7.5)
+  
+  
+
+  ########## 10. Map new data onto FlowSOM object ###########
+  ########## 
+  
+  # 26. Map new data on the FlowSOM object
+  for (file in files){
+    ff_prepr <- read.FCS(paste0(dir_prepr, file))
+    ff_raw <- read.FCS(paste0(dir_raw, file))
+    fsom_tmp <- NewData(fsom = fsom,
+                        input = ff_prepr)
+    clustering <- GetClusters(fsom_tmp)
+    clustering_raw <- matrix(data = rep(0, nrow(exprs(ff_raw))),
+                             ncol = 1, dimnames = list(c(), "FlowSOM"))
+    clustering_raw[exprs(ff_prepr)[,"Original_ID"]] <- clustering
+    ff_tmp <- flowCore::fr_append_cols(ff_raw, clustering_raw)
+    write.FCS(ff_tmp, paste0(dir_prepr, "FlowSOM_", file))
+  }
   
   
   
+
+  ########## 11. Additional ###########
+  ########## Applying FlowSOM to files or groups separately and then meta-cluster on all ####
+    # Compute separate FlowSOM objects
+  fsom_KO <- FlowSOM(input = paste0(dir_prepr, files[1:3]),
+                     scale = FALSE, colsToUse = channels_of_interest,
+                     seed = 2020)
   
+  fsom_WT <- FlowSOM(input = paste0(dir_prepr, files[4:7]),
+                     scale = FALSE, colsToUse = channels_of_interest,
+                     seed = 2020)
   
+  # Extract the cluster median fluorescence intensity values (MFIs)
+  MFI_KO <- GetClusterMFIs(fsom = fsom_KO, prettyColnames = TRUE, colsUsed = TRUE)
+  rownames(MFI_KO) <- paste0("KO", rownames(MFI_KO))
+  MFI_WT <- GetClusterMFIs(fsom = fsom_WT, prettyColnames = TRUE, colsUsed = TRUE)
+  rownames(MFI_WT) <- paste0("WT", rownames(MFI_WT))
   
+  # Obtain the meta-clusters by hierarchical clustering
+  all_clusters <- rbind(MFI_KO, MFI_WT)
+  hclust <- hclust(dist(all_clusters))
+  metaclustering <- cutree(hclust, 15) #MC 14 corresponds to the NK cells
   
+  # Generate one clustering heatmap from all clusters
+  ann <- data.frame(cohort = rep(c("KO", "WT"), each = 100), 
+                    row.names = rownames(all_clusters))
+  p <- pheatmap::pheatmap(t(all_clusters), cluster_rows = F, cutree_cols = 15, 
+                          cellwidth = 5, fontsize_col = 3, annotation_col = ann,
+                          cluster_cols = hclust)
+  ggsave(p, filename = paste0(dir_results, "Higher_level_clustering.pdf"), width = 17)
   
+  # Generate the meta-cluster percentages boxplots
+  fsom_KO$metaclustering <- factor(unname(metaclustering[1:100]), levels = 1:15)
+  fsom_WT$metaclustering <- factor(unname(metaclustering[101:200]), levels =  1:15)
+  perc_KO <- GetFeatures(fsom = fsom_KO, 
+                         files = paste0(dir_prepr, files[1:3]),
+                         level = "metaclusters", type = "percentages", 
+                         filenames = files[1:3])
+  perc_WT <- GetFeatures(fsom = fsom_WT, 
+                         files = paste0(dir_prepr, files[4:7]),
+                         level = "metaclusters", type = "percentages", 
+                         filenames = files[4:7])
   
+  df <- data.frame(rbind(perc_KO[[1]], perc_WT[[1]])*100, 
+                   cohort = rep(c("KO", "WT"), c(3, 4)), check.names = FALSE)
+  df_g <- tidyr::gather(df, "MC", "percentage", -cohort)
+  ggplot(df_g, aes(x = cohort, y = percentage)) +
+    geom_boxplot() +
+    facet_wrap(~MC, scales = "free") +
+    theme_minimal()
+  ggsave(filename = "Results/FlowSOM_boxplot.pdf", width = 10, height = 10)
   
+
   
+
+
+  ########## 12. Subset and hierarchical approach ###########
+  
+  # Read in preprocessed fcs file, lymphocyte panel
+  ff <- read.FCS(paste0(dir_raw, "lympho.fcs"))
+  manual_labels <- readRDS(paste0(dir_raw, "attachments/lympho_labels.rds"))
+  
+  # Perform a first level clustering to isolate the lymphocytes
+  fsom_level1 <- FlowSOM(input = ff,
+                         scale = FALSE,
+                         colsToUse = c("CD11b", "CD3", "CD161", "CD19"),
+                         seed = 2020)
+  
+  # Inspect the 2D scatter plots to identify the meta-clusters of interest
+  Plot2DScatters(fsom = fsom_level1, 
+                 channelpairs = list(c("CD3", "CD161")),
+                 metaclusters = 1:10, 
+                 plotFile = paste0(dir_results, "hierarchy_level1.png")) 
+  #MC 1, 4 and 5 are the lymphocytes (CD3+, CD161-)
+  
+  # Subset the original fcs file
+  fsom_tmp <- NewData(fsom_level1, ff)
+  clustering <- GetMetaclusters(fsom_tmp)
+  ff_tmp <- ff[clustering %in% c(1, 4, 5),]
+  
+  # Perform a second level clustering to characterize the lymphocytes
+  fsom_level2 <- FlowSOM(input = ff_tmp,
+                         scale = FALSE,
+                         colsToUse = c("TCRyd", "CD44", "CD4", "CD62L", "CD8"),
+                         seed = 2020)
+  
+  # Plot the lymphocytes FlowSOM tree
+  PlotStars(fsom = fsom_level2,
+            backgroundValues = fsom_level2$metaclustering)
+  
+  # Show the manual labels on the FlowSOM trees
+  PlotPies(fsom = fsom_level1, cellTypes = manual_labels,
+           title = "First level clustering")
+  PlotPies(fsom = fsom_level2, cellTypes = factor(manual_labels[clustering %in% c(1, 4, 5)]),
+           backgroundValues = fsom_level2$metaclustering, title = "Second level clustering")
   
   
   
   
    
+  
+
+  ########## 13. PlotDimRed ###########
+  
+  PlotDimRed(fsom, cTotal = 500,
+    colsToUse = fsom$map$colsUsed,
+    colorBy = "metaclusters",
+    dimred = Rtsne::Rtsne)
+  
+  
+  
+  
