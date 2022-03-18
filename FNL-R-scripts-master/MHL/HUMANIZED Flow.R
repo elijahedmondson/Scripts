@@ -1,6 +1,6 @@
 library(flowCore)
 library(flowWorkspace)
-library(openCyto)
+#library(openCyto)
 library(ggcyto)
 library(flowAI)
 library(gridExtra)
@@ -11,67 +11,96 @@ library(CytoML)
 library(Rtsne)
 library(FlowSOM)
 library(flowCore)
-library(FlowSOM)
 library(ggplot2)
+library(ggpubr)
 
 ########### 1. Generate Counts From Manual Gating ########### 
 ########### 1. Generate Counts From Manual Gating ###########
 ########### 1. Generate Counts From Manual Gating ###########
-data_dir <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/"
+########### 1. Generate Counts From Manual Gating ########### 
+########### 1. Generate Counts From Manual Gating ###########
+########### 1. Generate Counts From Manual Gating ###########
+########### 1. Generate Counts From Manual Gating ########### 
+########### 1. Generate Counts From Manual Gating ###########
+########### 1. Generate Counts From Manual Gating ###########
+########### 1. Generate Counts From Manual Gating ########### 
+########### 
+plot_dir <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/Plots/"
+data_dir <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/" 
 study_dir1 <- "1-05Jan2022/"
 study_dir2 <- "2-02Feb2022/"
 study_dir3 <- "3-15Feb2022/"
 study_dir4 <- "4-28Feb2022/"
 study_dir5 <- "5-02Mar2022/"
 study_dir6 <- "6-10Mar2022/"
-ws <- open_flowjo_xml(paste0(data_dir,study_dir,"15719 02Mar2022 Simone.wsp"))
+ws <- open_flowjo_xml("C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp")
 ws
-fj_ws_get_samples(ws, group_id = 4)
-gs <- flowjo_to_gatingset(ws, name = 4, path=dir)
-gh_pop_get_stats(gs[[1]], "/scatter/sing")
-cs <- gs_pop_get_data(gs, "/scatter/sing")
-fs <- cytoset_to_flowSet(cs)
-gs <- flowjo_to_gatingset(wsp, name = 1, path ="C:/Users/edmondsonef/Desktop/Humanized/Flow/3-15Feb2022/")
-plot(gs)
-autoplot(gs[[1]])
-
+head(fj_ws_get_samples(ws, group_id = 2))
+gs <- flowjo_to_gatingset(ws, name = 2, path=paste0(data_dir,study_dir6))
 gs_get_pop_paths(gs)
 recompute(gs)
 
-gs_pop_get_gate(gs, "/scatter")
-x <- gs_pop_get_gate(gs[[1]], "/scatter")
+png(paste0(plot_dir,"6-10Mar2022-01_Gates.png"), width = 3000, height =1800,res = 165)
+plot(gs)
+dev.off()
+png(paste0(plot_dir,"6-10Mar2022-02_scatter.png"), width = 3000, height =1800,res = 165)
+autoplot(gs, "/scatter")
+dev.off()
+png(paste0(plot_dir,"6-10Mar2022-03_scatter-sing.png"), width = 3000, height =1800,res = 165)
+autoplot(gs, "/scatter/sing")
+dev.off()
+png(paste0(plot_dir,"6-10Mar2022-04_hCD45.png"), width = 3000, height =2400,res = 165)
+autoplot(gs, "hCD45+")
+dev.off()
+png(paste0(plot_dir,"6-10Mar2022-05_CD3-CD4.png"), width = 3000, height =2400,res = 165)
+autoplot(gs, "Q6: CD3+ , CD4 [PCP55]+")
+dev.off()
+png(paste0(plot_dir,"6-10Mar2022-06_CD19.png"), width = 3000, height =2400,res = 165)
+autoplot(gs, "Q13: CD3- , CD19 [AFire750]+")
+dev.off()
+png(paste0(plot_dir,"6-10Mar2022-07_CD33-CD11b.png"), width = 3000, height =2400,res = 165)
+autoplot(gs, "Q34: CD33+ , CD11b [AF647]+")
+dev.off()
 
-
-sampStats <- gs_pop_get_stats(gs)
-
-### Get Stats on Manual Gates or Nodes
-### Get Stats on Manual Gates or Nodes
-### Get Stats on Manual Gates or Nodes
-### Get Stats on Manual Gates or Nodes
-nodes <- c("/scatter/sing/", "/scatter/sing/hCD45+",
-           "Q6: CD3+ , CD4 [PCP55]+",
-           "Q10: CD3+ , CD8 [FITC]+",
-           "Q13: CD3- , CD19 [AFire750]+",
-           "Q17: CD3- , CD56+",
-           "Q18: CD3+ , CD56+",
-           "Q29: CD66b [PEDazz]- , CD11b [AF647]+",
-           "Q30: CD66b [PEDazz]+ , CD11b [AF647]+",
-           "Q31: CD66b [PEDazz]+ , CD11b [AF647]-",
-           "Q33: CD33- , CD11b [AF647]+",
-           "Q38: CD25+ , CD3+",
-           "Q35: CD33+ , CD11b [AF647]-",
-           "Q39: CD25+ , CD3-")
-gs_pop_get_stats(gs, nodes, "percent")
-nodeCount <- gs_pop_get_stats(gs, nodes, "count")
-nodeCount
-write.csv(nodeCount, "C:/Users/edmondsonef/Desktop/nodeCount.csv")
-
-
+########### 2. Preprocessing and QC ###########
+########### 2. Preprocessing and QC ###########
+########### 2. Preprocessing and QC ###########
+########### 2. Preprocessing and QC ###########
+########### 2. Preprocessing and QC ###########
+########### 2. Preprocessing and QC ###########
+########### 2. Preprocessing and QC ###########
+########### 2. Preprocessing and QC ###########
+########### 2. Preprocessing and QC ###########
+########### 2. Preprocessing and QC ###########
+###########  ###########
+library(flowCore)
+library(flowWorkspace)
+#library(openCyto)
+library(ggcyto)
+library(flowAI)
+library(gridExtra)
+library(tidyverse)
+library(flowStats)
+library(flowWorkspace)
+library(CytoML)
+library(Rtsne)
+library(FlowSOM)
+library(flowCore)
+library(ggplot2)
+library(ggpubr)
 
 # 2. Define the general and preprocessing variables
-data_dir <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/"
-file_pattern <- "\\d.fcs" #digit at the end and fcs extension
-reference_file <- read.FCS(paste0(data_dir, 'Samples_Tube_015 Animal 142_027.fcs'), truncate_max_range = FALSE)
+
+#study_dir1 <- "1-05Jan2022/"
+#study_dir2 <- "2-02Feb2022/"
+study_dir3 <- "3-15Feb2022/"
+#study_dir4 <- "4-28Feb2022/"
+#study_dir5 <- "5-02Mar2022/"
+#study_dir6 <- "6-10Mar2022/"
+
+data_dir <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/" 
+file_pattern <- "\\d.fcs"
+reference_file <- read.FCS(paste0(data_dir,study_dir3,'Samples_Tube_015 Animal 142_027.fcs'), truncate_max_range = FALSE)
 reference_marker <- "PE-A" # Scatter values will be scaled to have the same range
 
 markers_of_interest <- c("BB515-A",
@@ -85,13 +114,22 @@ markers_of_interest <- c("BB515-A",
                          "PE-A",
                          "PE-CF594-A",
                          "PE-Cy7-A")
+live_gate <- flowCore::polygonGate(filterId = "Live",
+                                   .gate = matrix(data = c(60000, 100000, 150000, 
+                                                           250000, 250000, 60000, 
+                                                           60000, 1.6, 1.9, 2.5,
+                                                           2.5, -0.3, -0.3, 1.6),
+                                                  ncol = 2,
+                                                  dimnames = list(c(), 
+                                                                  c("FSC-A", 
+                                                                    "APC-Cy7-A"))))
 
 # 3. Define and create the directories
-dir_prepr <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/1-Preprocessed/" #where the preprocessed data will be stored
-dir_QC <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/2-QC/" #where the data QC results will be stored
-dir_RDS <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/3-RDS/" #where the R objects will be stored
-dir_results <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/4-Results/" #where the results will be stored
-dir_raw <- "C:/Users/edmondsonef/Desktop/FACS/FLOWSET/" #where the raw data is located
+dir_prepr <- paste0(data_dir,study_dir3,"1-Preprocessed/") #where the preprocessed data will be stored
+dir_QC <- paste0(data_dir,study_dir3,"2-QC/") #where the data QC results will be stored
+dir_RDS <- paste0(data_dir,study_dir3,"3-RDS/") #where the R objects will be stored
+dir_results <- paste0(data_dir,study_dir3,"4-Results/") #where the results will be stored
+dir_raw <- paste0(data_dir,study_dir3) #where the raw data is located
 path_comp <- "C:/Users/edmondsonef/Desktop/0-Autospill/table_compensation/autospill_compensation.csv" #where comp matrix is located
 
 for (path in c(dir_prepr, dir_QC, dir_RDS, dir_results)){
@@ -114,7 +152,7 @@ colnames(compensation_matrix) <- sub(" :: .*", "",
 # Compute transformation list
 ff_m <- PeacoQC::RemoveMargins(reference_file, channels_of_interest)
 names(ff_m)
-#exprs(ff_m)
+exprs(ff_m)
 each_col(ff_m, median)
 
 ff_c <- flowCore::compensate(ff_m, compensation_matrix)
@@ -146,8 +184,8 @@ ff_t <- flowCore::transform(ff_c, translist)
 
 # 9. Remove doublets and filter live cells
 ff_s <- PeacoQC::RemoveDoublets(ff_t)
-#selected_live <- flowCore::filter(ff_s, live_gate)
-#ff_l <- ff_s[selected_live@subSet, ]
+selected_live <- flowCore::filter(ff_s, live_gate)
+ff_l <- ff_s[selected_live@subSet, ]
 
 # 10. QC with PeacoQC
 PQC <- PeacoQC::PeacoQC(ff = ff_s,
@@ -181,13 +219,23 @@ filter_plot <- function(ff_pre, ff_post, title, channel_x, channel_y){
 to_plot <- list(list(ff_pre = ff,
                      ff_post = ff_m,
                      title = "Removed margin events",
-                     channel_x = "PerCP-Cy5-5-A",
-                     channel_y = "BV605-A"),
+                     channel_x = "BUV395-A",
+                     channel_y = "BUV805-A"),
                 list(ff_pre = ff_t,
                      ff_post = ff_s,
                      title = "Removed doublets",
                      channel_x = "FSC-A",
-                     channel_y = "FSC-H"))
+                     channel_y = "FSC-H"),
+                list(ff_pre = ff_s,
+                     ff_post = ff_l,
+                     title = "Removed debris and dead cells",
+                     channel_x = "FSC-A",
+                     channel_y = "BUV395-A"),
+                list(ff_pre = ff_l,
+                     ff_post = PQC$FinalFF,
+                     title = "Removed low quality events",
+                     channel_x = "Time",
+                     channel_y = "BUV395-A"))
 
 plot_list <- list()
 for (plot in to_plot) {
@@ -209,15 +257,285 @@ for (file in files){
   ff_c <- flowCore::compensate(ff_m, compensation_matrix)
   ff_t <- flowCore::transform(ff_c, translist)
   ff_s <- PeacoQC::RemoveDoublets(ff_t)
-  #selected_live <- filter(ff_s, live_gate)
-  #ff_l <- ff_s[selected_live@subSet, ]
+  selected_live <- flowCore::filter(ff_s, live_gate)
+  ff_l <- ff_s[selected_live@subSet, ]
   
-  PQC <- PeacoQC::PeacoQC(ff = ff_s,
+  PQC <- PeacoQC::PeacoQC(ff = ff_l,
                           channels = channels_of_interest,
                           plot = TRUE, save_fcs = FALSE,
                           output_directory = dir_QC)
   
   write.FCS(PQC$FinalFF,
             file = paste0(dir_prepr, file))
-}
+  
+#  to_plot <- list(list(ff_pre = ff,
+#                       ff_post = ff_m,
+#                       title = "Removed margin events",
+#                       channel_x = "BUV395-A",
+#                       channel_y = "BUV805-A"),
+#                  list(ff_pre = ff_t,
+#                       ff_post = ff_s,
+#                       title = "Removed doublets",
+#                       channel_x = "FSC-A",
+#                       channel_y = "FSC-H"),
+#                  list(ff_pre = ff_s,
+#                       ff_post = ff_l,
+#                       title = "Removed debris and dead cells",
+#                       channel_x = "FSC-A",
+#                       channel_y = "BUV395-A"),
+#                  list(ff_pre = ff_l,
+#                       ff_post = PQC$FinalFF,
+#                       title = "Removed low quality events",
+#                       channel_x = "Time",
+#                       channel_y = "BUV395-A"))
+#  
+#  plot_list <- list()
+#  for (plot in to_plot) {
+#    plot_list[[length(plot_list) + 1]] <- filter_plot(ff_pre = plot$ff_pre,
+#                                                      ff_post = plot$ff_post,
+#                                                      title = plot$title,
+#                                                      channel_x = plot$channel_x,
+#                                                      channel_y = plot$channel_y)
+  }
+  
+  png(paste0(dir_QC, sub("fcs", "png", file)), width = 1920)
+  print(ggpubr::ggarrange(plotlist = plot_list, nrow = 1))
+  dev.off()
 
+  
+  ########### 3. Additional QC ###########
+  ########### 3. Additional QC ###########
+  ########### 3. Additional QC ###########
+  ########### 3. Additional QC ###########
+  ########### 3. Additional QC ###########
+  ########### 3. Additional QC ###########
+  ########### 3. Additional QC ###########
+  ########### 3. Additional QC ###########
+  ########### 3. Additional QC ###########
+  ###########  ###########
+  
+  # 14. Perform quality control between all files
+  # 14.(A) Plot the signal per channel and per file
+  # 14.(A)(i) Define the variables
+  file_names <- sub(".*15_(.*).fcs", "\\1", files)
+  write.csv(file_names, paste0(data_dir,"names.csv"))
+  file_groups <- data$Group
+  
+  # 14.(A)(ii) Make the overview plot
+  PlotFileScatters(input = paste0(dir_prepr, files),
+                   channels = channels_of_interest,
+                   names = file_groups, legend = T,
+                   groups = file_groups, nrow = 4,
+                   plotFile = paste0(dir_QC, "file_scatters.png"))
+  
+  # 14.(B) Perform principal commponent analysis (PCA)
+  # 14.(B)(i) Retrieve the median marker expression values per file
+  medians <- matrix(data = NA,
+                    nrow = length(files), ncol = length(channels_of_interest),
+                    dimnames = list(files, channels_of_interest))
+  
+  for (file in files){
+    ff <- read.FCS(paste0(dir_prepr, file))
+    medians[file,] <- apply(exprs(ff)[,channels_of_interest], 2, median)
+  }
+  
+  # 14.(B)(ii) Calculate the PCs
+  pc <- prcomp(medians, scale. = TRUE)
+  
+  # 14.(B)(iii) Visualize the PCs
+  ggplot(data.frame(pc$x[,1:2], file_groups)) + 
+    geom_point(aes(x= PC1, y = PC2, col = file_groups)) +
+    theme_minimal()
+  ggsave(paste0(dir_QC, "file_PCA.png"), width = 5)
+  
+  
+  
+  
+
+  ########### 4. Create Aggegregate Files ###########
+  ########### 4. Create Aggegregate Files ###########
+  ########### 4. Create Aggegregate Files ###########
+  ########### 4. Create Aggegregate Files ###########
+  ########### 4. Create Aggegregate Files ###########
+  ########### 4. Create Aggegregate Files ###########
+  ########### 4. Create Aggegregate Files ###########
+  ########### 4. Create Aggegregate Files ###########
+  ########### 4. Create Aggegregate Files ###########
+  ###########  ###########
+  # 15. Choose the number of cells to include in the aggregate file
+  n <- 700000
+  
+  # 16. Make an aggregate file
+  set.seed(2020)
+  
+  dir_group <- paste0(dir_raw,"/1-Preprocessed/NSG/")
+  files <- list.files(path = dir_group, pattern = "Samples")
+  files
+  paste0(dir_group, files)
+  agg <- AggregateFlowFrames(paste0(dir_group, files),
+                             cTotal = n,
+                             writeOutput = TRUE,
+                             outputFile = paste0(dir_prepr, "aggregate.fcs"))
+  
+  #}, times = 10)
+  
+  ########### 5. Train FlowSOM model ###########
+  ########### 5. Train FlowSOM model ###########
+  ########### 5. Train FlowSOM model ###########
+  ########### 5. Train FlowSOM model ###########
+  ########### 5. Train FlowSOM model ###########
+  ########### 5. Train FlowSOM model ###########
+  ########### 5. Train FlowSOM model ###########
+  ########### 5. Train FlowSOM model ###########
+  ########### 5. Train FlowSOM model ###########
+  ###########  ###########
+ 
+  # 17. Specify the FlowSOM variables
+  SOM_x <- 10
+  SOM_y <- 10
+  n_meta <- 8
+  seed <- 2020
+  scaling <- FALSE
+  
+  # 18. Compute the FlowSOM object
+  fsom <- FlowSOM(input = agg,
+                  scale = scaling,
+                  colsToUse = markers_of_interest,
+                  seed = seed,
+                  nClus = n_meta,
+                  xdim = SOM_x, ydim = SOM_y)
+  saveRDS(fsom, paste(dir_RDS, "fsom.rds"))
+  
+  # 19. Visualize the FlowSOM object
+  PlotStars(fsom = fsom,
+            backgroundValues = fsom$metaclustering)
+  ggsave(paste0(dir_results, "fsom_tree.pdf"),height = 8.5, width = 11)
+  
+  ########### 6. Test Quality ###########
+  ########### 6. Test Quality ###########
+  ########### 6. Test Quality ###########
+  ########### 6. Test Quality ###########
+  ########### 6. Test Quality ###########
+  ########### 6. Test Quality ###########
+  ########### 6. Test Quality ###########
+  ########### 6. Test Quality ###########
+  ########### 6. Test Quality ###########
+  ###########  ###########
+  
+  fsom$prettyColnames
+  
+  # 20. Check the FlowSOM quality
+  # 20.(A) Make 2D scatter plots
+  # 20.(A)(i) Specify the parameters
+  channel_pairs = list(c("APC-Cy7-A", "SSC-A"),
+                       c("BV421-A", "BB515-A"),
+                       c("BB700-P-A", "APC-A"),
+                       c("BV786-A", "BUV395-A"),
+                       c("BUV805-A", "PE-A"))
+  
+  channel_pairs = list(c("APC-Cy7-A", "BV421-A"),
+                       c("BUV805-A", "BUV395-A"),
+                       c("PE-Cy7-A", "APC-A"))
+  metaclusters_of_interest <- seq_len(n_meta)
+  clusters_of_interest <- NULL
+  
+  # 20.(A)(ii) Make the 2D scatter plots
+  Plot2DScatters(fsom = fsom,
+                 channelpairs = channel_pairs,
+                 metaclusters = metaclusters_of_interest,
+                 clusters = clusters_of_interest,
+                 plotFile = paste0(dir_results, "fsom_2D_scatters.png"))
+  
+  ########### 7. Test with Manual Gating ###########
+  ########### 7. Test with Manual Gating ###########
+  ########### 7. Test with Manual Gating ###########
+  ########### 7. Test with Manual Gating ###########
+  ########### 7. Test with Manual Gating ###########
+  ########### 7. Test with Manual Gating ###########
+  ########### 7. Test with Manual Gating ###########
+  ########### 7. Test with Manual Gating ###########
+  ########### 7. Test with Manual Gating ###########
+  ########### 
+  wspFile = "C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp"
+  ws <- open_flowjo_xml("C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp")
+  ws
+  head(fj_ws_get_samples(ws, group_id = 5))
+  
+  # 20.(B) Check the consistency with manual labeling
+  # 20.(B)(i) Extract the gating information from the wsp file
+  gating <- GetFlowJoLabels(files = files,
+                            wspFile = wspFile, group =5,
+                            path = dir_raw)
+  
+  # 20.(B)(ii) Get an overview of the gatenames and define the cell types of interest
+  print(levels(gating[[1]][["manual"]]))
+  cell_types_of_interest <- c("B cells", "NK cells", "T cells", "Macrophages", 
+                              "DCs", "Neutrophils","Non neutrophils")
+  
+  # 20.(B)(iii) Compile the labels of the aggregate file
+  aggregate_labels <- c()
+  for (file in unique(exprs(agg)[, "File"])) {
+    aggregate_labels <- c(aggregate_labels, 
+                          as.character(ManualVector(gating[[file]][["matrix"]],
+                                                    cell_types_of_interest)
+                                       [exprs(agg)[, "Original_ID"]
+                                         [exprs(agg)[, "File"] == file]]))
+  }
+  # 20.(B)(iv) Show the manual labeling on the FlowSOM tree
+  PlotPies(fsom = fsom,
+           cellTypes = factor(aggregate_labels, levels = c("Unlabeled",
+                                                           cell_types_of_interest)))
+  ggsave("Results/fsom_manual.pdf")
+  
+  # 19.(B)(v) Calculate the purity of the FlowSOM clustering
+  Purity(realClusters = aggregate_labels,
+         predictedClusters = GetClusters(fsom))
+  
+  # 20.(C) Inspect the file contribution per cluster
+  # 20.(C)(i) Specify a color vector (optional)
+  file_colors <- c("#990000", "#cc0000", "#ff0000", #Different shades within the groups
+                   "#1d1d77", "#2b3b92", "#3859ac", "#4677c7") 
+  
+  # 20.(C)(ii) Show the file contribution
+  p <- PlotPies(fsom = fsom,
+                cellTypes = factor(files[fsom$data[,"File"]]),
+                colorPalette = file_colors)
+  AddStarsPies(p = p, # Legend to show how it should be
+               arcs = data.frame(
+                 x0 = rep(0, length(files)),
+                 y0 = rep(0, length(files)),
+                 start = seq(0, 2 * pi, length.out = 8)[-8],
+                 end = seq(0, 2 * pi, length.out = 8)[-1],
+                 value = rep(1, length(files)),
+                 Markers = files),
+               colorPalette = file_colors)
+  ggsave(paste0(dir_results, "fsom_filecontribution.pdf"))
+  
+  ########### 8. Discovery and downstream analysis ###########
+  ########## 8. Discovery and downstream analysis ###########
+  ########## 8. Discovery and downstream analysis ###########
+  ########## 8. Discovery and downstream analysis ###########
+  ########## 8. Discovery and downstream analysis ###########
+  ########## 8. Discovery and downstream analysis ###########
+  ########## 8. Discovery and downstream analysis ###########
+  ########## 8. Discovery and downstream analysis ###########
+  ########## 8. Discovery and downstream analysis ###########
+  ########## 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+   
