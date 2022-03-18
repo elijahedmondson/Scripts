@@ -16,7 +16,6 @@ library(Rtsne)
 library(FlowSOM)
 
 ws <- open_flowjo_xml("C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp")
-#ws <- openWorkspace("C:/Users/edmondsonef/Desktop/samp/15726 10Mar2022/15726 10Mar2022 Simone.wsp")
 tail(fj_ws_get_sample_groups(ws))
 fj_ws_get_samples(ws, group_id = 1)
 fj_ws_get_keywords(ws, 205)[1:30]
