@@ -166,8 +166,8 @@ PLT <- ggplot(data) +
 
 ### Generate Multiplots
 
-tiff("CBC.tiff", units="in", width=8, height=7, res=600)
-grid.arrange(HCT, PLT, WBC, NE, LY, MO, EO, BA, ncol = 3, nrow = 3)
+tiff("WBC.tiff", units="in", width=8, height=4.667, res=600)
+grid.arrange(WBC, NE, LY, MO, EO, BA, ncol = 3, nrow = 2)
 dev.off()
 
 

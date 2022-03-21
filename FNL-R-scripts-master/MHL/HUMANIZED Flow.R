@@ -57,8 +57,8 @@ dev.off()
 ###########  ###########
 # 2. Define the general and preprocessing variables
 
-study_dir1 <- "1-05Jan2022/"
-#study_dir2 <- "2-02Feb2022/"
+#study_dir1 <- "1-05Jan2022/"
+study_dir2 <- "2-02Feb2022/"
 #study_dir3 <- "3-15Feb2022/"
 #study_dir4 <- "4-28Feb2022/"
 #study_dir5 <- "5-02Mar2022/"
@@ -66,7 +66,7 @@ study_dir1 <- "1-05Jan2022/"
 
 data_dir <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/" 
 file_pattern <- "\\d.fcs"
-reference_file <- read.FCS(paste0(data_dir,study_dir1,'Samples_Animal_097_027.fcs'), truncate_max_range = FALSE)
+reference_file <- read.FCS(paste0(data_dir,study_dir2,'Samples_Tube_015 #97_015.fcs'), truncate_max_range = FALSE)
 reference_marker <- "PE-A" # Scatter values will be scaled to have the same range
 
 markers_of_interest <- c("BB515-A",
@@ -91,11 +91,11 @@ live_gate <- flowCore::polygonGate(filterId = "Live",
                                                                     "APC-Cy7-A"))))
 
 # 3. Define and create the directories
-dir_prepr <- paste0(data_dir,study_dir1,"1-Preprocessed/") #where the preprocessed data will be stored
-dir_QC <- paste0(data_dir,study_dir1,"2-QC/") #where the data QC results will be stored
-dir_RDS <- paste0(data_dir,study_dir1,"3-RDS/") #where the R objects will be stored
-dir_results <- paste0(data_dir,study_dir1,"4-Results/") #where the results will be stored
-dir_raw <- paste0(data_dir,study_dir1) #where the raw data is located
+dir_prepr <- paste0(data_dir,study_dir2,"1-Preprocessed/") #where the preprocessed data will be stored
+dir_QC <- paste0(data_dir,study_dir2,"2-QC/") #where the data QC results will be stored
+dir_RDS <- paste0(data_dir,study_dir2,"3-RDS/") #where the R objects will be stored
+dir_results <- paste0(data_dir,study_dir2,"4-Results/") #where the results will be stored
+dir_raw <- paste0(data_dir,study_dir2) #where the raw data is located
 path_comp <- "C:/Users/edmondsonef/Desktop/0-Autospill/table_compensation/autospill_compensation.csv" #where comp matrix is located
 
 for (path in c(dir_prepr, dir_QC, dir_RDS, dir_results)){
@@ -272,14 +272,15 @@ for (file in files){
 
   ########### 3. Additional QC ###########
   ###########  ###########
-  
   # 14. Perform quality control between all files
   # 14.(A) Plot the signal per channel and per file
   # 14.(A)(i) Define the variables
   #file_names <- sub(".*15_(.*).fcs", "\\1", files)
   write.csv(files, paste0(data_dir,"names.csv"))
-  file_groups <- data$Groups
   
+  data <- read_excel("C:/Users/edmondsonef/Desktop/Humanized/Flow/Group.Names.xlsx", 
+                     sheet = "2-02Feb")
+  file_groups <- data$Group
   # 14.(A)(ii) Make the overview plot
   PlotFileScatters(input = paste0(dir_prepr, files),
                    channels = channels_of_interest,
@@ -312,8 +313,9 @@ for (file in files){
 
   ########### 4. Create Aggegregate Files ###########
   ###########  ###########
-  study_dir1 <- "1-05Jan2022/"
-  #study_dir2 <- "2-02Feb2022/"
+  data_dir <- "C:/Users/edmondsonef/Desktop/Humanized/Flow/" 
+  #study_dir1 <- "1-05Jan2022/"
+  study_dir2 <- "2-02Feb2022/"
   #study_dir3 <- "3-15Feb2022/"
   #study_dir4 <- "4-28Feb2022/"
   #study_dir5 <- "5-02Mar2022/"
@@ -324,10 +326,10 @@ for (file in files){
   dir_results <- paste0(data_dir,study_dir1,"4-Results/") #where the results will be stored
   dir_raw <- paste0(data_dir,study_dir1) #where the raw data is located
   
-  dir_group <- paste0(dir_raw,"/1-Preprocessed/NSG/")
+  #dir_group <- paste0(dir_raw,"/1-Preprocessed/NSG/")
   #dir_group <- paste0(dir_raw,"/1-Preprocessed/NSG-IL15/")
-  #dir_group <- paste0(dir_raw,"/1-Preprocessed/NSG-SGM3/")
-  
+  dir_group <- paste0(dir_raw,"/1-Preprocessed/NSG-SGM3/")
+  #dir_group <- paste0(dir_raw,"/1-Preprocessed/")
   
   # 15. Choose the number of cells to include in the aggregate file
   n <- 700000
@@ -349,76 +351,105 @@ for (file in files){
   ########### 5. Train FlowSOM model ###########
   ###########  ###########
   #Level 1 - create model to separate human cells from mouse
-  markers_of_interest <- c("BUV395-A",
-                           "BUV805-A")
-  SOM_x <- 10
-  SOM_y <- 10
-  n_meta <- 8
+  #SOM_x <- 10
+  #SOM_y <- 10
+  n_meta <- 10
   seed <- 2020
   scaling <- FALSE
-  fsom_level1 <- FlowSOM(input = agg,
-                  scale = scaling,
-                  colsToUse = markers_of_interest,
+  #scaling <- TRUE
+  
+  ###All...###
+  ###All...###
+  ###All...###
+  fsom <- FlowSOM(input = agg,
+                  scale = F,
+                  #toTransform = 14,
+                  colsToUse = c(7:17),
                   seed = seed,
-                  nClus = n_meta,
-                  xdim = SOM_x, ydim = SOM_y)
-  saveRDS(fsom_level1, paste(dir_RDS, "fsom_level1.rds"))
-
-  PlotStars(fsom = fsom_level1,
-            backgroundValues = fsom_level1$metaclustering)
-  FlowSOMmary(fsom = fsom_level1,
-              plotFile = paste0(dir_results, "L1_fsom_summary.pdf"))
+                  nClus = n_meta)
+  PlotStars(fsom = fsom,
+            backgroundValues = fsom$metaclustering)
+  FlowSOMmary(fsom = fsom,
+              plotFile = paste0(dir_results, "ALL_fsom_summary.pdf"))
+  saveRDS(fsom, paste(dir_RDS, "fsom.rds"))
+  fsom$prettyColnames
+  
+  QueryStarPlot(fsom, query="BUV805-A")
+  ManualVector()
+  QueryMultiple(fsom = fsom_level1, cellTypes = )
+    ###All...###
+  ###All...###
+  ###All...###
+  ###All...###
+  
+  
+  
+  fsom_level1 <- FlowSOM(input = agg,
+                  scale = F,
+                  #toTransform = 14,
+                  colsToUse = c("BUV395-A","BUV805-A"),
+                  seed = seed,
+                  nClus = 5)
+  PlotStars(fsom = fsom_level1,backgroundValues = fsom_level1$metaclustering)
   Plot2DScatters(fsom = fsom_level1, 
                  channelpairs = list(c("BUV805-A", "BUV395-A")),
-                 metaclusters = 1:8, 
-                 plotFile = paste0(dir_results, "mCD45-hCD45_level1.png")) 
-  
+                 metaclusters = 1:10, 
+                 plotFile = paste0(dir_results, "mCD45-hCD45_level1.png"))
+  FlowSOMmary(fsom = fsom_level1,
+              plotFile = paste0(dir_results, "L1_fsom_summary.pdf"))
+   
+  saveRDS(fsom_level1, paste(dir_RDS, "fsom_level1.rds"))
   #MC 1 and 5 are the huCD45+
   #MC 2, 3, and 4 are the mCD45+
   
   # Subset the original fcs file
   fsom_tmp <- NewData(fsom_level1, agg)
   clustering <- GetMetaclusters(fsom_tmp)
-  agg_tmp_hCD45 <- agg[clustering %in% c(1,2,5),]
-  agg_tmp_mCD45 <- agg[clustering %in% c(3,4,6,7,8),]
+  agg_tmp_hCD45 <- agg[clustering %in% c(2,4,5),]
+  agg_tmp_mCD45 <- agg[clustering %in% c(1,3),]
   
-  #Create hCD45 subset
+  #HUMAN: Create hCD45 subset
   fsom_level2_hCD45 <- FlowSOM(input = agg_tmp_hCD45,
-                         scale = FALSE,
-                         colsToUse = c(7:17),
+                         scale = F,
+                         colsToUse = c(7:12,15:17),
                          seed = 2020)
-  saveRDS(fsom_level2_hCD45, paste(dir_RDS, "fsom_level2_hCD45.rds"))
-  # Plot the hCD45+ FlowSOM tree
+  PlotStars(fsom = fsom_level2_hCD45,
+            backgroundValues = fsom_level2_hCD45$metaclustering)
   FlowSOMmary(fsom = fsom_level2_hCD45,
               plotFile = paste0(dir_results, "L2_hCD45_fsom_summary.pdf"))
   
+  saveRDS(fsom_level2_hCD45, paste(dir_RDS, "fsom_level2_hCD45.rds"))
   
-  #Create mCD45 subset
-  agg_tmp_mCD45 <- agg[clustering %in% c(2,3,4),]
+  #MOUSE: Create mCD45 subset
   fsom_level2_mCD45 <- FlowSOM(input = agg_tmp_mCD45,
-                               scale = FALSE,
+                               scale = F,
                                colsToUse = c(7:17),
                                seed = 2020)
   saveRDS(fsom_level2_mCD45, paste(dir_RDS, "fsom_level2_mCD45.rds"))
-  # Plot the mCD45+ FlowSOM tree
   FlowSOMmary(fsom = fsom_level2_mCD45,
               plotFile = paste0(dir_results, "L2_mCD45_fsom_summary.pdf")) 
   
   
+  
+  
   ########### 6. Test Quality ###########
   ###########  ###########
+  
   fsom <- fsom_level2_hCD45
   agg <- agg_tmp_hCD45
-  fsom$prettyColnames
+  
   
   # 20. Check the FlowSOM quality
   # 20.(A) Make 2D scatter plots
   # 20.(A)(i) Specify the parameters
-  channel_pairs = list(c("APC-Cy7-A", "SSC-A"),
-                       c("BV421-A", "BB515-A"),
-                       c("BB700-P-A", "APC-A"),
-                       c("BV786-A", "BUV395-A"),
-                       c("BUV805-A", "PE-A"))
+  fsom$prettyColnames
+  channel_pairs = list(c("FSC-A", "SSC-A"),
+                       c("BB700-P-A", "BB515-A"),
+                       c("BV421-A", "APC-Cy7-A"),
+                       c("APC-A", "BV786-A"),
+                       c("PE-CF594-A", "BV786-A"),
+                       c("BV786-A", "PE-A"),
+                       c("BUV805-A", "BUV395-A"))
   metaclusters_of_interest <- seq_len(n_meta)
   clusters_of_interest <- NULL
   
@@ -435,50 +466,57 @@ for (file in files){
   fsom <- fsom_level2_hCD45
   agg <- agg_tmp_hCD45
   fsom$prettyColnames
-  wspFile = "C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp"
-  ws <- open_flowjo_xml("C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp")
+  #wspFile = "C:/Users/edmondsonef/Desktop/Humanized/Flow/5-02Mar2022/15719 02Mar2022 Simone.wsp"
+  wspFile = "C:/Users/edmondsonef/Desktop/Humanized/Flow/2-02Feb2022/15701 02Feb2022 Simone.wsp"
+  ws <- open_flowjo_xml(wspFile)
   ws
-  head(fj_ws_get_samples(ws, group_id = 4))
-  files <- list.files(path = dir_raw, pattern = "Samples")
-  files
+  head(fj_ws_get_samples(ws, group_id = 2))
+  files <- list.files(path = dir_group, pattern = "Samples")
+  head(files)
   
   # 20.(B) Check the consistency with manual labeling
   # 20.(B)(i) Extract the gating information from the wsp file
-  gating <- GetFlowJoLabels(files = files,
-                            wspFile = wspFile, group =4,
+  gating <- GetFlowJoLabels(files = files, cellTypes = "hCD45+",
+                            wspFile = wspFile, group =2,
                             path = dir_raw)
+  ####*EFE TIP: PHYSICALLY REMOVE CONTROLS, etc####
   
   # 20.(B)(ii) Get an overview of the gatenames and define the cell types of interest
   print(levels(gating[[1]][["manual"]]))
-  cell_types_of_interest <- c("hCD45+",
+  cell_types_of_interest <- c(#"Unlabeled", 
+                              #"hCD45+",
                               "Q6: CD3+ , CD4 [PCP55]+",
                               "Q7: CD3+ , CD4 [PCP55]-",
-                              #"Q8: CD3- , CD4 [PCP55]-",
-                              #"Q9: CD3- , CD8 [FITC]+",
+                              "Q8: CD3- , CD4 [PCP55]-",
+                              "Q9: CD3- , CD8 [FITC]+",
                               "Q10: CD3+ , CD8 [FITC]+",
                               "Q11: CD3+ , CD8 [FITC]-",
-                              #"Q12: CD3- , CD8 [FITC]-",
+                              "Q12: CD3- , CD8 [FITC]-",
                               "Q13: CD3- , CD19 [AFire750]+",
-                              #"Q14: CD3+ , CD19 [AFire750]+",
+                              "Q14: CD3+ , CD19 [AFire750]+",
                               "Q15: CD3+ , CD19 [AFire750]-",
-                              #"Q16: CD3- , CD19 [AFire750]-",
+                              "Q16: CD3- , CD19 [AFire750]-",
                               "Q17: CD3- , CD56+",
                               "Q18: CD3+ , CD56+",
-                              #"Q19: CD3+ , CD56-",
-                              #"Q20: CD3- , CD56-",
+                              "Q19: CD3+ , CD56-",
+                              "Q20: CD3- , CD56-",
                               "Q29: CD66b [PEDazz]- , CD11b [AF647]+",
                               "Q30: CD66b [PEDazz]+ , CD11b [AF647]+",
                               "Q31: CD66b [PEDazz]+ , CD11b [AF647]-",
-                              #"Q32: CD66b [PEDazz]- , CD11b [AF647]-",
+                              "Q32: CD66b [PEDazz]- , CD11b [AF647]-",
                               "Q33: CD33- , CD11b [AF647]+",
                               "Q34: CD33+ , CD11b [AF647]+",
                               "Q35: CD33+ , CD11b [AF647]-",
-                              #"Q36: CD33- , CD11b [AF647]-",
-                              #"Q37: CD25- , CD3+",
+                              "Q36: CD33- , CD11b [AF647]-",
+                              "Q37: CD25- , CD3+",
                               "Q38: CD25+ , CD3+",
-                              #"Q39: CD25+ , CD3-",
+                              "Q39: CD25+ , CD3-",
                               "Q40: CD25- , CD3-")
-  
+  cell_types_of_interest <- c("hCD45+", "Q6: CD3+ , CD4 [PCP55]+",
+                              "Q10: CD3+ , CD8 [FITC]+",
+                              "Q13: CD3- , CD19 [AFire750]+",
+                              "Q30: CD66b [PEDazz]+ , CD11b [AF647]+",
+                              "Q34: CD33+ , CD11b [AF647]+")
   
   # 20.(B)(iii) Compile the labels of the aggregate file
   aggregate_labels <- c()
@@ -493,7 +531,11 @@ for (file in files){
   PlotPies(fsom = fsom,
            cellTypes = factor(aggregate_labels, levels = c("Unlabeled",
                                                            cell_types_of_interest)))
-  ggsave(paste0(dir_results, "L2_hCD45_fsom_Labeled.pdf"))
+  
+  PlotPies(fsom = fsom,
+           cellTypes = factor(aggregate_labels, levels = c("hCD45+")))
+  
+  ggsave(paste0(dir_results, "NSG-SGM3_fsom_Labeled.pdf"))
   
   
   
@@ -509,6 +551,7 @@ for (file in files){
   # 20.(C)(ii) Show the file contribution
   p <- PlotPies(fsom = fsom,
                 cellTypes = factor(files[fsom$data[,"File"]]),
+                #cellTypes = cell_types_of_interest,
                 colorPalette = file_colors)
   AddStarsPies(p = p, # Legend to show how it should be
                arcs = data.frame(
@@ -521,8 +564,11 @@ for (file in files){
                colorPalette = file_colors)
   ggsave(paste0(dir_results, "fsom_filecontribution.pdf"))
   
+PlotManualBars(fsom, list_insteadof_plots = T, 
+               manualVector = factor(aggregate_labels, levels = c(cell_types_of_interest)))
+ggsave(paste0(dir_results, "fsom_filecontribution.pdf"))  
 
-  
+
   ########## 8. Discovery and downstream analysis ###########
   ########## 
   
@@ -534,17 +580,16 @@ for (file in files){
   
   # 21.(B) Look for nodes with a specific pattern
   # 21.(B)(i) Specify the query
-  query <- list("B cells" = c("CD19" = "high", "CD3" = "low"),
-                "NK cells" = c("CD19" = "low", "CD161" = "high", 
-                               "MHCII" = "low"),
-                "T cells" = c("CD3" = "high", "MHCII" = "low", "Ly-6G" = "low"),
-                "Macrophages" = c("CD64" = "high", "FcERI" = "high", 
-                                  "MHCII" = "high", "CD49b" = "high", 
-                                  "Ly-6G" = "low"),
-                "Dendritic cells" = c("CD11c" = "high", "MHCII" = "high", 
-                                      "CD11b" = "high", "FcERI" = "low"),
-                "Neutrophils" = c("Ly-6G" = "high", "CD11b" = "high", 
-                                  "CD3" = "low"))
+  query <- list("B cells" = c("CD19 [APCF750]" = "high", "CD3" = "low"),
+                "Neutrophils" = c("CD66b" = "high", "CD11b [AF647]" = "high", 
+                                  "CD3" = "low"),
+                "Mouse CD45+" = c("mCD45" = "high"),
+                "Human CD45+" = c("huCD45" = "high"),
+                "NK Cell" = c("CD56" = "high", "CD3" = "low"),
+                "NK T Cell" = c("CD56" = "high", "CD3" = "high"),
+                "CD4 T Cell" = c("CD4 [PerCPC55]" = "high", "CD3"="high"),
+                "CD8 T Cell" = c("CD8" = "high", "CD3"="high"),
+                "T cells" = c("CD3" = "high"))
   
   # 21.(B)(ii) Retrieve the cluster labels based on the query
   labels <- QueryMultiple(fsom = fsom,
@@ -559,28 +604,36 @@ for (file in files){
   # 22. Get features per fcs file
   # Specify the variables of interest
   types <- c("counts", "percentages", "MFIs")
-  MFIs <- c("CD49b", "Ly-6G")
+  MFIs <- c("CD3", "CD19 [APCF750]")
   
   # Get the features
   features <- GetFeatures(fsom = fsom,
                           files = paste0(dir_prepr, files),
-                          filenames = file_names,
+                          filenames = files,
                           type = types,
                           MFI = MFIs)
   
 
   ########## 9. Compare Groups ###########
   ########## 
-  
+  file_names = paste0(dir_prepr, files)
   # 23. Define the groups and feature you would want to compare.
-  feature <- "cluster_percentages"
-  grouplist <- list("KO" = file_names[1:3],
-                    "WT" = file_names[4:7])
+  feature <- "counts"
+  
+  groups <- list("SGM3" = c("Samples_Tube_014 #96_014.fcs", "Samples_Tube_015 #97_015.fcs", "Samples_Tube_016 #98_016.fcs"), 
+                 "IL15" = c("Samples_Tube_029 #111_029.fc", "Samples_Tube_030 #112_030.fcs"))
+  
+  
+  grouplist <- list("NSG-SGM3" = files[1:15],
+                    "NSG-IL15" = files[16:30])#,
+                    #"NSG" = file_names[31:45])
   stat <- "fold changes"
   
   # 24. Compare the 2 groups of interest
-  stats <- GroupStats(features = features[[feature]],
-                      groups = grouplist)
+  stats <- GroupStats(features$cluster_counts,                     
+                      groups = list("NSG-SGM3" = files[1:15],
+                                    "NSG-IL15" = files[16:30]))#,
+                                    #"NSG" = files[31:45]))
   
   # 25. Show the findings of step 24 on the trees
   # Define the plotting variables
@@ -611,7 +664,7 @@ for (file in files){
   ggpubr::ggarrange(plotlist = list(gr_1$tree, gr_2$tree, gr_2$starLegend, 
                                     gr_2$backgroundLegend), 
                     heights = c(3,1))
-  ggsave(paste0(dir_results, "fsom_groups.pdf"), width = 10, height = 7.5)
+  ggsave(paste0(dir_results, "IL15vSGM3 fsom_groups.pdf"), width = 10, height = 7.5)
   
   
 
