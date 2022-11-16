@@ -3,99 +3,96 @@ library(BSgenome.Mmusculus.UCSC.mm10)
 library(doParallel)
 library(foreach)
 library(Rsamtools)
-library(DOQTL)
+#library(DOQTL)
+#Bring in each function individually#
 library(VariantAnnotation)
 library(GenomicRanges)
 library(regress)
 library(MASS)
 library(lmtest)
 library(HZE)
+library(ggplot2)
+library(tidyverse)
+library(gapminder)
+library(dplyr)
 
+#install.packages("C:/Users/edmondsonef/Desktop/DOQTL_0.99.1.tar.gz", repos = NULL, type="source")
 
 # 1. GENOTYPE #
 
-load(file = "~/Desktop/R/QTL/WD/HS\ HMM\ Rdata/K.Rdata")
-load(file = "~/Desktop/R/QTL/WD/HS\ HMM\ Rdata/model.probs.Rdata")
+load(file = "C:/Users/edmondsonef/Desktop/QTL/HZEproject.Rdata")
+# load(file = "~/Desktop/R/QTL/WD/HS\ HMM\ Rdata/model.probs.Rdata")
 load(url("ftp://ftp.jax.org/MUGA/MM_snps.Rdata"))
-outdir = "~/Desktop/"
-setwd(outdir)
+outdir = "C:/Users/edmondsonef/Desktop/Desktop/R-plots/"
 
-sdp.file = "~/Desktop/R/QTL/WD/HS_Sanger_SDPs.txt.bgz"
 
+sdp.file = "C:/Users/edmondsonef/Desktop/Desktop/QTL/HS_Sanger_SDPs.txt.bgz"
 
 
 # 2. PHENOTYPE #
-
-Total <- read.csv("~/Desktop/R/GRSD.phenotype/CSV/GRSD.pheno.csv")
+Total <- read_excel("C:/Users/edmondsonef/Desktop/CATARACT_final.xlsx")
+#Total <- read.csv("~/Desktop/R/GRSD.phenotype/CSV/GRSD.pheno.csv")
 pheno = data.frame(row.names = Total$row.names, sex = as.numeric(Total$sex == "M"),
-                   albino = as.numeric(Total$albino),
-                   cohort = as.numeric(Total$Cohort),
+                   albino = as.numeric(Total$`coat color` == 'albino'),
+                   family = as.numeric(Total$family),
                    group = as.character(Total$groups),
                    days = as.numeric(Total$days),
-                   unirradiated = as.numeric(Total$Unirradiated),
-                   AML.t = as.numeric(Total$AML.transform),
-                   HCC.t = as.numeric(Total$HCC.transform),
-                   PreT.t = as.numeric(Total$PreT.transform),
-                   LSA.t = as.numeric(Total$LSA.transform),
-                   Amyloid.t = as.numeric(Total$Amyloid.transform),
-                   PitAd.t = as.numeric(Total$PitAd.transform),
-                   PulACA.t = as.numeric(Total$PulACA.transform),
-                   Hard.number.t = as.numeric(Total$Hard.number.transform),
-                   Hard.t = as.numeric(Total$Hard.transform),
-                   FBL.t = as.numeric(Total$FBL.transform),
-                   Bmerge.t = as.numeric(Total$Merge.Transform),
-                   DLBCL.t = as.numeric(Total$DLBCL.transform),
-                   NN.t = as.numeric(Total$NN.transform),
-                   PulMet.t = as.numeric(Total$PulMet.transform),
-                   Thyroid.t = as.numeric(Total$Thyroid.transform),
-                   OSA.t = as.numeric(Total$OSA.transform),
-                   PSC = as.numeric(Total$Pulmonary.Sarcomatoid.Carcinoma),
-                   unirradiated = as.numeric(Total$Unirradiated),
-                   Frz.total = as.numeric(Total$context_pctfrze_total),
-                   pig.dis = as.numeric(Total$pigment.dispersion),
-                   avgmo.total = as.numeric(Total$context_avgmo_total),
-                   tone.frz = as.numeric(Total$cued_tone_pctfrze_total),
-                   train.frz = as.numeric(Total$train_deltapctfrze_isi1_isi4),
-                   train.shock = as.numeric(Total$train_deltaavgmot_shock1_shock5),
-                   pu.1 = as.numeric(Total$Pu.1.transform),
-                   no.pu.1 = as.numeric(Total$No.deletion.AML.transform))
+                   cat = as.numeric(Total$cat_score))
+                   # unirradiated = as.numeric(Total$Unirradiated),
+                   # AML.t = as.numeric(Total$AML.transform),
+                   # HCC.t = as.numeric(Total$HCC.transform),
+                   # PreT.t = as.numeric(Total$PreT.transform),
+                   # LSA.t = as.numeric(Total$LSA.transform),
+                   # Amyloid.t = as.numeric(Total$Amyloid.transform),
+                   # PitAd.t = as.numeric(Total$PitAd.transform),
+                   # PulACA.t = as.numeric(Total$PulACA.transform),
+                   # Hard.number.t = as.numeric(Total$Hard.number.transform),
+                   # Hard.t = as.numeric(Total$Hard.transform),
+                   # FBL.t = as.numeric(Total$FBL.transform),
+                   # Bmerge.t = as.numeric(Total$Merge.Transform),
+                   # DLBCL.t = as.numeric(Total$DLBCL.transform),
+                   # NN.t = as.numeric(Total$NN.transform),
+                   # PulMet.t = as.numeric(Total$PulMet.transform),
+                   # Thyroid.t = as.numeric(Total$Thyroid.transform),
+                   # OSA.t = as.numeric(Total$OSA.transform),
+                   # PSC = as.numeric(Total$Pulmonary.Sarcomatoid.Carcinoma),
+                   # unirradiated = as.numeric(Total$Unirradiated),
+                   # Frz.total = as.numeric(Total$context_pctfrze_total),
+                   # pig.dis = as.numeric(Total$pigment.dispersion),
+                   # avgmo.total = as.numeric(Total$context_avgmo_total),
+                   # tone.frz = as.numeric(Total$cued_tone_pctfrze_total),
+                   # train.frz = as.numeric(Total$train_deltapctfrze_isi1_isi4),
+                   # train.shock = as.numeric(Total$train_deltaavgmot_shock1_shock5),
+                   # pu.1 = as.numeric(Total$Pu.1.transform),
+                   # no.pu.1 = as.numeric(Total$No.deletion.AML.transform))
 addcovar = matrix(pheno$sex, ncol = 1, dimnames = list(rownames(pheno), "sex"))
 
 HZE <- subset(pheno, group == "HZE")
 Gamma <- subset(pheno, group == "Gamma")
 Un <- subset(pheno, group == "Unirradiated")
-Allirr <- subset(pheno, unirradiated == 0)
-
-HZE.1 <- subset(pheno, group == "HZE" & cohort == 1)
-Gamma.1 <- subset(pheno, group == "Gamma" & cohort == 1)
-Un.1 <- subset(pheno, group == "Unirradiated" & cohort == 1)
-
-HCC.met <- Total[which(Total$Hepatocellular.Carcinoma=="1" & Total$HCC.Metastatic.Density>0),]
-HCC.met <- Total[which(Total$Hepatocellular.Carcinoma=="1"), ]
-pheno = data.frame(row.names = HCC.met$row.names, sex = as.numeric(HCC.met$sex == "M"),
-                   HCC.met = as.numeric(HCC.met$HCC.Met),
-                   OSA = as.numeric(HCC.met$Osteosarcoma))
-
-PSC <- read.csv("~/Desktop/R/GRSD.phenotype/CSV/PSC.csv")
-pheno = data.frame(row.names = PSC$row.names, rownames = PSC$row.names,
-                   sex = as.numeric(PSC$Sex == "M"),
-                   PSC.graded = as.numeric(PSC$Sarcomatoid.Score),
-                   PSC = as.numeric(PSC$PSC == "yes"))
-addcovar = matrix(pheno$sex, ncol = 1, dimnames = list(row.names(pheno), "sex"))
+Allirr <- subset(pheno, group != "Unirradiated")
 
 
 # 3. COVARIATES #
 
-addcovar = matrix(pheno$sex, ncol = 1, dimnames = list(rownames(pheno), "sex"))
+addcovar <- matrix(pheno$sex, ncol = 1, dimnames = list(rownames(pheno), "sex"))
 
 
 
 # 4. ASSOCIATION MAPPING #
+GRSD.assoc(pheno = Gamma, pheno.col = 2, probs, K, addcovar, markers, snp.file,
+                      outdir = "~/Desktop/", tx = "Gamma",
+                      sanger.dir = "~/Desktop/R/QTL/WD/HS.sanger.files/")
 
-qtl = scanone.assoc(pheno = pheno, pheno.col = "HCC.gel", probs = model.probs, K = K, 
+
+qtl <- scanone(pheno = Gamma, pheno.col = 2, probs = probs, K = K, addcovar = addcovar, snps = markers)
+
+
+qtl <- scanone.assoc(pheno = HZE, pheno.col = 2, probs = probs, K = K, cross = HS,
                     addcovar = addcovar, markers = MM_snps, sdp.file = sdp.file, ncl = 4)
 
 DOQTL:::plot.scanone.assoc(qtl, bin.size = 100, main = "")
+
 
 
 perms <- Scanone.assoc.perms(perms = 200, pheno = Gamma, pheno.col = "AML.t", probs = model.probs, 
