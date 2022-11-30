@@ -1,4 +1,4 @@
-
+library(readxl)
 library(BSgenome.Mmusculus.UCSC.mm10)
 library(doParallel)
 library(foreach)
@@ -21,16 +21,17 @@ library(dplyr)
 # 1. GENOTYPE #
 
 load(file = "C:/Users/edmondsonef/Desktop/QTL/HZEproject.Rdata")
+load(file = "C:/Users/edmondsonef/Desktop/QTL/HS.colors.Rdata")
 # load(file = "~/Desktop/R/QTL/WD/HS\ HMM\ Rdata/model.probs.Rdata")
 load(url("ftp://ftp.jax.org/MUGA/MM_snps.Rdata"))
-outdir = "C:/Users/edmondsonef/Desktop/Desktop/R-plots/"
+outdir = "C:/Users/edmondsonef/Desktop/R-plots/"
 
 
-sdp.file = "C:/Users/edmondsonef/Desktop/Desktop/QTL/HS_Sanger_SDPs.txt.bgz"
+sdp.file = "C:/Users/edmondsonef/Desktop/QTL/HS_Sanger_SDPs.txt.bgz"
 
 
 # 2. PHENOTYPE #
-Total <- read_excel("C:/Users/edmondsonef/Desktop/CATARACT_final.xlsx")
+Total <- read_excel("C:/Users/edmondsonef/Desktop/Cataract/CATARACT_final.xlsx")
 #Total <- read.csv("~/Desktop/R/GRSD.phenotype/CSV/GRSD.pheno.csv")
 pheno = data.frame(row.names = Total$row.names, sex = as.numeric(Total$sex == "M"),
                    albino = as.numeric(Total$`coat color` == 'albino'),
@@ -80,12 +81,12 @@ addcovar <- matrix(pheno$sex, ncol = 1, dimnames = list(rownames(pheno), "sex"))
 
 
 # 4. ASSOCIATION MAPPING #
-GRSD.assoc(pheno = Gamma, pheno.col = 2, probs, K, addcovar, markers, snp.file,
-                      outdir = "~/Desktop/", tx = "Gamma",
-                      sanger.dir = "~/Desktop/R/QTL/WD/HS.sanger.files/")
+qtl <- GRSD.assoc(pheno = Gamma, pheno.col = 2, probs, K, addcovar, markers, snp.file,
+                      outdir = "C:/Users/edmondsonef/Desktop/", tx = "Gamma",
+                      sanger.dir = "C:/Users/edmondsonef/Desktop/R/QTL/HS.sanger.files/")
 
 
-qtl <- scanone(pheno = Gamma, pheno.col = 2, probs = probs, K = K, addcovar = addcovar, snps = markers)
+qtl <- scanone(pheno = Gamma, pheno.col = 2, probs = probs, K = K, addcovar = addcovar, snps = MM_snps)
 
 
 qtl <- scanone.assoc(pheno = HZE, pheno.col = 2, probs = probs, K = K, cross = HS,
