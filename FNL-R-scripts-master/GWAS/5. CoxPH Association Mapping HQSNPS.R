@@ -1,13 +1,13 @@
-# LOAD PACKAGES #
-
-install.packages("C:/Users/edmondsonef/Desktop/DOQTL_1.0.5.tar.gz", repos = NULL, type ='source')
-
-#'annotationTools', 'ggbio', 'hwriter', 'MUGAExampleData', 'QTLRel'
-
-if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-
-BiocManager::install("QTLRel")
+#' # LOAD PACKAGES #
+#' install.packages("C:/Users/edmondsonef/Desktop/QTL/DOQTL_0.99.1.tar.gz", repos = NULL, type ='source')
+#' install.packages("C:/Users/edmondsonef/Desktop/QTL/DOQTL_1.0.5.tar.gz", repos = NULL, type ='source')
+#' install.packages("C:/Users/edmondsonef/Desktop/QTL/HZE_0.1.tar.gz", repos = NULL, type ='source')
+#' #'annotationTools', 'ggbio', 'hwriter', 'MUGAExampleData', 'QTLRel'
+#' 
+#' if (!require("BiocManager", quietly = TRUE))
+#'   install.packages("BiocManager")
+#' 
+#' BiocManager::install("DOQTL")
 
 library(BSgenome.Mmusculus.UCSC.mm10)
 library(doParallel)
