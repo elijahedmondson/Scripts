@@ -66,7 +66,6 @@ pheno = data.frame(row.names = Total$row.names, sex = as.numeric(Total$sex == "M
                    # train.shock = as.numeric(Total$train_deltaavgmot_shock1_shock5),
                    # pu.1 = as.numeric(Total$Pu.1.transform),
                    # no.pu.1 = as.numeric(Total$No.deletion.AML.transform))
-addcovar = matrix(pheno$sex, ncol = 1, dimnames = list(rownames(pheno), "sex"))
 
 HZE <- subset(pheno, group == "HZE")
 Gamma <- subset(pheno, group == "Gamma")

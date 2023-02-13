@@ -8,6 +8,7 @@ library(GenomicRanges)
 library(survival)
 library(regress)
 library(HZE)
+library(readxl)
 
 #### Files ####
 ####
@@ -50,6 +51,11 @@ qtl <- GRSD.gauss(pheno = HZE, pheno.col = 4, probs, K, addcovar, markers, snp.f
                   outdir = "C:/Users/edmondsonef/Desktop/R-plots/", tx = "HZE",
                   sanger.dir = "C:/Users/edmondsonef/Desktop/QTL/HS.sanger.files/")
 
+plot.scanone.assoc(qtl, chr = 11, bin.size = 100, main = "HZE: Cataract Score (average)")
+abline(a = 5.15, b = 0, col = "red")
+
+loop.hs.qtl(qtl, bin.size = 100, main = "HZE Ion")#, ylim=c(0,15))
+
 # qtl <- GRSD.poisson(pheno = HZE, pheno.col = 4, probs, K, addcovar, markers, snp.file,
 #                     outdir = "C:/Users/edmondsonef/Desktop/R-plots/", tx = "HZE",
 #                     sanger.dir = "C:/Users/edmondsonef/Desktop/QTL/HS.sanger.files/")
@@ -64,13 +70,13 @@ qtl <- GRSD.gauss(pheno = HZE, pheno.col = 4, probs, K, addcovar, markers, snp.f
 
 #### FIND THE MAX LOD ####
 
-max.LOD = result[[7]]$ID[which(-log10(result[[7]]$pv) > 10)]
-max.LOD
+max.LOD = qtl[[11]]@ranges@start[which(-log10(qtl[[11]]$p.value) > 9)]
+
 
 max.LOD.position <- result[[7]]$POS[which(-log10(result[[7]]$pv) > 100)]
 max.LOD.position
 
-mgi = get.mgi.features(chr = 7, start = 87491804, end = 88689056, type = "gene", source = "MGI")
+mgi = get.mgi.features(chr = 11, start = 64549949, end = 64670416, type = "gene", source = "MGI")
 
 
 
@@ -87,20 +93,23 @@ perms <- GRSDgauss.perms(perms = 200, chr = 1:19, Xchr = FALSE,
                          tx = "", sanger.dir = "C:/Users/edmondsonef/Desktop/QTL/HS.sanger.files/")
 
 get.sig.thr(perms, alpha = 0.01, Xchr = F)
-thr1 = quantile(perms, probs = 0.90)
-thr2 = quantile(perms, probs = 0.95)
-thr3 = quantile(perms, probs = 0.99)
-
+#thr1 = quantile(perms, probs = 0.90)
+thr1 = 4.752077 
+#thr2 = quantile(perms, probs = 0.95)
+thr2 = 5.145275
+#thr3 = quantile(perms, probs = 0.99)
+thr3 = 6.170663 
 
 
 
 #### Plotting ####
 ####
 
-plot.scanone.assoc(res, bin.size = 100, main = "")
+plot.scanone.assoc(qtl, bin.size = 100, main = "HZE: Cataract Score (average)")
+abline(a = 13, b = 0, col = "red")
 
 png("HZE_scanoneassoc_cat_sum.png", width = 2400, height = 1080, res = 200)
-plot.scanone.assoc(res, bin.size = 100)
+plot.scanone.assoc(qtl, bin.size = 100)
 dev.off()
 
 png("_CHR_4.png", width = 2000, height = 1600, res = 128)
@@ -127,7 +136,7 @@ loop.hs.qtl(Allirr.cat2, chr=17, bin.size = 100, main = "All irradiated", ylim=c
 # abline(a = 13, b = 0, col = "red")
 # DOQTL:::plot.scanone.assoc(Gamma.days, bin.size = 100, main = "Gamma ray", ylim=c(0,15))
 # abline(a = 13, b = 0, col = "red")
-# DOQTL:::plot.scanone.assoc(Unirradiated.days, bin.size = 100, main = "Unirradiated", ylim=c(0,15))
+#DOQTL:::plot.scanone.assoc(qtl, bin.size = 100, main = "Unirradiated", ylim=c(0,15))
 # abline(a = 13, b = 0, col = "red")
 
 
@@ -2129,10 +2138,12 @@ GRSD.gauss = function(pheno, pheno.col, probs, K, addcovar, markers, snp.file,
   
   print(paste(round(difftime(Sys.time(), plotter, units = 'hours'), digits = 2),
               "hours elapsed during plotting."))
+  return(qtl)
   
 }
 ################################################################################
-GRSDgauss.fast = function(obj, pheno, pheno.col, addcovar, tx, sanger.dir = "~/Desktop/R/QTL/WD/HS.sanger.files/") {
+GRSDgauss.fast = function(obj, pheno, pheno.col, addcovar, tx, 
+                          sanger.dir = "~/Desktop/R/QTL/WD/HS.sanger.files/") {
   chr = obj$markers[1,2]
   
   setwd(outdir)
@@ -2168,14 +2179,6 @@ GRSDgauss.fast = function(obj, pheno, pheno.col, addcovar, tx, sanger.dir = "~/D
     
     # Run the model at each unique SDP.
     for(j in sdps.to.use) {
-      
-      
-      # library(regress)
-      # mod = regress(obj$pheno[,obj$pheno.col] ~ obj$addcovar, ~obj$K, pos = c(TRUE, TRUE))
-      # obj$K = mod$sigma[1] * obj$K + mod$sigma[2] * diag(nrow(obj$K))
-      # rm(mod)
-      
-      
       
       full.mod = glm(pheno[,pheno.col] ~ addcovar + cur.alleles[j,], family = gaussian)
       #full.mod = glm(trait ~ addcovar + cur.alleles[j,], family = poisson(link = "log"))
@@ -2233,21 +2236,22 @@ GRSDgauss.fast = function(obj, pheno, pheno.col, addcovar, tx, sanger.dir = "~/D
   print(paste0("Maximum LOD is ", max.LOD), digits = 1)
   rm(max.LOD, max.LOD.position)
   
-  # save(pv, file = paste0(file.prefix, "_chr", chr, ".Rdata"))
-  # 
-  # png(paste0(file.prefix, "_chr", chr,".png"), width = 2600,
-  #     height = 1200, res = 130)
-  # plot(as.numeric(pv[,3]) * 1e-6, -log10(pv[,6]), pch = 20)
-  # mtext(side = 3, line = 0.5, text = paste(plot.title, ": Chr", chr))
-  # dev.off()
+  save(pv, file = paste0(file.prefix, "_chr", chr, ".Rdata"))
   
+  png(paste0(file.prefix, "_chr", chr,".png"), width = 2600,
+      height = 1200, res = 130)
+  plot(as.numeric(pv[,3]) * 1e-6, -log10(pv[,6]), pch = 20)
+  mtext(side = 3, line = 0.5, text = paste(plot.title, ": Chr", chr))
+  dev.off()
+
   # Return the positions and p-values.
   return(pv)
   
   
 } # GRSDgauss.fast()
 ################################################################################
-GRSDgauss.xchr.fast = function(obj, pheno, pheno.col, addcovar, tx, sanger.dir = "~/Desktop/R/QTL/WD/HS.sanger.files/") {
+GRSDgauss.xchr.fast = function(obj, pheno, pheno.col, addcovar, tx, 
+                               sanger.dir = "~/Desktop/R/QTL/WD/HS.sanger.files/") {
   timechrx <- Sys.time()
   chr = obj$markers[1,2]
   
@@ -2360,7 +2364,8 @@ GRSDgauss.xchr.fast = function(obj, pheno, pheno.col, addcovar, tx, sanger.dir =
   
 } # GRSDgauss.xchr()
 ################################################################################
-GRSDgauss.permsfast = function(obj, pheno, pheno.col, addcovar, tx, sanger.dir = "~/Desktop/R/QTL/WD/HS.sanger.files/") {
+GRSDgauss.permsfast = function(obj, pheno, pheno.col, addcovar, tx, 
+                               sanger.dir = "~/Desktop/R/QTL/WD/HS.sanger.files/") {
   chr = obj$markers[1,2]
   
   setwd(outdir)
