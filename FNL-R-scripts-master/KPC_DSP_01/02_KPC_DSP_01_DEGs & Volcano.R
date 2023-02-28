@@ -36,7 +36,7 @@ library(cowplot)
 library(umap)
 library(Rtsne)
 
-
+load("C:/Users/edmondsonef/Desktop/DSP GeoMX/data/WTA_04122022/RData/KPC_geoMX_exp1.RData")
 
 # convert test variables to factors
 pData(target_myData)$testRegion <- 
