@@ -609,7 +609,7 @@ pheatmap(assayDataElement(target_myData[GOI, ], elt = "log_q"),
 
 
 
-#save(final, target_myData, file = "C:/Users/edmondsonef/Desktop/KPC_geoMX_exp1.RData")
+save(final, target_myData, neg_probes, file = "C:/Users/edmondsonef/Desktop/KPC_geoMX_exp1.RData")
 
 
 
