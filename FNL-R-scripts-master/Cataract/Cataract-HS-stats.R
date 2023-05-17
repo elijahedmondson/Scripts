@@ -484,8 +484,8 @@ dev.off()
 ##### CoxPH risk estimates
 ##### 
 
-#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
-#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_HardAd_DND")
+data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
+data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_HardAd_DND")
 data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
 data <- data %>%  mutate(Family = as.character(family), 
                          BCS = as.ordered(BCS),
@@ -493,10 +493,13 @@ data <- data %>%  mutate(Family = as.character(family),
                          Treatment = relevel(as.factor(groups), ref = "Unirradiated"),
                          `Number of Tumors` = relevel(as.factor(`Number of Tumors`), ref = "No tumors"))
 
+data <- data %>%  filter(Treatment != "Unirradiated")
+data <- data %>%  filter(Treatment == "HZE")
+
 Status = data$`Cat 2.0`
 Day = data$`Cat 2.0 day`
 
-coxfit <- coxph(Surv(Day, Status) ~ Treatment + Sex, data = data)
+coxfit <- coxph(Surv(Day, Status) ~ Treatment + Sex + Hard_Ad, data = data)
 summary(coxfit)
 ggforest(coxfit, data = data, main = "Hazard Ratio: Merriam-Focht Score 2.0",
          cpositions = c(0.02, 0.15, 0.3), fontsize = 1,
