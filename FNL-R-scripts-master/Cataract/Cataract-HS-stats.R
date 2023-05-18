@@ -37,7 +37,7 @@ library(tidytidbits)
 library(survivalAnalysis)
 
 #data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
-#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_HardAd_DND")
+#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
 data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
 data <- data %>%  mutate(Family = as.character(family), 
                          BCS = as.ordered(BCS),
@@ -485,7 +485,7 @@ dev.off()
 ##### 
 
 data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
-data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_HardAd_DND")
+data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
 data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
 data <- data %>%  mutate(Family = as.character(family), 
                          BCS = as.ordered(BCS),
@@ -493,41 +493,59 @@ data <- data %>%  mutate(Family = as.character(family),
                          Treatment = relevel(as.factor(groups), ref = "Unirradiated"),
                          `Number of Tumors` = relevel(as.factor(`Number of Tumors`), ref = "No tumors"))
 
-data <- data %>%  filter(Treatment != "Unirradiated")
-data <- data %>%  filter(Treatment == "HZE")
+#data <- data %>%  filter(Treatment != "Unirradiated")
+#data <- data %>%  filter(Treatment == "HZE")
 
 Status = data$`Cat 2.0`
 Day = data$`Cat 2.0 day`
 
-coxfit <- coxph(Surv(Day, Status) ~ Treatment + Sex + Hard_Ad, data = data)
+coxfit <- coxph(Surv(Day, Status) ~ Treatment + Sex, data = data)
 summary(coxfit)
-ggforest(coxfit, data = data, main = "Hazard Ratio: Merriam-Focht Score 2.0",
+plot_cox <- ggforest(coxfit, data = data, main = "Hazard Ratio: Merriam-Focht Score 2.0",
          cpositions = c(0.02, 0.15, 0.3), fontsize = 1,
          refLabel = "reference", noDigits = 3)
 
 
-coxfit <- coxph(Surv(Day, Status) ~ Treatment + Sex + Treatment:Sex, data = data)
-summary(coxfit)
-
-coxfit <- coxph(Surv(Day, Status) ~ Treatment + Sex + `Number of Tumors`, data = data)
-summary(coxfit)
-ggforest(coxfit, data = data, main = "Hazard Ratio: Merriam-Focht Score 2.0",
-         cpositions = c(0.02, 0.15, 0.3), fontsize = 1,
-         refLabel = "reference", noDigits = 3)
-
+plot_cox
+setwd("C:/Users/edmondsonef/Desktop/R-plots/")
+tiff("CoxPH model.tiff", units="in", width=14, height=6, res=200)
+plot_cox
+dev.off()
 
 
 coxfit <- coxph(Surv(Day, Status) ~ `Number of Tumors`, data = data)
 summary(coxfit)
+plot_tumors <- ggforest(coxfit, data = data, main = "Hazard Ratio: Merriam-Focht Score 2.0",
+         cpositions = c(0.02, 0.15, 0.3), fontsize = 1,
+         refLabel = "reference", noDigits = 3)
+
+plot_tumors
+setwd("C:/Users/edmondsonef/Desktop/R-plots/")
+tiff("CoxPH model.tiff", units="in", width=14, height=6, res=200)
+plot_tumors
+dev.off()
+
+coxfit <- coxph(Surv(Day, Status) ~ Treatment + Harderian:`Number of Tumors`, data = data)
+summary(coxfit)
 ggforest(coxfit, data = data, main = "Hazard Ratio: Merriam-Focht Score 2.0",
          cpositions = c(0.02, 0.15, 0.3), fontsize = 1,
          refLabel = "reference", noDigits = 3)
 
 
-# aa_fit <-aareg(Surv(Day, Status) ~ Family, data = data)
-# autoplot(aa_fit, ncol = 2)+
-#   theme_bw() +
-#   theme(legend.position = "none")
+
+
+coxfit <- coxph(Surv(Day, Status) ~ Harderian + AML, data = data)
+summary(coxfit)
+plot_cox <- ggforest(coxfit, data = data, main = "Hazard Ratio: Merriam-Focht Score 2.0",
+                     cpositions = c(0.02, 0.15, 0.3), fontsize = 1,
+                     refLabel = "reference", noDigits = 3)
+
+
+plot_cox
+setwd("C:/Users/edmondsonef/Desktop/R-plots/")
+tiff("CoxPH model.tiff", units="in", width=14, height=6, res=200)
+plot_cox
+dev.off()
 
 ##### 
 
@@ -547,8 +565,8 @@ anova(coxfit1,coxfit2,test="Chisq")
 
 #####
 #data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
-#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_HardAd_DND")
-data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
+data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
+#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
 data <- data %>%  mutate(Family = as.character(family), 
                          BCS = as.ordered(BCS),
                          Sex = sex,
@@ -627,7 +645,7 @@ map(vars(Family), function(by)
 data %>%
   mutate(sex=rename_factor(sex, `M` = "male", `F` = "female")) %>%
   analyse_multivariate(vars(Day, Status),
-                       covariates = vars(Treatment, `Number of Tumors`), 
+                       covariates = vars(Treatment, `Number of Tumors`, sex), 
                        covariate_name_dict = covariate_names) ->
   result
 print(result)
