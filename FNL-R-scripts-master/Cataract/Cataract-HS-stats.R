@@ -36,7 +36,7 @@ library(tidyverse)
 library(tidytidbits)
 library(survivalAnalysis)
 
-#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
+data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
 #data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
 data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
 data <- data %>%  mutate(Family = as.character(family), 
@@ -484,10 +484,10 @@ dev.off()
 ##### CoxPH risk estimates
 ##### 
 
-data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
-data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
+#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
+#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
 data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
-data <- data %>%  mutate(Family = as.character(family), 
+data <- data %>%  mutate(Family = as.numeric(families), 
                          BCS = as.ordered(BCS),
                          Sex = sex,
                          Treatment = relevel(as.factor(groups), ref = "Unirradiated"),
@@ -567,7 +567,7 @@ anova(coxfit1,coxfit2,test="Chisq")
 #data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
 data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
 #data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
-data <- data %>%  mutate(Family = as.character(family), 
+data <- data %>%  mutate(Family = as.numeric(family), 
                          BCS = as.ordered(BCS),
                          Sex = sex,
                          Treatment = relevel(as.factor(groups), ref = "Unirradiated"),
@@ -660,3 +660,70 @@ forest_plot(result,
             relative_widths = c(1, 1.5, 1),
             HR_x_breaks = c(0.25, 0.5, 0.75, 1, 1.5, 2))
 
+
+
+
+
+
+
+
+data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
+
+library(gapminder)
+
+
+
+allplot <- data %>% dplyr::group_by(family, Overall)%>% dplyr::summarise(cat_score = mean(cat_score)) %>%
+  #arrange(desc(cat_score)) %>%
+  #mutate(family = fct_reorder(family, families)) %>%
+  ggplot(aes(x = family, y = Overall, size = cat_score, color = family)) +
+  geom_point(alpha=0.5) +
+  geom_text(aes(label = round(cat_score, digits = 1)), size = 3) +
+  scale_radius(range = c(3, 23))+
+  theme_bw() +
+  theme(axis.title.y=element_blank())+
+  theme(axis.title.x=element_blank())+
+  guides(color = FALSE)
+
+sexplot <- data %>% dplyr::group_by(family, Sex)%>% dplyr::summarise(cat_score = mean(cat_score)) %>%
+  ggplot(aes(x = family, y = Sex, size = cat_score, color = family)) +
+  geom_point(alpha=0.5) +
+  geom_text(aes(label = round(cat_score, digits = 1)), size = 3) +
+  scale_radius(range = c(3, 23))+
+  theme_bw() +
+  theme(axis.title.y=element_blank())+
+  theme(axis.title.x=element_blank())+
+  guides(color = FALSE)
+
+radplot <- data %>% dplyr::group_by(family, groups)%>% dplyr::summarise(cat_score = mean(cat_score)) %>%
+  ggplot(aes(x = family, y = groups, size = cat_score, color = family)) +
+  geom_point(alpha=0.5) +
+  geom_text(aes(label = round(cat_score, digits = 1)), size = 3) +
+  scale_radius(range = c(3, 23))+
+  theme_bw() +
+  theme(axis.title.y=element_blank())+
+  theme(axis.title.x=element_blank())+
+  guides(color = FALSE)
+#male to female ratio
+ratioplot <- data %>% dplyr::group_by(family, Sex, MF)%>% dplyr::summarise(cat_score = mean(cat_score)) %>%
+  pivot_wider(names_from = Sex, values_from = cat_score) %>%
+  mutate(`Male:Female` = Male/Female)%>%
+  ggplot(aes(x = family, y = MF, size = `Male:Female`, color = family)) +
+  geom_point(alpha=0.5) +
+  geom_text(aes(label = round(`Male:Female`, digits = 1)), size = 3) +
+  scale_radius(range = c(8, 18))+
+  theme_bw() +
+  theme(axis.title.y=element_blank())+
+  #theme(axis.title.x=element_blank())+
+  guides(color = FALSE)
+
+
+library(patchwork)  
+setwd("C:/Users/edmondsonef/Desktop/R-plots/")
+tiff("Cat_score_by_treatment.tiff", units="in", width=22, height=9, res=200)
+(allplot) / (radplot) / (sexplot) / (ratioplot) +
+  #plot_layout(guides = "collect") +
+  plot_layout(ncol = 1, heights = c(1, 3, 2, 1))+
+  plot_annotation(title = "Cataract Scores by Family, Radiation Exposure, and Sex")
+dev.off()
+  
