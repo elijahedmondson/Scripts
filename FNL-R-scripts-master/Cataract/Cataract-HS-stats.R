@@ -36,9 +36,9 @@ library(tidyverse)
 library(tidytidbits)
 library(survivalAnalysis)
 
-data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
+#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
 #data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
-data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
+data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/2023 Cataract Data.xlsx", sheet = "DND")
 data <- data %>%  mutate(Family = as.character(family), 
                          BCS = as.ordered(BCS),
                          Sex = sex,
@@ -565,8 +565,11 @@ anova(coxfit1,coxfit2,test="Chisq")
 
 #####
 #data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx")
-data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
+#data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_Harderian_DND")
 #data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/CAT_final.xlsx", sheet = "RM_DND")
+
+data <- read_excel(path = "C:/Users/edmondsonef/Desktop/Cataract/2023 Cataract Data.xlsx", sheet = "DND")
+
 data <- data %>%  mutate(Family = as.numeric(family), 
                          BCS = as.ordered(BCS),
                          Sex = sex,
@@ -582,21 +585,21 @@ covariate_names <- c(Treatment = relevel(as.factor(data$groups), ref = "Unirradi
                      Family = as.numeric(data$family),
                      CoatColor=data$"coat color",
                      BCS = as.ordered(data$BCS),
-                     Amyloidosis=data$Amyloidosis,
-                     AML=data$AML,
-                     GCT=data$GCT,
-                     Hard_ACA=data$Hard_ACA,
-                     Hard_Ad=data$Hard_Ad,
-                     HCC=data$HCC,
-                     Hist_Sarc=data$Hist_Sarc,
-                     LSA_PreT=data$LSA_PreT,
+                     #Amyloidosis=data$Amyloidosis,
+                     AML=data$`Acute Myeloid Leukemia`,
+                     GCT=data$`Granulosa Cell Tumor`,
+                     Hard_ACA=data$`Harderian Adenocarcinoma`,
+                     Hard_Ad=data$`Harderian Adenoma`,
+                     HCC=data$`Hepatocellular Carcinoma`,
+                     Hist_Sarc=data$`Histiocytic Sarcoma`,
+                     LSA_PreT=data$`LSA_T-cell`,
                      `LSA_B-cell`=data$`LSA_B-cell`,
-                     Mamm_ACA=data$Mamm_ACA,
-                     OSA=data$OSA,
+                     Mamm_ACA=data$`Mammary Adenocarcinoma`,
+                     OSA=data$`Osteosarcoma`,
                      Pulmonary_ACA = data$`Pulmonary Adenocarcinoma`,
-                     Pituitary_Ad=data$Pituitary_Ad,
-                     STS=data$STS,
-                     Thyroid =data$Thyroid,
+                     Pituitary_Ad=data$`Pituitary Adenoma`,
+                     STS=data$`Soft Tissue Sarcoma`,
+                     Thyroid =data$`Thyroid Adenoma`,
                      Pigment_Dispersion = data$Pigment_Dispersion,
                      Did_not_dilate = data$`Did Not Dilate`)
 
@@ -608,10 +611,11 @@ df <- data %>% mutate(sex=rename_factor(sex, `M` = "male", `F` = "female"))
 
 map(vars(Treatment, sex, #Family,
          #`coat color`,
-         Amyloidosis, Pigment_Dispersion, `Did Not Dilate`, AML, GCT,
-         Hard_ACA, Hard_Ad, HCC, Hist_Sarc, LSA_PreT,
-         `LSA_B-cell`,Mamm_ACA,OSA,`Pulmonary Adenocarcinoma`,
-         Pituitary_Ad,STS,Thyroid,
+         Pigment_Dispersion, `Did Not Dilate`, 
+         `Acute Myeloid Leukemia`, `Granulosa Cell Tumor`,
+         `Harderian Adenocarcinoma`, `Harderian Adenoma`, `Hepatocellular Carcinoma`, `Histiocytic Sarcoma`, `LSA_T-cell`,
+         `LSA_B-cell`,`Mammary Adenocarcinoma`,`Osteosarcoma`,`Pulmonary Adenocarcinoma`,
+         `Pituitary Adenoma`,`Soft Tissue Sarcoma`,`Thyroid Adenoma`,
          `Number of Tumors`), function(by)
 {
   analyse_multivariate(df,
