@@ -36,14 +36,14 @@ library(cowplot)
 library(umap)
 library(Rtsne)
 
-knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_chunk$set(echo = TRUE)
 output_prefix<-"CPTR474"
 projectname<-"CPTR474"
-datadir<-"C:/Users/edmondsonef/Desktop/DSP GeoMX/data/WTA_11232022/raw_data"
+datadir<-"F:/GeoMX KPC/WTA_11232022/raw_data"
 DCCdir<-"DCC-11232022"
 PKCfilename<-"Mm_R_NGS_WTA_v1.0.pkc"
 WorkSheet<-"final_2.xlsx"
-final <- read_excel("C:/Users/edmondsonef/Desktop/DSP GeoMx/data/WTA_11232022/raw_data/final_2.xlsx")
+final <- read_excel("F:/GeoMX KPC/WTA_11232022/raw_data/final_2.xlsx")
 
 DCCFiles <- list.files(file.path(datadir , DCCdir), pattern=".dcc$", full.names=TRUE)
 PKCFiles <- file.path(datadir, PKCfilename)
@@ -356,6 +356,25 @@ goi <- c("Kras", "Trp53", "Cd274", "Cd8a", "Cd68", "Epcam","Cre",
          "Fap","Hnf1b","Krt19","Ctrb1", "Hes1", "Smad4",
          "Onecut1","Onecut2","Onecut3","Cdkn1a","Prss2","Runx1","Gata6",
          "Gata6", "S100a11", "Nr5a2","Agr2", "Foxa2", "Fosl1","Ets2", "Runx3")
+goi <- c("Rock2","Cybrd1","Nr1d1","Bsg","Tmprss4","Tm9sf3","Mmp23","Rhof","Sftpd", "Aqp5","Ccna1",
+              "Muc3","Muc5ac","Muc3a","Kif12","Calml4","Dbp", "Mrtfb", "Rplp0","Dnajc10","Rps12",
+              "Pdzd8", "Mtch2", "Msln", "Prom1", "Vars2","Porcn","Rpl6","Ybx1","Wfdc2","Tpi1",
+              "Golim4","Otop3","F3", "Id2","Adamtsl5","Bag1","Rnf186","Glis2","Slc35f5","Tspan12",
+              "Slc9a4", "Ephb2", "Tmem45b","Tmprss2","Pdxdc1","Lgals2", "Esrp1", "Tmem54", "Ptprf", "Ccnd2",
+              "Ern2","Sult1c2", "Gltp","Spock3","Sgms2","Rasgrf1","St8sia3",
+              "Rap1gap","Rbms3","Ccdc92","Ncald","Ppp1r1b","Gabbr2",
+              "Nt5c2","Cdkn2a","Atrnl1","Camk2n1",
+              "Setbp1","Dennd4c","Hs3st1","Shf","Nfib", "Tuba1b", "Net1", "Ncald","Spock3",
+              "Sem1", "Ctnnd1","Adgre5", "Dennd4c",
+              "Smad4", "Flna", "Cntn1", "Cntn6","Sgms2","Nrxn1","Nrxn2","Nrxn3","Lamb2","Rasgrf1",
+              "Sema3d", "Sema4b","Sema4g","Sema5a","St8sia3",
+              "Lama5", "Rtn4", "Picalm","Efnb2", "Rbms3", "Rock2","Ephb2","Efnb2", "Adam10", "Mmp2", "Mmp9", 
+              "Rac1", "St8sia3", "Camk2n1", "Cdc42", "Spock3", "Rasgrf1",
+              "Lama5", "Itgb1", "Ezr","S100a6", "Gsto1", "Gkn1","Ezr",
+              "Lypd8l", "Anxa2", "Cdh1", "Myrf", "Flna", "Slc12a2", "Actn1", "Fn1", "Hnf1b",
+              "Vasp","Vdac2", "Syncrip", "Rpl5", "Pard3","Dync1i2", "Calm1", "Calm2", "Calm3", "Itgb1","Kras","Trp53","Net1","Nt5c2",
+              "Clu","S100a6", "Anxa2", "Myrf", "Sema4b","Sema4g","Efnb2", "Flna", "Slc12a2", "Actn1", "Actb","Tuba1b",
+              "Vasp", "Syncrip", "Pard3","Rac1", "Rhoa", "Cdc42", "Dync1i2", "Calm1", "Calm2", "Calm3","Lama5", "Itgb1")
 
 goi_df <- data.frame(
   Gene = goi,
@@ -494,13 +513,13 @@ umap_out <-
 pData(target_myData)[, c("UMAP1", "UMAP2")] <- umap_out$layout[, c(1,2)]
 
 umapplot <-ggplot(pData(target_myData),
-                  aes(x = UMAP1, y = UMAP2, color = class, label=sample_ee, size = 20)) +
+                  aes(x = UMAP1, y = UMAP2, shape = Strain, label=sample_ee, color = class)) +
   geom_point(size = 3) + geom_text(hjust=1.1, vjust=0.2)+
   theme_bw() #+
   #theme(text = element_text(size = 10)) +
   #theme(legend.position="none")
 umapplot
-ggsave(umapplot, file="C:/Users/edmondsonef/Desktop/umapKPC2.png", width = 12, height = 7, units = "in", bg = "white")
+ggsave(umapplot, file="C:/Users/edmondsonef/Desktop/umapKPC2.png", width = 18, height = 10, units = "in", bg = "white")
 
 
 # run tSNE
@@ -509,11 +528,12 @@ tsne_out <-
   Rtsne(t(log2(assayDataElement(target_myData , elt = "q_norm"))),
         perplexity = ncol(target_myData)*.15)
 pData(target_myData)[, c("tSNE1", "tSNE2")] <- tsne_out$Y[, c(1,2)]
-ggplot(pData(target_myData),
+tsneplot <- ggplot(pData(target_myData),
        aes(x = tSNE1, y = tSNE2, color = class, label=sample_ee, size = 5)) +
   geom_point(size = 3) +geom_text(hjust=1.1, vjust=0.2)+
   theme_bw()+
   theme(legend.position="none")
+ggsave(tsneplot, file="C:/Users/edmondsonef/Desktop/tsneKPC2.png", width = 18, height = 10, units = "in", bg = "white")
 
 
 ## run PCA
@@ -528,7 +548,7 @@ pData(target_myData)[, c("PC1", "PC2")] <- pcaData[,c(1,2)]
 percentVar=round(100*summary(pca.object)$importance[2, PCAxy],0)
 
 
-ggplot(pData(target_myData),
+pcaplot <- ggplot(pData(target_myData),
        aes(x = PC1, y = PC2, color=class, label=dx)) +
   geom_point(size = 3) + geom_text(hjust=1.1, vjust=0.2)+
   xlab(paste0("PC", PCAx ,": ", percentVar[1], "% variance")) +
@@ -537,6 +557,7 @@ ggplot(pData(target_myData),
   theme_bw()+
   theme(legend.position="none")
 
+ggsave(pcaplot, file="C:/Users/edmondsonef/Desktop/pcaKPC2.png", width = 18, height = 10, units = "in", bg = "white")
 
 
 
@@ -571,7 +592,7 @@ pheatmap(assayDataElement(target_myData[GOI, ], elt = "log_q"),
 
 
 
-save(final, target_myData, file = "C:/Users/edmondsonef/Desktop/KPC_geoMX_exp2.RData")
+save(final, target_myData, neg_probes, file = "F:/GeoMX KPC/WTA_11232022/processed_data/KPC_geoMX_exp2.RData")
 
 
 

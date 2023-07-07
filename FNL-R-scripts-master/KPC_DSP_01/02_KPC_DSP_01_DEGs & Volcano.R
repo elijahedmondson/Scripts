@@ -36,22 +36,23 @@ library(cowplot)
 library(umap)
 library(Rtsne)
 
-load("C:/Users/edmondsonef/Desktop/DSP GeoMX/data/WTA_04122022/RData/KPC_geoMX_exp1.RData")
-datadir <-"C:/Users/edmondsonef/Desktop/R-plots/"
+load("F:/GeoMX KPC/WTA_04122022/processed_data/KPC_geoMX_exp1.RData")
+datadir <-"F:/GeoMX KPC/WTA_04122022/processed_data/"
 setwd(datadir)
 
-#test <- "trans1"
-#test <- "trans2"
-#test <- "trans3"
-#test <- "trans4"
-#test <- "trans5"
-test <- "trans6"
+#test <- "Step1"
+#test <- "Step2"
+#test <- "Step3"
+#test <- "Step4"
+#test <- "Step5"
+test <- "Step6"
 
 # convert test variables to factors
 pData(target_myData)$testRegion <- 
-  factor(pData(target_myData)$trans6)#, c("PDAC", "Lung_met"))                           
+  factor(pData(target_myData)$Step6)#, c("PDAC", "Lung_met"))                           
 pData(target_myData)[["slide"]] <-                                            ### Control for 
   factor(pData(target_myData)[["MHL Number"]])
+  #factor(pData(target_myData)[["tissue"]])
 assayDataElement(object = target_myData, elt = "log_q") <-
   assayDataApply(target_myData, 2, FUN = log, base = 2, elt = "q_norm")
 
@@ -94,7 +95,9 @@ dplyr::count(results, FDR < 0.001)
 
 top <- dplyr::filter(results, results$FDR < 0.05)
 count = count(top)
-print(paste(test, ":",count, "genes with FDR < 0.05."))
+print(paste0(test, ": ",count, " genes at FDR < 0.05"))
+
+write.csv(top, "F:/GeoMX KPC/WTA_04122022/processed_data/step6_FDR05_met.csv")
 
 head(results)
 results$invert_P <- (-log10(results$`Pr(>|t|)`)) * sign(results$Estimate)
@@ -103,50 +106,49 @@ for(cond in c("Full ROI")) {
   ind <- results$Subset == cond
   top_g <- c(top_g,
              results[ind, 'Gene'][
-               order(results[ind, 'invert_P'], decreasing = TRUE)[1:20]],
+               order(results[ind, 'invert_P'], decreasing = TRUE)[1:50]],
              results[ind, 'Gene'][
-               order(results[ind, 'invert_P'], decreasing = FALSE)[1:20]])
+               order(results[ind, 'invert_P'], decreasing = FALSE)[1:50]])
 }
 top_g <- unique(top_g)
 top_g
-head(top_g)
 
 
-
-features <- c("Cybrd1","Nr1d1","Bsg","Tmprss4","Tm9sf3","Mmp23","Rhof","Sftpd", "Aqp5","Ccna1",
+features <- c("Rock2","Cybrd1","Nr1d1","Bsg","Tmprss4","Tm9sf3","Mmp23","Rhof","Sftpd", "Aqp5","Ccna1",
               "Muc3","Muc5ac","Muc3a","Kif12","Calml4","Dbp", "Mrtfb", "Rplp0","Dnajc10","Rps12",
               "Pdzd8", "Mtch2", "Msln", "Prom1", "Vars2","Porcn","Rpl6","Ybx1","Wfdc2","Tpi1",
-              "Golim4","Otop3","F3", "Id2","Adamtsl5","Bag1","Rnf186","Glis2","Slc35f5","Tspan12",
+              #"Golim4","Otop3","F3", "Id2","Adamtsl5","Bag1","Rnf186","Glis2","Slc35f5","Tspan12",
               "Slc9a4", "Ephb2", "Tmem45b","Tmprss2","Pdxdc1","Lgals2", "Esrp1", "Tmem54", "Ptprf", "Ccnd2",
               "Ern2","Sult1c2", "Gltp","Spock3","Sgms2","Rasgrf1","St8sia3",
-              "Rap1gap","Rbms3","Ccdc92","Ncald","Ppp1r1b","Gabbr2","Nt5c2","Cdkn2a","Atrnl1","Camk2n1",
+              #"Rap1gap","Rbms3","Ccdc92","Ncald","Ppp1r1b","Gabbr2",
+              "Nt5c2","Cdkn2a","Atrnl1","Camk2n1",
               "Setbp1","Dennd4c","Hs3st1","Shf","Nfib", "Tuba1b", "Net1", "Ncald","Spock3",
-              "Rock2", "Sem1", "Ctnnd1","Adgre5", "Dennd4c",
+              "Sem1", "Ctnnd1","Adgre5", "Dennd4c",
               "Smad4", "Flna", "Cntn1", "Cntn6","Sgms2","Nrxn1","Nrxn2","Nrxn3","Lamb2","Rasgrf1",
               "Sema3d", "Sema4b","Sema4g","Sema5a","St8sia3",
               "Lama5", "Rtn4", "Picalm","Efnb2", "Rbms3", "Rock2","Ephb2","Efnb2", "Adam10", "Mmp2", "Mmp9", 
-              "Msln","Prom1","Rac1", "St8sia3", "Camk2n1", "Cdc42", "Spock3", "Rasgrf1",
-              "Lama5", "Itgb1", "Ezr","S100a6", "Gsto1", "Gkn1", 
-              "Lypd8l", "Anxa2", "Cdh1", "Prom1", "Myrf", "Flna", "Slc12a2", "Actn1", "Fn1", "Hnf1b",
-              "Vasp","Vdac2", "Syncrip", "Rpl5", "Pard3","Dync1i2", "Calm1", "Calm2", "Calm3", "Itgb1","Kras","Trp53","Net1","Nt5c2","Ezr",
+              "Rac1", "St8sia3", "Camk2n1", "Cdc42", "Spock3", "Rasgrf1",
+              "Lama5", "Itgb1", "Ezr","S100a6", "Gsto1", "Gkn1","Ezr",
+              "Lypd8l", "Anxa2", "Cdh1", "Myrf", "Flna", "Slc12a2", "Actn1", "Fn1", "Hnf1b",
+              "Vasp","Vdac2", "Syncrip", "Rpl5", "Pard3","Dync1i2", "Calm1", "Calm2", "Calm3", "Itgb1","Kras","Trp53","Net1","Nt5c2",
               "Clu","S100a6", "Anxa2", "Myrf", "Sema4b","Sema4g","Efnb2", "Flna", "Slc12a2", "Actn1", "Actb","Tuba1b",
-              "Vasp", "Syncrip", "Pard3","Rock2","Rac1", "Rhoa", "Cdc42", "Dync1i2", "Calm1", "Calm2", "Calm3","Lama5", "Itgb1")
+              "Vasp", "Syncrip", "Pard3","Rac1", "Rhoa", "Cdc42", "Dync1i2", "Calm1", "Calm2", "Calm3","Lama5", "Itgb1")
 
-
+#features <-c("Rock2")
 
 
 
 # #reverse log fold change to fit with label
-# results$Estimate1 <- results$Estimate*(-1)
+results$Estimate1 <- results$Estimate*(-1)
 # results$Contrast[1]
 # Graph results
 volc_plot <- ggplot(results,                                                             ###CHANGE
-       aes(x = Estimate, y = -log10(`Pr(>|t|)`),
+       aes(x = Estimate1, y = -log10(`Pr(>|t|)`),
            color = Color, label = Gene)) +
   geom_vline(xintercept = c(0.5, -0.5), lty = "dashed") +
   geom_hline(yintercept = -log10(0.05), lty = "dashed") +
   geom_point() +
-  labs(x = "ALL <- log2(FC) -> Metastasis",                                       ###CHANGE
+  labs(x = "xxx <- log2(FC) -> xxx",                                       ###CHANGE
        y = "Significance, -log10(P)",
        color = "Significance") +
   scale_color_manual(values = c(`FDR < 0.001` = "dodgerblue", `FDR < 0.05` = "lightblue",
@@ -163,13 +165,13 @@ volc_plot <- ggplot(results,                                                    
 volc_plot
 
 
-ggplot(pData(target_myData), aes(x = class, y = assayDataElement(target_myData["Mmp23", ], elt = "q_norm"))) +
-  geom_violin() +
-  geom_jitter(width = .2) +
-  labs(y = "Mmp23 Expression") +
-  scale_y_continuous(trans = "log2") +
-  #facet_wrap(~class) +
-  theme_bw()
+# ggplot(pData(target_myData), aes(x = class, y = assayDataElement(target_myData["Mmp23", ], elt = "q_norm"))) +
+#   geom_violin() +
+#   geom_jitter(width = .2) +
+#   labs(y = "Mmp23 Expression") +
+#   scale_y_continuous(trans = "log2") +
+#   #facet_wrap(~class) +
+#   theme_bw()
 
 
 ## ----heatmap, eval = TRUE, fig.width = 8, fig.height = 6.5, fig.wide = TRUE----
@@ -205,7 +207,7 @@ ggplot(subset(results, !Gene %in% neg_probes),
   geom_hline(yintercept = c(0.5, -0.5), lty = "dashed") +
   scale_x_continuous(trans = "log2") +
   geom_point(alpha = 0.5) + 
-  labs(y = "Enriched in XXX <- log2(FC) -> Enriched in XXX",
+  labs(y = "Enriched in XXX <- log2(FC) -> Enriched in xxx",
        x = "Mean Expression",
        color = "Significance") +
   scale_color_manual(values = c(`FDR < 0.001` = "dodgerblue",
@@ -213,6 +215,7 @@ ggplot(subset(results, !Gene %in% neg_probes),
                                 `P < 0.05` = "orange2",
                                 `NS or FC < 0.5` = "gray")) +
   geom_text_repel(data = subset(results, Gene %in% features),
+  #geom_text_repel(data = subset(results, Gene %in% top_g),
                   size = 4, point.padding = 0.15, color = "black",
                   min.segment.length = .1, box.padding = .2, lwd = 2) +
   theme_bw(base_size = 16) +

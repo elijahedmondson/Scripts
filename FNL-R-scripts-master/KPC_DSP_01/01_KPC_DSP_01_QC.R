@@ -18,11 +18,12 @@ library(topGO)
 
 output_prefix<-"CPTR474"
 projectname<-"CPTR474"
-datadir<-"C:/Users/edmondsonef/Desktop/DSP GeoMX/data/WTA_04122022/raw_data"
+#datadir<-"C:/Users/edmondsonef/Desktop/DSP GeoMX/data/WTA_04122022/raw_data"
+datadir<-"F:/GeoMX KPC/WTA_04122022/raw_data"
 DCCdir<-"DCC-20220420"
 PKCfilename<-"Mm_R_NGS_WTA_v1.0.pkc"
 WorkSheet<-"final.xlsx"
-final <- read_excel("C:/Users/edmondsonef/Desktop/DSP GeoMx/data/WTA_04122022/raw_data/final.xlsx")
+final <- read_excel("F:/GeoMX KPC/WTA_04122022/raw_data/final.xlsx")
 
 DCCFiles <- list.files(file.path(datadir , DCCdir), pattern=".dcc$", full.names=TRUE)
 PKCFiles <- file.path(datadir, PKCfilename)
@@ -539,7 +540,7 @@ umapplot <-ggplot(pData(target_myData),
   #theme(text = element_text(size = 10)) +
   theme(legend.position="none")
 
-ggsave(umapplot, file="C:/Users/edmondsonef/Desktop/umap.png", width = 12, height = 7, units = "in", bg = "white")
+ggsave(umapplot, file="C:/Users/edmondsonef/Desktop/umap_July23.png", width = 12, height = 7, units = "in", bg = "white")
 
 
 # run tSNE
@@ -548,11 +549,12 @@ tsne_out <-
   Rtsne(t(log2(assayDataElement(target_myData , elt = "q_norm"))),
         perplexity = ncol(target_myData)*.15)
 pData(target_myData)[, c("tSNE1", "tSNE2")] <- tsne_out$Y[, c(1,2)]
-ggplot(pData(target_myData),
+tsneplot <-ggplot(pData(target_myData),
        aes(x = tSNE1, y = tSNE2, color = dxIPMN, label=dxIPMN, size = 5)) +
   geom_point(size = 3) +geom_text(hjust=1.1, vjust=0.2)+
   theme_bw()+
   theme(legend.position="none")
+ggsave(tsneplot, file="C:/Users/edmondsonef/Desktop/tsne_July23.png", width = 12, height = 7, units = "in", bg = "white")
 
 
 ## run PCA
@@ -567,7 +569,7 @@ pData(target_myData)[, c("PC1", "PC2")] <- pcaData[,c(1,2)]
 percentVar=round(100*summary(pca.object)$importance[2, PCAxy],0)
 
 
-ggplot(pData(target_myData),
+PCAplot <- ggplot(pData(target_myData),
        aes(x = PC1, y = PC2, color=class, label=dx)) +
   geom_point(size = 3) + geom_text(hjust=1.1, vjust=0.2)+
   xlab(paste0("PC", PCAx ,": ", percentVar[1], "% variance")) +
@@ -576,6 +578,7 @@ ggplot(pData(target_myData),
   theme_bw()+
   theme(legend.position="none")
 
+ggsave(PCAplot, file="C:/Users/edmondsonef/Desktop/PCA_July23.png", width = 12, height = 7, units = "in", bg = "white")
 
 
 
@@ -609,7 +612,7 @@ pheatmap(assayDataElement(target_myData[GOI, ], elt = "log_q"),
 
 
 
-save(final, target_myData, neg_probes, file = "C:/Users/edmondsonef/Desktop/KPC_geoMX_exp1.RData")
+save(final, target_myData, neg_probes, file = "F:/GeoMX KPC/WTA_04122022/processed_data/KPC_geoMX_exp1.RData")
 
 
 
