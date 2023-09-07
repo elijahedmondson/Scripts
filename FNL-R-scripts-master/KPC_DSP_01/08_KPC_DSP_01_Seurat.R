@@ -5,13 +5,13 @@ library(patchwork)
 library(DESeq2)
 library(MAST)
 
-
-load("F:/GeoMX KPC/WTA_04122022/processed_data/KPC_geoMX_exp1.RData")
-assayDataElementNames(target_myData)
-
-mySeurat <- as.Seurat.NanoStringGeoMxSet(target_myData, normData = "q_norm")
-mySeurat
-save(mySeurat, target_myData, as.Seurat.NanoStringGeoMxSet, file="F:/GeoMX KPC/WTA_04122022/processed_data/KPC_geoMX_exp1_seurat.RData")
+# 
+# load("F:/GeoMX KPC/WTA_04122022/processed_data/KPC_geoMX_exp1.RData")
+# assayDataElementNames(target_myData)
+# 
+# mySeurat <- as.Seurat.NanoStringGeoMxSet(target_myData, normData = "q_norm")
+# mySeurat
+# save(mySeurat, target_myData, as.Seurat.NanoStringGeoMxSet, file="F:/GeoMX KPC/WTA_04122022/processed_data/KPC_geoMX_exp1_seurat.RData")
 
 load("F:/GeoMX KPC/WTA_04122022/processed_data/KPC_geoMX_exp1_seurat.RData")
 
@@ -24,7 +24,7 @@ head(mySeurat@misc$QCMetrics$QCFlags) # QC metrics
 head(mySeurat@assays$GeoMx@meta.features) # gene metadata
 VlnPlot(mySeurat, features = "nCount_GeoMx", pt.size = 5)
 
-mySeurat <- as.Seurat.NanoStringGeoMxSet(target_myData, normData = "q_norm", ident = "classes")
+mySeurat <- as.Seurat.NanoStringGeoMxSet(target_myData, normData = "q_norm", ident = "dx2")
 VlnPlot(mySeurat, features = "nCount_GeoMx", pt.size = 5)
 
 
@@ -37,11 +37,11 @@ mySeurat <- FindNeighbors(mySeurat, reduction = "pca", dims = seq_len(30))
 #mySeurat <- FindClusters(mySeurat, verbose = FALSE)
 mySeurat <- RunUMAP(mySeurat, reduction = "pca", dims = seq_len(30))
 
-DimPlot(mySeurat, reduction = "umap", pt.size = 5, label = TRUE, group.by = "classes")
+DimPlot(mySeurat, reduction = "umap", pt.size = 5, label = TRUE, group.by = "dx2")
 
 
 levels(mySeurat)
-levels(x = mySeurat) <- c("Normal", "ADM","PanIN","PDAC", "Lung_met", "Liver_met", "Stroma")
+levels(x = mySeurat) <- c("Normal", "ADM","PanIN-lo", "PanIN-hi","Carcinoma", "Metastasis", "Stroma")
 
 
 features <- c("Kras","Trp53","Cre","Pdx1",
@@ -92,43 +92,30 @@ features <- c("Kras","Trp53","Cre","Pdx1",
 #               "Sema3d", "Sema4b","Sema4g","Sema5a","St8sia3",
 #               "Lama5", "Rtn4", "Picalm","Efnb2", "Rbms3")
 
-list <- "Kras"
-list <- c("Rac1", "St8sia3", "Camk2n1", "Cdc42", "Spock3", "Rasgrf1")
 
 
 
 levels(mySeurat)
-levels(mySeurat) <- c("Metastasis","Carcinoma", "PanIN","ADM","Bystander","Normal acini",
-                      "Normal Islet", "EMT", "Stroma")
+levels(mySeurat) <- c("Metastasis","Carcinoma", "PanIN","ADM","Bystander","Normal acini", "Normal Islet", "EMT", "Stroma")
 levels(mySeurat) <- c("Metastasis","Carcinoma", "PanIN3","PanIN2", "PanIN1", "ADM","Bystander","Normal acini")
-
 levels(x = mySeurat) <- c("1-Normal acini", "2-Bystander","3-ADM","4-PanINlo","5-PanINhi","6-PDAC","7-metastasis")
-levels(x = mySeurat) <- c("Metastasis","Carcinoma", "PanIN3","PanIN2", "PanIN1", "ADM","Bystander","Normal acini")
-
+levels(x = mySeurat) <- c("Metastasis","Carcinoma", "PanIN-hi","PanIN-lo", "ADM","Bystander","Normal acini")
 
 features <- c("Rock2","Ephb2","Efnb2", "Adam10", "Mmp2", "Mmp9", 
               "Nrxn1", "Nrxn2", "Nrxn3", "Nrp2", "Sema3e",
               "Lama5", "Itgb1")
-
 features <- c("Ezr","S100a6", "Gsto1", "Gkn1", 
               "Lypd8l", "Anxa2", "Cdh1", "Prom1", "Myrf", 
               "Flna", "Slc12a2", "Actn1", "Fn1", "Hnf1b",
               "Vasp","Vdac2", "Syncrip", "Rpl5", "Pard3",
               "Dync1i2", "Calm1", "Calm2", "Calm3", "Itgb1")
-
-
 features <- c("Kras","Trp53","Net1","Nt5c2","Ezr","Clu","S100a6",  
               "Anxa2", "Myrf", "Sema4b","Sema4g","Efnb2",
               "Flna", "Slc12a2", "Actn1", "Actb","Tuba1b",
               "Vasp", "Syncrip", "Pard3","Rock2","Rac1", "Rhoa", "Cdc42",
               "Dync1i2", "Calm1", "Calm2", "Calm3","Lama5", "Itgb1")
-
-
-
 features <- c("Sema3f", "Nrp1")
-
 features <- c("Sema7a","Sema3e","Sema4a","Sema4b","Sema4g","Efnb2", "Myo5b")
-
 features <- c("Rock2", "Rhoa","Rhoc","Rac1","Cdc42", "Vcam1", "Ezr")
 
 #LR pairs for Calm
@@ -145,21 +132,19 @@ features <- c("Lama5", "Itgb1",
               "Lama5","Sdc1",
               "Lama5","Bcam")
 #LR pairs for Efnb2
-features <- c("Efnb2","Ephb6",
-              "Pecam1",
-              "Ephb4",
-              "Rhbdl2",
-              "Epha3",
-              "Ephb1",
-              "Ephb3",
-              "Ephb2",
-              "Epha4")
+features <- c("Pecam1","Rhbdl2",
+              "Epha2","Epha3","Epha4","Epha5","Epha6","Epha7","Epha8",
+              "Ephb1","Ephb2","Ephb3","Ephb4","Ephb6","Ephx1",
+              "Efna2","Efna3","Efna4",
+              "Efnb1","Efnb2","Efnb3")
 
-fig <- RidgePlot(mySeurat, sort = T, #split.by = "dx3.KPC",
-                 #idents = c("Metastasis","Carcinoma", "PanIN","ADM","Bystander","Normal acini"), 
-                 idents = c("Normal", "ADM","PanIN","PDAC", "Lung_met", "Liver_met", "Stroma"),
+levels(mySeurat)
+levels(x = mySeurat) <- c("Normal Islet", "Normal acini","Bystander", "ADM","PanIN-lo","PanIN-hi","Carcinoma","EMT","Metastasis", "Stroma")
+fig <- RidgePlot(mySeurat, #sort = T, #split.by = "dx3.KPC",
+                 idents = c("Normal acini","ADM","PanIN-lo","PanIN-hi","Carcinoma", "Metastasis", "Stroma"), 
+                 #idents = c("Normal", "ADM","PanIN","PDAC", "Lung_met", "Liver_met", "Stroma"),
                  #idents = c("7-metastasis", "6-PDAC","5-PanINhi","4-PanINlo","3-ADM","2-Bystander","1-Normal acini"),
-                 features = features, ncol = 2)
+                 features = features, ncol = 3)
 fig
 
 

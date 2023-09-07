@@ -47,88 +47,20 @@ levels(mySeurat)
 #                           "KPC(ortho)_PDAC_","KPC(ortho)_Metastasis_Liver")
 levels(x = mySeurat) <- c("KPC(ortho)_Metastasis_Liver","KPC(ortho)_PDAC_","KPC(R270H)_Metastasis_Liver","KPC(R270H)_PDAC_", 
                           "KPC(R270H)_PanIN_","KPC(R270H)_Normal_","KPC(R172H)_PDAC_" ,"KPC(R172H)_PanIN_","KPC(R172H)_Normal_",
-                          "KPC_Metastasis_Lung","KPC_Metastasis_Liver","KPC_PDAC_","KPC_PanIN_","KPC_Normal_")                         
+                          "KPC_Metastasis_Lung","KPC_Metastasis_Liver","KPC_PDAC_","KPC_PanIN_","KPC_Normal_")                        levels(mySeurat) 
 
 
-features <- c("Kras","Trp53","Cre","Pdx1")
-#"Krt18", "Notch1", "Notch2", "Notch3", "Notch4","Cldn8","Cd274", "Cd8a", "Cd68",
-#"Cdk6","Msh3","Mastl", "Sox2","Cav1","Fosl1","Gata4",
-#"Cldn18","Capn6",
-#"Cpa1","Muc5ac","Epcam","Tff1","Sox9",
-#"Ptf1a","Pdx1","Neurog3","Krt19","Dclk1",
-#"Hnf1b","Krt19","Ngn3","Ctrb1", "Hes1", "Smad4",
-#"Onecut1","Onecut2","Onecut3","Cdkn1a","Prss2","Runx1","Gata6",
-#"Gata6", "S100a11", "Nr5a2")
+features <- c("Pecam1","Rhbdl2",
+              "Epha2","Epha3","Epha4","Epha5","Epha6","Epha7","Epha8")
+features <- c("Ephb1","Ephb2","Ephb3","Ephb4","Ephb6","Ephx1")
+features <- c("Efna2","Efna3","Efna4",
+              "Efnb1","Efnb2","Efnb3")
 
-# goi.acini <- c("Ctrb1","Cpa1","Gata6","Bhlha15","Nr5a2","Ptf1a")
-# goi.duct <- c("Hnf1b","Sox9","Krt19","Gata6","Onecut1")
-# features <- c("Cpa1","Gata6","Sox9","Onecut1","Ngn3","Nr5a2","Ptf1a","Pdx1")
-# features <- c("Hes1","Dclk1","Sox9","Gata6","Ptf1a","Pdx1")
-# goi.PDAC <- c("Dclk1","Pdx1")
-# goi.PDACfromDuct <- "Agr2"
-# goi.met <- c(c)
-# features <- c("Cpa1","Gata6","Sox9","Onecut1","Ngn3","Nr5a2","Ptf1a","Pdx1")
-
-# #Metastases 1
-# features <- c("Cybrd1","Nr1d1","Bsg","Tmprss4","Tm9sf3",
-#               "Mmp23","Rhof","Sftpd", "Aqp5","Ccna1",
-#               "Muc3","Muc5ac","Muc3a","Kif12","Calml4",
-#               "Dbp", "Mrtfb", "Rplp0","Dnajc10","Rps12",
-#               "Pdzd8", "Mtch2", "Msln", "Prom1", "Vars2")
-# #Metastases 2
-# features <- c("Porcn","Rpl6","Ybx1","Wfdc2","Tpi1",
-#               "Golim4","Otop3","F3", "Id2","Adamtsl5",
-#               "Bag1","Rnf186","Glis2","Slc35f5","Tspan12",
-#               "Slc9a4", "Ephb2", "Tmem45b","Tmprss2","Pdxdc1",
-#               "Lgals2", "Esrp1", "Tmem54", "Ptprf", "Ccnd2",
-#               "Ern2","Sult1c2")
-# #Metastases 3 / CNS
-# features <- c("Gltp","Spock3","Sgms2","Rasgrf1","St8sia3",
-#               "Rap1gap","Rbms3","Ccdc92","Ncald","Ppp1r1b",
-#               "Gabbr2","Nt5c2","Cdkn2a","Atrnl1","Camk2n1",
-#               "Setbp1","Dennd4c","Hs3st1","Shf")
-# 
-# #Brain/synaptogenesis/neuronal
-# features <- c("Nfib", "Tuba1b", "Net1", "Ncald","Spock3",
-#               "Rock2", "Sem1", "Ctnnd1","Adgre5", "Dennd4c",
-#               "Smad4", "Flna", "Cntn1", "Cntn6","Sgms2",
-#               "Nrxn1","Nrxn2","Nrxn3","Lamb2","Rasgrf1",
-#               "Sema3d", "Sema4b","Sema4g","Sema5a","St8sia3",
-#               "Lama5", "Rtn4", "Picalm","Efnb2", "Rbms3")
-
-
-features <- c("Rock2")
-
-features <- c("Rock2","Ephb2","Efnb2", "Adam10", "Mmp2", "Mmp9", 
-              "Nrxn1", "Nrxn2", "Nrxn3", "Nrp2", "Sema3e",
-              "Lama5", "Itgb1")
+features <- c("Sema7a","Sema3e","Sema4a","Sema4b","Sema4g","Efnb2", "Myo5b")
 features <- c("Rock2", "Rhoa","Rhoc","Rac1","Cdc42", "Vcam1", "Ezr")
 
-# #LR pairs for Calm
-# features <- c("Calm1", "Mylk",
-#               "Calm1", "Ptpra",
-#               "Calm2", "Mylk",
-#               "Calm2", "Aqp1",
-#               "Calm3", "Ar")
-# #LR pairs for Lama5
-# features <- c("Lama5", "Itgb1", 
-#               "Lama5","Itgb4", 
-#               "Lama5","Itga2",
-#               "Lama5","Itga6", 
-#               "Lama5","Sdc1",
-#               "Lama5","Bcam")
-# #LR pairs for Efnb2
-# features <- c("Efnb2","Ephb6",
-#               "Pecam1",
-#               "Ephb4",
-#               "Rhbdl2",
-#               "Epha3",
-#               "Ephb1",
-#               "Ephb3",
-#               "Ephb2",
-#               "Epha4")
 
-fig <- RidgePlot(mySeurat, sort = T, #split.by = "dx3.KPC",
+fig <- RidgePlot(mySeurat, sort = F, #split.by = "dx3.KPC",
                  # idents = c("KPC_Normal_",
                  #            "KPC_PanIN_",
                  #            "KPC_PDAC_",
@@ -137,12 +69,13 @@ fig <- RidgePlot(mySeurat, sort = T, #split.by = "dx3.KPC",
                  # idents = c("KPC(ortho)_Metastasis_Liver","KPC(ortho)_PDAC_","KPC(R270H)_Metastasis_Liver","KPC(R270H)_PDAC_",
                  #            "KPC(R270H)_PanIN_","KPC(R270H)_Normal_","KPC(R172H)_PDAC_" ,"KPC(R172H)_PanIN_","KPC(R172H)_Normal_",
                  #            "KPC_Metastasis_Lung","KPC_Metastasis_Liver","KPC_PDAC_","KPC_PanIN_","KPC_Normal_"), 
-                 features = c("Kras","Trp53"), ncol = 1)
+                 features = features, 
+                 ncol = 3)
 fig
 
 
 setwd("C:/Users/edmondsonef/Desktop/R-plots/")
-tiff("fig-LR_pairs_Efnb2.tiff", units="in", width=20, height=27, res=300)
+tiff("fig.tiff", units="in", width=20, height=15, res=300)
 fig
 dev.off()
 
