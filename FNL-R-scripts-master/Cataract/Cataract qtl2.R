@@ -10,6 +10,13 @@ library(qtl2convert)
 library(readxl)
 library(dplyr)
 
+QTLgene <- read_excel("C:/Users/edmondsonef/Desktop/Cataract QTL manuscript/Table 1 QTL.xlsx", 
+                      sheet = "QTL_geneList")
+iSyTE <- read_excel("C:/Users/edmondsonef/Desktop/Cataract QTL manuscript/Table 1 QTL.xlsx", 
+                      sheet = "iSyTE")
+
+new <- dplyr::inner_join(QTLgene, iSyTE, by = "Symbol")
+write.csv(new,"C:/Users/edmondsonef/Desktop/new.csv")
 
 # pheno <- read_excel("C:/Users/edmondsonef/Desktop/Cataract/CATARACT_final.xlsx", sheet ="CATARACT_fin")
 # #load("C:/Users/edmondsonef/Desktop/QTL/CAT_QTLproject_2022.Rdata")
